@@ -7,6 +7,7 @@ import org.mvel2.util.TriFunction;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -223,6 +224,8 @@ public class ExecutionContext implements Serializable {
             return 4;
         } else if (value instanceof Double) {
             return 8;
+        } else if (value instanceof BigInteger) {
+            return ((BigInteger) value).bitLength()/8 + 1;
         } else if (value instanceof Boolean) {
             return 1;
         } else if (value instanceof UUID) {
