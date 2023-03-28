@@ -106,7 +106,7 @@ public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObje
     }
 
     @Override
-    public int getId() {
+    public int getExecutionObjectId() {
         return id;
     }
 
