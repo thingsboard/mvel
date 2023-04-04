@@ -1440,6 +1440,23 @@ public class ParseTools {
     }
   }
 
+  public static int balancedCaptureJsFormatField (char[] chars, int start) {
+    int st = trimRight(chars, start) + 1;
+    if (st < chars.length && (chars[st] == '\"' || chars[st] == '\'')) {
+      st ++;
+      while (st < chars.length && chars[st] != '\"' && chars[st] != '\'') st++;
+      if (st < (chars.length - 1)) {
+        st = trimRight(chars, st) + 1;
+        return chars[st] == ']' ? st : -1;
+      } else {
+        return -1;
+      }
+    } else {
+      return -1;
+    }
+  }
+
+
   public static int balancedCaptureWithLineAccounting(char[] chars, int start, int end, char type, ParserContext pCtx) {
     int depth = 1;
     int st = start;

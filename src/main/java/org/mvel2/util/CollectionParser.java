@@ -24,7 +24,6 @@ import org.mvel2.ParserContext;
 import org.mvel2.compiler.ExecutableStatement;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -130,7 +129,13 @@ public class CollectionParser {
           }
 
         case '[':
-          if (cursor > start && isIdentifierPart(property[cursor - 1])) continue;
+          if (cursor > start ) {
+            int jsFinish = balancedCaptureJsFormatField(property, cursor);
+            if (jsFinish > 0) {
+              cursor = jsFinish;
+              continue;
+            } else if (isIdentifierPart(property[cursor - 1])) continue;
+          }
 
           if (newType == -1) {
             newType = LIST;
