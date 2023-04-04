@@ -748,6 +748,34 @@ public class TbExpressionsTest extends TestCase {
         assertTrue(((Map<?, ?>) res).get("date") instanceof Date);
     }
 
+    public void testIdIdJsFormat() {
+        String scriptBodyTestIdIdPointStr = "var msg = {};\n" +
+                "var msg_sub = {};\n" +
+                "msg_sub[\"entityGroup\"] = \"ENTITY_GROUP\";\n" +
+                "msg_sub[\"id2\"] = \"4e7b7e10-c27d-11ed-a0ab-058763ffd58e\";\n" +
+                "msg[\"id1\"] =  msg_sub;\n" +
+                "return {\n" +
+                "    msg: {\n" +
+                "        entryPoint_bad: \"/api/entityGroup/\" + msg.id1.id2\n" +
+                "    }\n" +
+                "};";
+
+        String scriptBodyTestIdIdJsFormatStr = "var msg = {};\n" +
+                "var msg_sub = {};\n" +
+                "msg_sub[\"entityGroup\"] = \"ENTITY_GROUP\";\n" +
+                "msg_sub[\"id2\"] = \"4e7b7e10-c27d-11ed-a0ab-058763ffd58e\";\n" +
+                "msg[\"id1\"] =  msg_sub;\n" +
+                "return {\n" +
+                "    msg: {\n" +
+                "        entryPoint_bad: \"/api/entityGroup/\" + msg[\"id1\"][\"id2\"]\n" +
+                "    }\n" +
+                "};";
+        Object actual = executeScript(scriptBodyTestIdIdJsFormatStr);
+        Object expected = executeScript(scriptBodyTestIdIdPointStr);
+
+        assertEquals(expected, actual);
+    }
+
     private Object executeScript(String ex, Map vars, ExecutionContext executionContext, long timeoutMs) throws Exception {
         final CountDownLatch countDown = new CountDownLatch(1);
         AtomicReference<Object> result = new AtomicReference<>();
