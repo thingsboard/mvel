@@ -77,7 +77,7 @@ public class ExecutionHashMap<K, V> extends LinkedHashMap<K, V> implements Execu
     }
 
     @Override
-    public int getId() {
+    public int getExecutionObjectId() {
         return id;
     }
 

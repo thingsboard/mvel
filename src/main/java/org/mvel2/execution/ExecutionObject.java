@@ -2,7 +2,7 @@ package org.mvel2.execution;
 
 public interface ExecutionObject {
 
-    int getId();
+    int getExecutionObjectId();
 
     long memorySize();
 }
