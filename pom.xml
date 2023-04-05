@@ -5,7 +5,7 @@
     <groupId>org.thingsboard</groupId>
     <artifactId>tbel</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.7</version>
+    <version>1.0.6</version>
 
     <name>tbel</name>
     <url>https://thingsboard.io/</url>
