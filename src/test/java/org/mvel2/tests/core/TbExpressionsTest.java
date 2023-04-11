@@ -776,6 +776,34 @@ public class TbExpressionsTest extends TestCase {
         assertEquals(expected, actual);
     }
 
+    public void testMapKeySetArrayInJson() {
+        String scriptBodyTestKeySetOkStr = "var data = {};\n" +
+                "data[\"devName\"] = \"devA\";\n" +
+                "var key = data.keySet().toArray()[0];\n" +
+                "return {\n" +
+                "        key: key\n" +
+                "};";
+
+        String scriptBodyTestKeySetWithoutParenthesisStr = "var data = {};\n" +
+                "data[\"devName\"] = \"devA\";\n" +
+                "return {\n" +
+                "        key: data.keySet().toArray()[0]\n" +
+                "};";
+
+        String scriptBodyTestKeySetInParenthesisStr = "var data = {};\n" +
+                "data[\"devName\"] = \"devA\";\n" +
+                "return {\n" +
+                "        key: (data.keySet().toArray()[0])\n" +
+                "};";
+
+        Object actualWithoutParenthesis = executeScript(scriptBodyTestKeySetWithoutParenthesisStr);
+        Object actualInParenthesis = executeScript(scriptBodyTestKeySetInParenthesisStr);
+        Object expected = executeScript(scriptBodyTestKeySetOkStr);
+
+        assertFalse(expected.equals(actualWithoutParenthesis));
+        assertEquals(expected, actualInParenthesis);
+    }
+
     private Object executeScript(String ex, Map vars, ExecutionContext executionContext, long timeoutMs) throws Exception {
         final CountDownLatch countDown = new CountDownLatch(1);
         AtomicReference<Object> result = new AtomicReference<>();
