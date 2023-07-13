@@ -1,14 +1,24 @@
+/**
+ * Copyright © 2016-2023 The Thingsboard Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.mvel2.tests.core;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.DoubleNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 import org.mvel2.CompileException;
 import org.mvel2.ExecutionContext;
-import org.mvel2.MVEL;
 import org.mvel2.ParserContext;
 import org.mvel2.SandboxedParserConfiguration;
 import org.mvel2.ScriptMemoryOverflowException;
@@ -778,7 +788,6 @@ public class TbExpressionsTest extends TestCase {
                 "};";
         Object actual = executeScript(scriptBodyTestIdIdJsFormatStr);
         Object expected = executeScript(scriptBodyTestIdIdPointStr);
-
         assertEquals(expected, actual);
     }
 
@@ -939,7 +948,175 @@ public class TbExpressionsTest extends TestCase {
         assertEquals(expected, actual);
     }
 
+    public void testSwitchWithout_Bracket_ToElseIf_Error() {
+        try {
+            String scriptBodyTestSwitchToElseIfStr = "\n" +
+                    "var msg = {};\n" +
+                    "msg[\"temperature\"] = 100.0;\n" +
+                    "var a = 25;\n" +
+                    "\n" +
+                    "switch msg.temperature){\n" +
+                    "    case 115.0:\n" +
+                    "    case 100.0:\n" +
+                    "        msg.temperature = 1;\n" +
+                    "        break;\n" +
+                    "    case 12.0:\n" +
+                    "        msg.temperature = 2;\n" +
+                    "        break;\n" +
+                    "    case 15.0:\n" +
+                    "        msg.temperature = 5;\n" +
+                    "        break;\n" +
+                    "    default:\n" +
+                    "        msg.temperature = 6;\n" +
+                    "}\n" +
+                    "return {temp: msg.temperature};\n";
+            executeScript(scriptBodyTestSwitchToElseIfStr);
+            fail("Should throw CompileException");
+        } catch (CompileException e) {
+            assertTrue(e.getMessage().contains("Switch without expression"));
+        }
+    }
 
+    public void testSwitchWithout_Brace_ToElseIf_Error() {
+        try {
+            String scriptBodyTestSwitchToElseIfStr = "\n" +
+                    "var msg = {};\n" +
+                    "msg[\"temperature\"] = 100.0;\n" +
+                    "var a = 25;\n" +
+                    "\n" +
+                    "switch (msg.temperature) \n" +
+                    "    case 115.0:\n" +
+                    "    case 100.0:\n" +
+                    "        msg.temperature = 1;\n" +
+                    "        break;\n" +
+                    "    case 12.0:\n" +
+                    "        msg.temperature = 2;\n" +
+                    "        break;\n" +
+                    "    case 15.0:\n" +
+                    "        msg.temperature = 5;\n" +
+                    "        break;\n" +
+                    "    default:\n" +
+                    "        msg.temperature = 6;\n" +
+                    "}\n" +
+                    "return {temp: msg.temperature};\n";
+            executeScript(scriptBodyTestSwitchToElseIfStr);
+            fail("Should throw CompileException");
+        } catch (CompileException e) {
+            assertTrue(e.getMessage().contains("Switch without block case"));
+        }
+    }
+
+    public void testSwitchWithout_BraceClose_ToElseIf_Error() {
+        try {
+            String scriptBodyTestSwitchToElseIfStr = "\n" +
+                    "var msg = {};\n" +
+                    "msg[\"temperature\"] = 100.0;\n" +
+                    "var a = 25;\n" +
+                    "\n" +
+                    "switch (msg.temperature) {\n" +
+                    "    case 115.0:\n" +
+                    "    case 100.0:\n" +
+                    "        msg.temperature = 1;\n" +
+                    "        break;\n" +
+                    "    case 12.0:\n" +
+                    "        msg.temperature = 2;\n" +
+                    "        break;\n" +
+                    "    case 15.0:\n" +
+                    "        msg.temperature = 5;\n" +
+                    "        break;\n" +
+                    "    default:\n" +
+                    "        msg.temperature = 6;\n" +
+                    "\n" +
+                    "return {temp: msg.temperature};\n";
+            executeScript(scriptBodyTestSwitchToElseIfStr);
+            fail("Should throw CompileException");
+        } catch (CompileException e) {
+            assertTrue(e.getMessage().contains("Switch without }"));
+        }
+    }
+
+    public void testSwitchFailedDefault_ToElseIf_Error() {
+        try {
+            String scriptBodyTestSwitchToElseIfStr = "\n" +
+                    "var msg = {};\n" +
+                    "msg[\"temperature\"] = 100.0;\n" +
+                    "var a = 25;\n" +
+                    "\n" +
+                    "switch (msg.temperature) {\n" +
+                    "    case 115.0:\n" +
+                    "    case 100.0:\n" +
+                    "        msg.temperature = 1;\n" +
+                    "        break;\n" +
+                    "    case 12.0:\n" +
+                    "        msg.temperature = 2;\n" +
+                    "        break;\n" +
+                    "    case 15.0:\n" +
+                    "        msg.temperature = 5;\n" +
+                    "        break;\n" +
+                    "    default r :\n" +
+                    "        msg.temperature = 6;\n" +
+                    "}\n" +
+                    "return {temp: msg.temperature};\n";
+            executeScript(scriptBodyTestSwitchToElseIfStr);
+            fail("Should throw CompileException");
+        } catch (CompileException e) {
+            assertTrue(e.getMessage().contains("Switch default Unrecoverable syntax error."));
+        }
+    }
+
+    public void testSwitchWithoutCaseWithDefault_ToElseIf_Error() {
+        try {
+            String scriptBodyTestSwitchToElseIfStr = "\n" +
+                    "var msg = {};\n" +
+                    "msg[\"temperature\"] = 100.0;\n" +
+                    "var a = 25;\n" +
+                    "\n" +
+                    "switch (msg.temperature) {\n" +
+                    "    default:\n" +
+                    "        msg.temperature = 6;\n" +
+                    "}\n" +
+                    "return {temp: msg.temperature};\n";
+            executeScript(scriptBodyTestSwitchToElseIfStr);
+            fail("Should throw CompileException");
+        } catch (CompileException e) {
+            assertTrue(e.getMessage().contains("Switch default without case."));
+        }
+    }
+
+    public void testSwitchEmpty_ToElseIf_Error() {
+        try {
+            String scriptBodyTestSwitchToElseIfStr = "\n" +
+                    "var msg = {};\n" +
+                    "msg[\"temperature\"] = 100.0;\n" +
+                    "var a = 25;\n" +
+                    "\n" +
+                    "switch (msg.temperature) {\n" +
+                    "}\n" +
+                    "return {temp: msg.temperature};\n";
+            executeScript(scriptBodyTestSwitchToElseIfStr);
+            fail("Should throw CompileException");
+        } catch (CompileException e) {
+            assertTrue(e.getMessage().contains("Failed parse Switch to ElseIf."));
+        }
+    }
+
+    public void testSwitchWithoutCaseAndDefault_ToElseIf_Error() {
+        try {
+            String scriptBodyTestSwitchToElseIfStr = "\n" +
+                    "var msg = {};\n" +
+                    "msg[\"temperature\"] = 100.0;\n" +
+                    "var a = 25;\n" +
+                    "\n" +
+                    "switch (msg.temperature) {\n" +
+                    "rty\n" +
+                    "}\n" +
+                    "return {temp: msg.temperature};\n";
+            executeScript(scriptBodyTestSwitchToElseIfStr);
+            fail("Should throw CompileException");
+        } catch (CompileException e) {
+            assertTrue(e.getMessage().contains("Switch without case and default."));
+        }
+    }
 
     private Object executeScript(String ex, Map vars, ExecutionContext executionContext, long timeoutMs) throws Exception {
         final CountDownLatch countDown = new CountDownLatch(1);

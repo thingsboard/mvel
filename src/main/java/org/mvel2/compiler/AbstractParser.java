@@ -2779,10 +2779,10 @@ public class AbstractParser implements Parser, Serializable {
             this.length = this.end = expSwitch.length;
             this.cursor = 0;
           } else {
-            throw new CompileException("Failed parse Switch to ElseIf", expr, start);
+            throw new CompileException("Failed parse Switch to ElseIf.", expr, start);
           }
         } else {
-          throw new CompileException("Switch without expression", expr, start);
+          throw new CompileException("Switch without expression.", expr, start);
         }
       }
       return expSwitch;
@@ -2792,7 +2792,7 @@ public class AbstractParser implements Parser, Serializable {
 
   private boolean findLastSwitchExpression(char[] expression) {
     int lastPosSwitch = 0;
-    while (cursor < expression.length) {
+    while (cursor < (expression.length - "switch".length())) {
       if ((expression[cursor] == 's' && expression[cursor + 1] == 'w' && expression[cursor + 2] == 'i' && expression[cursor + 3] == 't' && expression[cursor + 4] == 'c' && expression[cursor + 5] == 'h')) {
         lastPosSwitch = cursor;
       }

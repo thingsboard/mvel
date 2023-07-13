@@ -113,72 +113,70 @@ public class SwitchNode {
     }
 
     private void parseSwitchBlock() {
-        try {
-            this.parameter = String.copyValueOf(Arrays.copyOfRange(expr, this.startParameter, this.endParameter));
-            if (parameter.length() > 0 && !parameter.trim().isEmpty())  {
-                cursor++;
-                skipWhitespace();
-                while (cursor < this.endSwitchCase) {
-                    char[] expression;
-                    if (expr[cursor] == 'c' && expr[cursor + 1] == 'a' && expr[cursor + 2] == 's' && expr[cursor + 3] == 'e') {
-                        String keyIfElse = ifElse.size() == 0 ? KEY_IF : KEY_IF_ELSE;
-                        List<char[]> values = new ArrayList<>();
-                        while (expr[cursor] == 'c' && expr[cursor + 1] == 'a' && expr[cursor + 2] == 's' && expr[cursor + 3] == 'e') {
-                            cursor += 4;
-                            skipWhitespace();
-                            int startValue = cursor;
-                            int endValue = find(expr, startValue, expr.length - startValue, ':');
-                            char[] value = Arrays.copyOfRange(expr, startValue, endValue);
-                            values.add(value);
-                            cursor = endValue + 1;
-                            skipWhitespace();
-                        }
-                        int startExp = cursor;
-                        int endExp = 0;
-                        for (int i = startExp; i < expr.length; i++) {
-                            if (expr[i] == 'b' && expr[i + 1] == 'r' && expr[i + 2] == 'e' && expr[i + 3] == 'a' && expr[i + 4] == 'k') {
-                                endExp = i;
-                                break;
-                            }
-                        }
-                        if (endExp > 0 && endExp < this.endSwitchCase) {
-                            cursor = endExp + 5;
-                        } else {
-                            cursor = this.endSwitchCase;
-                            endExp = this.endSwitchCase - 1;
-                        }
-                        expression = Arrays.copyOfRange(expr, startExp, endExp);
-                        addIfElse(keyIfElse, values, expression);
+        this.parameter = String.copyValueOf(Arrays.copyOfRange(expr, this.startParameter, this.endParameter));
+        if (parameter.length() > 0 && !parameter.trim().isEmpty())  {
+            cursor++;
+            skipWhitespace();
+            while (cursor < this.endSwitchCase) {
+                char[] expression;
+                if (expr[cursor] == 'c' && expr[cursor + 1] == 'a' && expr[cursor + 2] == 's' && expr[cursor + 3] == 'e' && expr[cursor + 4] == ' ') {
+                    String keyIfElse = ifElse.size() == 0 ? KEY_IF : KEY_IF_ELSE;
+                    List<char[]> values = new ArrayList<>();
+                    while (expr[cursor] == 'c' && expr[cursor + 1] == 'a' && expr[cursor + 2] == 's' && expr[cursor + 3] == 'e' && expr[cursor + 4] == ' ') {
+                        cursor += 4;
                         skipWhitespace();
-                        if (expr[cursor] == ';') {
+                        int startValue = cursor;
+                        int endValue = find(expr, startValue, expr.length - startValue, ':');
+                        char[] value = Arrays.copyOfRange(expr, startValue, endValue);
+                        values.add(value);
+                        cursor = endValue + 1;
+                        skipWhitespace();
+                    }
+                    int startExp = cursor;
+                    int endExp = 0;
+                    for (int i = startExp; i < expr.length; i++) {
+                        if (expr[i] == 'b' && expr[i + 1] == 'r' && expr[i + 2] == 'e' && expr[i + 3] == 'a' && expr[i + 4] == 'k') {
+                            endExp = i;
+                            break;
+                        }
+                    }
+                    if (endExp > 0 && endExp < this.endSwitchCase) {
+                        cursor = endExp + 5;
+                    } else {
+                        cursor = this.endSwitchCase;
+                        endExp = this.endSwitchCase - 1;
+                    }
+                    expression = Arrays.copyOfRange(expr, startExp, endExp);
+                    addIfElse(keyIfElse, values, expression);
+                    skipWhitespace();
+                    if (expr[cursor] == ';') {
+                        cursor++;
+                        skipWhitespace();
+                    }
+                } else if (expr[cursor] == 'd' && expr[cursor + 1] == 'e' && expr[cursor + 2] == 'f' && expr[cursor + 3] == 'a' && expr[cursor + 4] == 'u'
+                        && expr[cursor + 5] == 'l' && expr[cursor + 6] == 't') {
+                    if (ifElse.size() != 0) {
+                        cursor += 7;
+                        skipWhitespace();
+                        if (expr[cursor] == ':') {
                             cursor++;
                             skipWhitespace();
-                        }
-                    } else if (expr[cursor] == 'd' && expr[cursor + 1] == 'e' && expr[cursor + 2] == 'f' && expr[cursor + 3] == 'a' && expr[cursor + 4] == 'u'
-                            && expr[cursor + 5] == 'l' && expr[cursor + 6] == 't') {
-                        if (ifElse.size() != 0) {
-                            cursor += 7;
-                            skipWhitespace();
-                            if (expr[cursor] == ':') {
-                                cursor++;
-                                skipWhitespace();
-                            }
                             expression = Arrays.copyOfRange(expr, cursor, this.endSwitchCase);
                             addIfElse(KEY_ELSE, null, expression);
                             cursor = this.endSwitchCase + 1;
                         } else {
-                            throw new CompileException("Switch default without case", expr, start);
+                            throw new CompileException("Switch default Unrecoverable syntax error.", expr, start);
                         }
                     } else {
-                        throw new CompileException("Switch without case or default", expr, start);
+                        throw new CompileException("Switch default without case.", expr, start);
                     }
+                } else {
+                    throw new CompileException("Switch without case and default.", expr, start);
                 }
-
-            } else {
-                throw new CompileException("Switch without expression", expr, start);
             }
-        } catch (Exception e) {
-            throw new CompileException("Failed parse Switch Block to Else If", expr, start);
+
+        } else {
+            throw new CompileException("Switch without expression.", expr, start);
         }
     }
     
