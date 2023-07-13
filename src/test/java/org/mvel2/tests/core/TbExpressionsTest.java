@@ -1,9 +1,14 @@
 package org.mvel2.tests.core;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.DoubleNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 import org.mvel2.CompileException;
 import org.mvel2.ExecutionContext;
+import org.mvel2.MVEL;
 import org.mvel2.ParserContext;
 import org.mvel2.SandboxedParserConfiguration;
 import org.mvel2.ScriptMemoryOverflowException;
@@ -17,6 +22,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -775,6 +781,165 @@ public class TbExpressionsTest extends TestCase {
 
         assertEquals(expected, actual);
     }
+
+    public void testSwitchInSwitchToElseIf() {
+        String scriptBodyTestSwitchToElseIfStr = "\n" +
+                "var msg = {};\n" +
+                "msg[\"temperature\"] = 120.0;\n" +
+                "var a = 25;\n" +
+                "\n" +
+                "if (msg.temperature === 19){\n" +
+                "    msg.temperature = 19;\n" +
+                "} else if (msg.temperature === 24){\n" +
+                "    msg.temperature = 23.11;\n" +
+                "}  else {\n" +
+                "    msg.temperature = msg.temperature;\n" +
+                "}\n" +
+                "\n" +
+                "switch (msg.temperature){\n" +
+                "    case 115.0:\n" +
+                "    case 120.0:\n" +
+                "         switch (msg.temperature){\n" +
+                "            case 122.4:\n" +
+                "            case 100.0:\n" +
+                "                 msg.temperature = 130.1;\n" +
+                "                 break;\n" +
+                "            case 112.0:\n" +
+                "                msg.temperature = 101;\n" +
+                "                break;\n" +
+                "            case 115.0:\n" +
+                "                msg.temperature = 105.6789;\n" +
+                "                msg.temperature += a;\n" +
+                "                msg.temperature = msg.temperature/2;\n" +
+                "                break;\n" +
+                "           default:\n" +
+                "                msg.temperature = 105.6789;\n" +
+                "                msg.temperature += a;\n" +
+                "                msg.temperature = msg.temperature/2;\n" +
+                "        }\n" +
+                "         break;\n" +
+                "    case 12.0:\n" +
+                "        msg.temperature = 1;\n" +
+                "        break;\n" +
+                "    case 15.0:\n" +
+                "        msg.temperature = 5;\n" +
+                "        break;\n" +
+                "    default:\n" +
+                "        msg.temperature = 2;\n" +
+                "\n" +
+                "}\n" +
+                "return {temp: msg.temperature};\n";
+        LinkedHashMap<String, Double> expected = new LinkedHashMap<>();
+        Double dd = (105.6789 + 25)/2;
+        expected.put("temp", dd);
+        Object actual = executeScript(scriptBodyTestSwitchToElseIfStr);
+        assertEquals(expected, actual);
+    }
+
+    public void testSwitchInSwitchWithoutDefaultToElseIf() {
+        String scriptBodyTestSwitchToElseIfStr = "\n" +
+                "var msg = {};\n" +
+                "msg[\"temperature\"] = 115.0;\n" +
+                "var a = 25;\n" +
+                "\n" +
+                "if (msg.temperature === 19){\n" +
+                "    msg.temperature = 19;\n" +
+                "} else if (msg.temperature === 24){\n" +
+                "    msg.temperature = 23.11;\n" +
+                "}  else {\n" +
+                "    msg.temperature = msg.temperature;\n" +
+                "}\n" +
+                "\n" +
+                "switch (msg.temperature){\n" +
+                "    case 115.0:\n" +
+                "    case 10.0:\n" +
+                "         switch (msg.temperature){\n" +
+                "            case 122.4:\n" +
+                "            case 10.0:\n" +
+                "                 msg.temperature = 130.1;\n" +
+                "                 break;\n" +
+                "            case 112.0:\n" +
+                "                msg.temperature = 101;\n" +
+                "                break;\n" +
+                "            case 115.0:\n" +
+                "                msg.temperature = 105.6789;\n" +
+                "                msg.temperature += a;\n" +
+                "                msg.temperature = msg.temperature/2;\n" +
+                "        }\n" +
+                "         break;\n" +
+                "    case 12.0:\n" +
+                "        msg.temperature = 1;\n" +
+                "        break;\n" +
+                "    case 15.0:\n" +
+                "        msg.temperature = 5;\n" +
+                "        break;\n" +
+                "    default:\n" +
+                "        msg.temperature = 2;\n" +
+                "\n" +
+                "}\n" +
+                "return {temp: msg.temperature};\n";
+        LinkedHashMap<String, Double> expected = new LinkedHashMap<>();
+        Double dd = (105.6789 + 25)/2;
+        expected.put("temp", dd);
+        Object actual = executeScript(scriptBodyTestSwitchToElseIfStr);
+        assertEquals(expected, actual);
+    }
+
+    public void testSwitchInSwitchDoubleCaseToElseIf() {
+        String scriptBodyTestSwitchToElseIfStr = "\n" +
+                "var msg = {};\n" +
+                "msg[\"temperature\"] = 100.0;\n" +
+                "var a = 25;\n" +
+                "\n" +
+                "if (msg.temperature === 19){\n" +
+                "    msg.temperature = 19;\n" +
+                "} else if (msg.temperature === 24){\n" +
+                "    msg.temperature = 23.11;\n" +
+                "}  else {\n" +
+                "    msg.temperature = msg.temperature;\n" +
+                "}\n" +
+                "\n" +
+                "switch (msg.temperature){\n" +
+                "    case 115.0:\n" +
+                "    case 100.0:\n" +
+                "         switch (msg.temperature){\n" +
+                "            case 122.4:\n" +
+                "            case 100.0:\n" +
+                "                 msg.temperature = 130.1;\n" +
+                "                 break;\n" +
+                "            case 112.0:\n" +
+                "                msg.temperature = 101;\n" +
+                "                break;\n" +
+                "            case 115.0:\n" +
+                "                msg.temperature = 105.6789;\n" +
+                "                msg.temperature += a;\n" +
+                "                msg.temperature = msg.temperature/2;\n" +
+                "                break;\n" +
+                "           default:\n" +
+                "                msg.temperature = 105.6789;\n" +
+                "                msg.temperature += a;\n" +
+                "                msg.temperature = msg.temperature/2;\n" +
+                "        }\n" +
+                "         break;\n" +
+                "    case 12.0:\n" +
+                "        msg.temperature = 1;\n" +
+                "        break;\n" +
+                "    case 15.0:\n" +
+                "        msg.temperature = 5;\n" +
+                "        break;\n" +
+                "    default:\n" +
+                "        msg.temperature = 2;\n" +
+                "\n" +
+                "}\n" +
+                "return {temp: msg.temperature};\n";
+        LinkedHashMap<String, Double> expected = new LinkedHashMap<>();
+        Double dd = 130.1;
+        expected.put("temp", dd);
+        Object actual = executeScript(scriptBodyTestSwitchToElseIfStr);
+        assertEquals(expected, actual);
+    }
+
+
 
     private Object executeScript(String ex, Map vars, ExecutionContext executionContext, long timeoutMs) throws Exception {
         final CountDownLatch countDown = new CountDownLatch(1);
