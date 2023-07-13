@@ -845,6 +845,34 @@ public class TbExpressionsTest extends TestCase {
         assertEquals(expected, actual);
     }
 
+
+    public void testSwitchParameterStringToElseIf() {
+        String scriptBodyTestSwitchToElseIfStr = "\n" +
+                "var msg = {};\n" +
+                "msg[\"temperature\"] = 120.0;\n" +
+                "var par = \"test\";\n" +
+                "\n" +
+                "switch (par){\n" +
+                "    case test:\n" +
+                "         msg.temperature = 1.0;\n" +
+                "         break;\n" +
+                "    case 12.0:\n" +
+                "        msg.temperature = 2;\n" +
+                "        break;\n" +
+                "    case 15.0:\n" +
+                "        msg.temperature = 3;\n" +
+                "        break;\n" +
+                "    default:\n" +
+                "        msg.temperature = 4;\n" +
+                "}\n" +
+                "return {temp: msg.temperature};\n";
+        LinkedHashMap<String, Double> expected = new LinkedHashMap<>();
+        Double dd = 1.0;
+        expected.put("temp", dd);
+        Object actual = executeScript(scriptBodyTestSwitchToElseIfStr);
+        assertEquals(expected, actual);
+    }
+
     public void testSwitchInSwitchWithoutDefaultToElseIf() {
         String scriptBodyTestSwitchToElseIfStr = "\n" +
                 "var msg = {};\n" +
