@@ -845,19 +845,18 @@ public class TbExpressionsTest extends TestCase {
         assertEquals(expected, actual);
     }
 
-
     public void testSwitchParameterStringToElseIf() {
         String scriptBodyTestSwitchToElseIfStr = "\n" +
                 "var msg = {};\n" +
                 "msg[\"temperature\"] = 120.0;\n" +
-                "var par = \"test\";\n" +
+                "var par = \"test1\";\n" +
                 "\n" +
                 "switch (par){\n" +
-                "    case test:\n" +
+                "    case \"test\":\n" +
                 "         msg.temperature = 1.0;\n" +
                 "         break;\n" +
-                "    case 12.0:\n" +
-                "        msg.temperature = 2;\n" +
+                "    case \"test1\":\n" +
+                "        msg.temperature = 2.0;\n" +
                 "        break;\n" +
                 "    case 15.0:\n" +
                 "        msg.temperature = 3;\n" +
@@ -867,7 +866,52 @@ public class TbExpressionsTest extends TestCase {
                 "}\n" +
                 "return {temp: msg.temperature};\n";
         LinkedHashMap<String, Double> expected = new LinkedHashMap<>();
+        Double dd = 2.0;
+        expected.put("temp", dd);
+        Object actual = executeScript(scriptBodyTestSwitchToElseIfStr);
+        assertEquals(expected, actual);
+    }
+
+    public void testSwitchOnlyOneCaseToElseIf() {
+        String scriptBodyTestSwitchToElseIfStr = "\n" +
+                "var msg = {};\n" +
+                "msg[\"temperature\"] = 120.0;\n" +
+                "var par = \"test\";\n" +
+                "\n" +
+                "switch (par){\n" +
+                "    case \"test\":\n" +
+                "         msg.temperature = 1.0;\n" +
+                "}\n" +
+                "return {temp: msg.temperature};\n";
+        LinkedHashMap<String, Double> expected = new LinkedHashMap<>();
         Double dd = 1.0;
+        expected.put("temp", dd);
+        Object actual = executeScript(scriptBodyTestSwitchToElseIfStr);
+        assertEquals(expected, actual);
+    }
+
+    public void testSwitchParameterNumberAsStringQuotesToElseIf() {
+        String scriptBodyTestSwitchToElseIfStr = "\n" +
+                "var msg = {};\n" +
+                "msg[\"temperature\"] = 120.0;\n" +
+                "var par = \"203\";\n" +
+                "\n" +
+                "switch (par){\n" +
+                "    case \"test\":\n" +
+                "         msg.temperature = 1.0;\n" +
+                "         break;\n" +
+                "    case 203:\n" +
+                "        msg.temperature = 2.0;\n" +
+                "        break;\n" +
+                "    case 15.0:\n" +
+                "        msg.temperature = 3;\n" +
+                "        break;\n" +
+                "    default:\n" +
+                "        msg.temperature = 4;\n" +
+                "}\n" +
+                "return {temp: msg.temperature};\n";
+        LinkedHashMap<String, Double> expected = new LinkedHashMap<>();
+        Double dd = 2.0;
         expected.put("temp", dd);
         Object actual = executeScript(scriptBodyTestSwitchToElseIfStr);
         assertEquals(expected, actual);
@@ -974,6 +1018,37 @@ public class TbExpressionsTest extends TestCase {
         expected.put("temp", dd);
         Object actual = executeScript(scriptBodyTestSwitchToElseIfStr);
         assertEquals(expected, actual);
+    }
+
+    public void testSwitchParameterStringWithoutEscapingQuotesToElseIfError() {
+        String scriptBodyTestSwitchToElseIfStr = "\n" +
+                "var msg = {};\n" +
+                "msg[\"temperature\"] = 120.0;\n" +
+                "var par = \"test1\";\n" +
+                "\n" +
+                "switch (par){\n" +
+                "    case test:\n" +
+                "         msg.temperature = 1.0;\n" +
+                "         break;\n" +
+                "    case \"test1\":\n" +
+                "        msg.temperature = 2.0;\n" +
+                "        break;\n" +
+                "    case 15.0:\n" +
+                "        msg.temperature = 3;\n" +
+                "        break;\n" +
+                "    default:\n" +
+                "        msg.temperature = 4;\n" +
+                "}\n" +
+                "return {temp: msg.temperature};\n";
+        LinkedHashMap<String, Double> expected = new LinkedHashMap<>();
+        Double dd = 2.0;
+        expected.put("temp", dd);
+        try {
+        Object actual = executeScript(scriptBodyTestSwitchToElseIfStr);
+        assertEquals(expected, actual);
+        } catch (CompileException e) {
+            assertTrue(e.getMessage().contains("unresolvable property or identifier: test"));
+        }
     }
 
     public void testSwitchWithout_Bracket_ToElseIf_Error() {

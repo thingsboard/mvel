@@ -80,9 +80,9 @@ public class SwitchNode {
             String condition = "";
             for (Object val : this.ifElse.get(KEY_IF).get(VALUES_IF_ELSE)) {
                 if (condition.isEmpty()) {
-                    condition = this.parameter + " === " + val.toString();
+                    condition = this.parameter + " === " + ((TextNode) val).textValue();
                 } else {
-                    condition += " || " + this.parameter + " === " + val.toString();
+                    condition += " || " + this.parameter + " === " + ((TextNode) val).textValue();
                 }
             }
             String expression = this.ifElse.get(KEY_IF).get(EXPRESSION_IF_ELSE).asText().trim();
@@ -93,9 +93,9 @@ public class SwitchNode {
                     condition = "";
                     for (Object val : node.get(VALUES_IF_ELSE)) {
                         if (condition.isEmpty()) {
-                            condition = this.parameter + " === " + val.toString();
+                            condition = this.parameter + " === " + ((TextNode) val).textValue();
                         } else {
-                            condition += " || " + this.parameter + " === " + val.toString();
+                            condition += " || " + this.parameter + " === " + ((TextNode) val).textValue();
                         }
                     }
                     expression = node.get(EXPRESSION_IF_ELSE).asText().trim();
