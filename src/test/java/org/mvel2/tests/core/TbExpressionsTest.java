@@ -890,6 +890,45 @@ public class TbExpressionsTest extends TestCase {
         assertEquals(expected, actual);
     }
 
+
+    public void testSwitchWithCommentsToElseIf() {
+        String scriptBodyTestSwitchToElseIfStr = " \n" +
+                "//switch (parCase){\n" +
+                "var msg = {};\n" +
+                "msg[\"temperature\"] = 120.0;\n" +
+                "var parCase = 15.0;\n" +
+                "\n" +
+                "switch (parCase){\n" +
+                "    case \"test\":\n" +
+                "        /**\n" +
+                "         // commit3\n" +
+                "         **/\n" +
+                "         msg.temperature = 1.0;\n" +
+                "        // bdreak_stop; \n" +
+                "         break;\n" +
+                "    case 12.0:\n" +
+                "        /*\n" +
+                "        commit2\n" +
+                "        \n" +
+                "        */\n" +
+                "        msg.temperature = 4.0;\n" +
+                "        break;\n" +
+                "        // case:;\n" +
+                "    case 15.0:\n" +
+                "        msg.temperature = 3.3;\n" +
+                "        break;\n" +
+                "        // default:;\n" +
+                "    default:\n" +
+                "        msg.temperature = msg.temperature;\n" +
+                "}\n" +
+                "return {temp: msg.temperature};\n";
+        LinkedHashMap<String, Double> expected = new LinkedHashMap<>();
+        Double dd = 3.3;
+        expected.put("temp", dd);
+        Object actual = executeScript(scriptBodyTestSwitchToElseIfStr);
+        assertEquals(expected, actual);
+    }
+
     public void testSwitchParameterNumberAsStringQuotesToElseIf() {
         String scriptBodyTestSwitchToElseIfStr = "\n" +
                 "var msg = {};\n" +

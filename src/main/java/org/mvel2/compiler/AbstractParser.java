@@ -2737,57 +2737,117 @@ public class AbstractParser implements Parser, Serializable {
   private char[] parseSwitchToIfElse(char[] expression) {
     if ("switch".length() < expression.length) {
       this.cursor = 0;
-      char[] expSwitch = Arrays.copyOf(expression, expression.length);
-      this.expr = Arrays.copyOf(expSwitch, expSwitch.length);
-      while (findLastSwitchExpression(expSwitch)) {
-        int start = this.cursor;
-        int startSwitchCase;
-        int endSwitchCase;
-        int startParameter;
-        int endParameter;
-        this.cursor += "switch".length();
-        skipWhitespace();
-        if (expSwitch[this.cursor] == '(') {
-          startParameter = this.cursor + 1;
-          endParameter = balancedCapture(expSwitch, this.cursor, expSwitch[this.cursor]);
-          if ((endParameter - startParameter) < 1) {
-            throw new CompileException("Switch without expression", expr, start);
-          }
-          this.cursor = endParameter;
-          this.cursor++;
+      if (findAnySwitch(expression, this.cursor)) {
+        char[] expSwitch = clearCommentsFromExpression(expression);
+        this.expr = Arrays.copyOf(expSwitch, expSwitch.length);
+        while (findLastSwitchExpression(expSwitch)) {
+          int start = this.cursor;
+          int startSwitchCase;
+          int endSwitchCase;
+          int startParameter;
+          int endParameter;
+          this.cursor += "switch".length();
           skipWhitespace();
-          if (expSwitch[this.cursor] == '{') {
-            startSwitchCase = this.cursor;
-            endSwitchCase = findEndSwitchCase(expSwitch, startSwitchCase);
-            if (endSwitchCase < 0) {
-              throw new CompileException("Switch without }", expr, start);
+          if (expSwitch[this.cursor] == '(') {
+            startParameter = this.cursor + 1;
+            endParameter = balancedCapture(expSwitch, this.cursor, expSwitch[this.cursor]);
+            if ((endParameter - startParameter) < 1) {
+              throw new CompileException("Switch without expression", expr, start);
+            }
+            this.cursor = endParameter;
+            this.cursor++;
+            skipWhitespace();
+            if (expSwitch[this.cursor] == '{') {
+              startSwitchCase = this.cursor;
+              endSwitchCase = findEndSwitchCase(expSwitch, startSwitchCase);
+              if (endSwitchCase < 0) {
+                throw new CompileException("Switch without }", expr, start);
+              }
+            } else {
+              throw new CompileException("Switch without block case", expr, start);
+            }
+            SwitchNode switchNode = new SwitchNode(expSwitch, start, startParameter, endParameter, startSwitchCase, endSwitchCase);
+            char[] parseSwitchToElseIf = switchNode.toCharArray();
+            if (parseSwitchToElseIf != null) {
+              char[] exprBeforeStartSwitch = Arrays.copyOfRange(expSwitch, 0, start);
+              char[] exprAfterEndSwitch = Arrays.copyOfRange(expSwitch, endSwitchCase + 1, expr.length);
+              int exprLengthWithSwitchFunction = exprBeforeStartSwitch.length + parseSwitchToElseIf.length + exprAfterEndSwitch.length;
+              expSwitch = new char[exprLengthWithSwitchFunction];
+              System.arraycopy(exprBeforeStartSwitch, 0, expSwitch, 0, exprBeforeStartSwitch.length);
+              System.arraycopy(parseSwitchToElseIf, 0, expSwitch, exprBeforeStartSwitch.length, parseSwitchToElseIf.length);
+              System.arraycopy(exprAfterEndSwitch, 0, expSwitch, (exprBeforeStartSwitch.length + parseSwitchToElseIf.length), exprAfterEndSwitch.length);
+              this.expr = Arrays.copyOf(expSwitch, expSwitch.length);
+              this.length = this.end = expSwitch.length;
+              this.cursor = 0;
+            } else {
+              throw new CompileException("Failed parse Switch to ElseIf.", expr, start);
             }
           } else {
-            throw new CompileException("Switch without block case", expr, start);
+            throw new CompileException("Switch without expression.", expr, start);
           }
-          SwitchNode switchNode = new SwitchNode(expSwitch, start, startParameter, endParameter, startSwitchCase, endSwitchCase);
-          char[] parseSwitchToElseIf = switchNode.toCharArray();
-          if (parseSwitchToElseIf != null) {
-            char[] exprBeforeStartSwitch = Arrays.copyOfRange(expSwitch, 0, start);
-            char[] exprAfterEndSwitch = Arrays.copyOfRange(expSwitch, endSwitchCase + 1, expr.length);
-            int exprLengthWithSwitchFunction = exprBeforeStartSwitch.length + parseSwitchToElseIf.length + exprAfterEndSwitch.length;
-            expSwitch = new char[exprLengthWithSwitchFunction];
-            System.arraycopy(exprBeforeStartSwitch, 0, expSwitch, 0, exprBeforeStartSwitch.length);
-            System.arraycopy(parseSwitchToElseIf, 0, expSwitch, exprBeforeStartSwitch.length, parseSwitchToElseIf.length);
-            System.arraycopy(exprAfterEndSwitch, 0, expSwitch, (exprBeforeStartSwitch.length + parseSwitchToElseIf.length), exprAfterEndSwitch.length);
-            this.expr = Arrays.copyOf(expSwitch, expSwitch.length);
-            this.length = this.end = expSwitch.length;
-            this.cursor = 0;
-          } else {
-            throw new CompileException("Failed parse Switch to ElseIf.", expr, start);
-          }
-        } else {
-          throw new CompileException("Switch without expression.", expr, start);
         }
+        return expSwitch;
       }
-      return expSwitch;
     }
     return expression;
+  }
+
+  private boolean findAnySwitch(char[] expression, int pos) {
+    while (pos < (expression.length - "switch".length())) {
+      if ((expression[pos] == 's' && expression[pos + 1] == 'w' && expression[pos + 2] == 'i' && expression[pos + 3] == 't' && expression[pos + 4] == 'c' && expression[pos + 5] == 'h')) {
+        return true;
+      }
+      pos++;
+    }
+    return false;
+  }
+
+  private char[] clearCommentsFromExpression(char[] expression) {
+    int pos = 0;
+    int startComments = 0;
+    int endComments = 0;
+    char[] exprWithoutComments = Arrays.copyOf(expression, expression.length);
+    while (pos < (exprWithoutComments.length - 3)) {
+      if (exprWithoutComments[pos] == '/') {
+        startComments = pos;
+        switch (exprWithoutComments[pos + 1]) {
+          case '/':
+            pos += 2;
+            while (pos < (exprWithoutComments.length - 3) && exprWithoutComments[pos] != '\n') {
+              endComments = pos;
+              pos++;
+            }
+            break;
+          case '*':
+            if (exprWithoutComments[pos + 2] == '*') {
+              while (pos < (exprWithoutComments.length - 3) && !(exprWithoutComments[pos] == '*' && exprWithoutComments[pos+1] == '*' && exprWithoutComments[pos+2] == '/')) {
+                endComments = pos;
+                pos++;
+              }
+              endComments +=3;
+              pos = endComments +1;
+            } else {
+              while (pos < (exprWithoutComments.length - 3) && !(exprWithoutComments[pos] == '*' && exprWithoutComments[pos+1] == '/')) {
+                endComments = pos;
+                pos++;
+              }
+              endComments +=2;
+              pos = endComments +1;
+            }
+            break;
+          default:
+            pos++;
+        }
+
+        if ((endComments - startComments) > 5) {
+          char[] tempZero = new char[endComments - startComments + 1];
+          System.arraycopy(tempZero, 0, exprWithoutComments, startComments, tempZero.length);
+        }
+      } else {
+        pos++;
+      }
+    }
+    return exprWithoutComments;
   }
 
   private boolean findLastSwitchExpression(char[] expression) {
