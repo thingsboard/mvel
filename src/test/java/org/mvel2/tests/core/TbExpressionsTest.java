@@ -890,6 +890,64 @@ public class TbExpressionsTest extends TestCase {
         assertEquals(expected, actual);
     }
 
+    public void testSwitchInFunctionWithReturnToElseIf() {
+        String scriptBodyTestSwitchToElseIfStr = "\n" +
+                "var msg = {};\n" +
+                "msg[\"temperature\"] = 120.0;\n" +
+                "var par = \"test\";\n" +
+                "\n" +
+                "switch (par){\n" +
+                "    case \"test\":\n" +
+                "         msg.temperature = switchReturn(par) ;\n" +
+                "         return {temp: msg.temperature};\n" +
+                "    case \"test2\":\n" +
+                "         msg.temperature = 1.0;\n" +
+                "}\n" +
+                "return {temp: msg.temperature};\n" +
+                "function switchReturn(val) {\n" +
+                "    switch (val) {\n" +
+                "        case \"test\":\n" +
+                "            return 48.0;\n" +
+                "        case 12.0:\n" +
+                "            msg.temperature = 4.0 / 2;\n" +
+                "           return 5.0;\n" +
+                "        case 15.0:\n" +
+                "            msg.temperature = 3;\n" +
+                "            break;\n" +
+                "        default:\n" +
+                "            msg.temperature = msg.temperature;\n" +
+                "    }\n" +
+                "    return 48;\n" +
+                "\n" +
+                "}";
+
+        LinkedHashMap<String, Double> expected = new LinkedHashMap<>();
+        Double dd = 48.0;
+        expected.put("temp", dd);
+        Object actual = executeScript(scriptBodyTestSwitchToElseIfStr);
+        assertEquals(expected, actual);
+    }
+
+    public void testSwitchWithReturnInCaseToElseIf() {
+        String scriptBodyTestSwitchToElseIfStr = "\n" +
+                "var msg = {};\n" +
+                "msg[\"temperature\"] = 120.0;\n" +
+                "var par = \"test\";\n" +
+                "\n" +
+                "switch (par){\n" +
+                "    case \"test\":\n" +
+                "         msg.temperature = 3.0;\n" +
+                "         return {temp: msg.temperature};\n" +
+                "    case \"test2\":\n" +
+                "         msg.temperature = 1.0;\n" +
+                "}\n" +
+                "return {temp: msg.temperature};\n";
+        LinkedHashMap<String, Double> expected = new LinkedHashMap<>();
+        Double dd = 3.0;
+        expected.put("temp", dd);
+        Object actual = executeScript(scriptBodyTestSwitchToElseIfStr);
+        assertEquals(expected, actual);
+    }
 
     public void testSwitchWithCommentsToElseIf() {
         String scriptBodyTestSwitchToElseIfStr = " \n" +

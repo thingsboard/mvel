@@ -2893,7 +2893,8 @@ public class AbstractParser implements Parser, Serializable {
 
   private boolean findAnySwitch(char[] expression, int pos) {
     while (pos < (expression.length - "switch".length())) {
-      if ((expression[pos] == 's' && expression[pos + 1] == 'w' && expression[pos + 2] == 'i' && expression[pos + 3] == 't' && expression[pos + 4] == 'c' && expression[pos + 5] == 'h')) {
+      if ((expression[pos] == 's' && expression[pos + 1] == 'w' && expression[pos + 2] == 'i' && expression[pos + 3] == 't' && expression[pos + 4] == 'c' && expression[pos + 5] == 'h' &&
+              (expression[pos + 6] == ' ' || expression[pos + 6] == '('))) {
         return true;
       }
       pos++;
@@ -2938,7 +2939,7 @@ public class AbstractParser implements Parser, Serializable {
             pos++;
         }
 
-        if ((endComments - startComments) > 5) {
+        if ((endComments - startComments) > 2) {
           char[] tempZero = new char[endComments - startComments + 1];
           System.arraycopy(tempZero, 0, exprWithoutComments, startComments, tempZero.length);
         }
@@ -2952,7 +2953,8 @@ public class AbstractParser implements Parser, Serializable {
   private boolean findLastSwitchExpression(char[] expression) {
     int lastPosSwitch = 0;
     while (cursor < (expression.length - "switch".length())) {
-      if ((expression[cursor] == 's' && expression[cursor + 1] == 'w' && expression[cursor + 2] == 'i' && expression[cursor + 3] == 't' && expression[cursor + 4] == 'c' && expression[cursor + 5] == 'h')) {
+      if ((expression[cursor] == 's' && expression[cursor + 1] == 'w' && expression[cursor + 2] == 'i' && expression[cursor + 3] == 't' && expression[cursor + 4] == 'c' && expression[cursor + 5] == 'h' &&
+              (expression[cursor + 6] == ' ' || expression[cursor + 6] == '('))) {
         lastPosSwitch = cursor;
       }
       cursor++;
