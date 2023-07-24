@@ -75,6 +75,7 @@ import org.mvel2.ast.Sign;
 import org.mvel2.ast.Stacklang;
 import org.mvel2.ast.StaticImportNode;
 import org.mvel2.ast.Substatement;
+import org.mvel2.ast.SwitchNode;
 import org.mvel2.ast.ThisWithNode;
 import org.mvel2.ast.TypeCast;
 import org.mvel2.ast.TypeDescriptor;
@@ -433,6 +434,9 @@ public class AbstractParser implements Parser, Serializable {
 
               case IF:
                 return captureCodeBlock(ASTNode.BLOCK_IF);
+
+              case SWITCH:
+                return captureCodeBlock(ASTNode.BLOCK_SWITCH);
 
               case ELSE:
                 throw new CompileException("else without if", expr, st);
@@ -1571,6 +1575,8 @@ public class AbstractParser implements Parser, Serializable {
     switch (type) {
       case ASTNode.BLOCK_IF:
         return new IfNode(expr, condStart, condOffset, blockStart, blockOffset, fields, pCtx);
+      case ASTNode.BLOCK_SWITCH:
+        return new SwitchNode(expr, condStart, condOffset, blockStart, blockOffset, fields, pCtx);
       case ASTNode.BLOCK_FOR:
         for (int i = condStart; i < condEnd; i++) {
           if (expr[i] == ';')
@@ -1627,6 +1633,31 @@ public class AbstractParser implements Parser, Serializable {
           }
         }
         while (ifThenElseBlockContinues());
+
+        return first;
+      }
+
+      case ASTNode.BLOCK_SWITCH: {
+        do {
+          if (tk != null) {
+            captureToNextTokenJunction();
+            skipWhitespace();
+            cond = expr[cursor] != '{' && expr[cursor] == 's' && expr[++cursor] == 'w' && expr[cursor] == 'i' && expr[++cursor] == 't' && expr[++cursor] == 'c' && expr[++cursor] == 'h'
+                && expr[cursor = incNextNonBlank()] == '(';
+          }
+
+          if (((SwitchNode) (tk = _captureBlock(tk, expr, cond, type))).getElseBlock() != null) {
+            cursor++;
+            return first;
+          }
+
+          if (first == null) first = tk;
+
+          if (cursor != end && expr[cursor] != ';') {
+            cursor++;
+          }
+        }
+        while (caseDefaultBlockContinues());
 
         return first;
       }
@@ -1768,6 +1799,22 @@ public class AbstractParser implements Parser, Serializable {
         return createBlockToken(startCond, endCond, blockStart + 1, blockEnd, type);
       }
     }
+    else if (type == ASTNode.BLOCK_SWITCH) {
+      SwitchNode switchNode = (SwitchNode) node;
+
+      if (node != null) {
+        if (!cond) {
+          return switchNode.setDefaultBlock(expr, st = trimRight(blockStart + 1), trimLeft(blockEnd) - st, pCtx);
+        }
+        else {
+          return switchNode.setCase((SwitchNode) createBlockToken(startCond, endCond, trimRight(blockStart + 1),
+              trimLeft(blockEnd), type));
+        }
+      }
+      else {
+        return createBlockToken(startCond, endCond, blockStart + 1, blockEnd, type);
+      }
+    }
     else if (type == ASTNode.BLOCK_DO) {
       cursor++;
       skipWhitespace();
@@ -1805,6 +1852,21 @@ public class AbstractParser implements Parser, Serializable {
    * @return boolean value
    */
   protected boolean ifThenElseBlockContinues() {
+    if ((cursor + 4) < end) {
+      if (expr[cursor] != ';') cursor--;
+      skipWhitespace();
+
+      return (cursor + 4) < end && expr[cursor] == 'e' && expr[cursor + 1] == 'l' && expr[cursor + 2] == 's' && expr[cursor + 3] == 'e'
+          && (isWhitespace(expr[cursor + 4]) || expr[cursor + 4] == '{');
+    }
+    return false;
+  }
+  /**
+   * Checking from the current cursor position, check to see case the case-default block continues.
+   *
+   * @return boolean value
+   */
+  protected boolean caseDefaultBlockContinues() {
     if ((cursor + 4) < end) {
       if (expr[cursor] != ';') cursor--;
       skipWhitespace();

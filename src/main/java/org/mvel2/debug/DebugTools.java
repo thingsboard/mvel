@@ -184,6 +184,8 @@ public class DebugTools {
         return ">";
       case Operator.IF:
         return "if";
+      case Operator.SWITCH:
+        return "switch";
       case Operator.INC:
         return "++";
       case Operator.INC_ASSIGN:
@@ -222,8 +224,6 @@ public class DebugTools {
         return "SOUNDEX";
       case Operator.STR_APPEND:
         return "+";
-      case Operator.SWITCH:
-        return "SWITCH";
       case Operator.TERNARY:
         return "TERNARY_IF";
       case Operator.TERNARY_ELSE:
@@ -299,6 +299,8 @@ public class DebugTools {
         return "GREATHER_THAN";
       case Operator.IF:
         return "IF";
+      case Operator.SWITCH:
+        return "SWITCH";
       case Operator.INC:
         return "INCREMENT";
       case Operator.INC_ASSIGN:
@@ -337,8 +339,6 @@ public class DebugTools {
         return "SOUNDEX";
       case Operator.STR_APPEND:
         return "STR_APPEND";
-      case Operator.SWITCH:
-        return "SWITCH";
       case Operator.TERNARY:
         return "TERNARY_IF";
       case Operator.TERNARY_ELSE:
