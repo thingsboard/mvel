@@ -78,6 +78,8 @@ public class ASTNode implements Cloneable, Serializable {
 
   public static final int DISCARD = 1 << 29;
 
+  public static final int BLOCK_SWITCH = 1 << 30;
+
 
   // *** //
 

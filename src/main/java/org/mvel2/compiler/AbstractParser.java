@@ -17,10 +17,6 @@
  */
 package org.mvel2.compiler;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.WeakHashMap;
-
 import org.mvel2.CompileException;
 import org.mvel2.ErrorDetail;
 import org.mvel2.Operator;
@@ -75,6 +71,7 @@ import org.mvel2.ast.Sign;
 import org.mvel2.ast.Stacklang;
 import org.mvel2.ast.StaticImportNode;
 import org.mvel2.ast.Substatement;
+import org.mvel2.ast.SwitchNode;
 import org.mvel2.ast.ThisWithNode;
 import org.mvel2.ast.TypeCast;
 import org.mvel2.ast.TypeDescriptor;
@@ -89,12 +86,93 @@ import org.mvel2.util.ExecutionStack;
 import org.mvel2.util.FunctionParser;
 import org.mvel2.util.ProtoParser;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.WeakHashMap;
+
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
-import static org.mvel2.Operator.*;
+import static org.mvel2.Operator.ADD;
+import static org.mvel2.Operator.AND;
+import static org.mvel2.Operator.ASSERT;
+import static org.mvel2.Operator.ASSIGN;
+import static org.mvel2.Operator.ASSIGN_ADD;
+import static org.mvel2.Operator.ASSIGN_DIV;
+import static org.mvel2.Operator.ASSIGN_MOD;
+import static org.mvel2.Operator.ASSIGN_SUB;
+import static org.mvel2.Operator.BW_AND;
+import static org.mvel2.Operator.BW_OR;
+import static org.mvel2.Operator.BW_SHIFT_LEFT;
+import static org.mvel2.Operator.BW_SHIFT_RIGHT;
+import static org.mvel2.Operator.BW_USHIFT_LEFT;
+import static org.mvel2.Operator.BW_USHIFT_RIGHT;
+import static org.mvel2.Operator.BW_XOR;
+import static org.mvel2.Operator.CASE;
+import static org.mvel2.Operator.CHOR;
+import static org.mvel2.Operator.CONTAINS;
+import static org.mvel2.Operator.CONVERTABLE_TO;
+import static org.mvel2.Operator.DEC;
+import static org.mvel2.Operator.DEFAULT;
+import static org.mvel2.Operator.DIV;
+import static org.mvel2.Operator.DO;
+import static org.mvel2.Operator.ELSE;
+import static org.mvel2.Operator.END_OF_STMT;
+import static org.mvel2.Operator.EQUAL;
+import static org.mvel2.Operator.FOR;
+import static org.mvel2.Operator.FOREACH;
+import static org.mvel2.Operator.FUNCTION;
+import static org.mvel2.Operator.GETHAN;
+import static org.mvel2.Operator.GTHAN;
+import static org.mvel2.Operator.IF;
+import static org.mvel2.Operator.IMPORT;
+import static org.mvel2.Operator.IMPORT_STATIC;
+import static org.mvel2.Operator.INC;
+import static org.mvel2.Operator.INSTANCEOF;
+import static org.mvel2.Operator.ISDEF;
+import static org.mvel2.Operator.LETHAN;
+import static org.mvel2.Operator.LTHAN;
+import static org.mvel2.Operator.MOD;
+import static org.mvel2.Operator.MULT;
+import static org.mvel2.Operator.NEQUAL;
+import static org.mvel2.Operator.NEW;
+import static org.mvel2.Operator.OR;
+import static org.mvel2.Operator.POWER;
+import static org.mvel2.Operator.PROJECTION;
+import static org.mvel2.Operator.PROTO;
+import static org.mvel2.Operator.PTABLE;
+import static org.mvel2.Operator.REGEX;
+import static org.mvel2.Operator.RETURN;
+import static org.mvel2.Operator.SIMILARITY;
+import static org.mvel2.Operator.SOUNDEX;
+import static org.mvel2.Operator.STACKLANG;
+import static org.mvel2.Operator.STR_APPEND;
+import static org.mvel2.Operator.SUB;
+import static org.mvel2.Operator.SWITCH;
+import static org.mvel2.Operator.TERNARY;
+import static org.mvel2.Operator.TERNARY_ELSE;
+import static org.mvel2.Operator.UNTIL;
+import static org.mvel2.Operator.UNTYPED_VAR;
+import static org.mvel2.Operator.WHILE;
+import static org.mvel2.Operator.WITH;
 import static org.mvel2.ast.TypeDescriptor.getClassReference;
 import static org.mvel2.util.ArrayTools.findFirst;
-import static org.mvel2.util.ParseTools.*;
+import static org.mvel2.util.ParseTools.balancedCaptureWithLineAccounting;
+import static org.mvel2.util.ParseTools.captureStringLiteral;
+import static org.mvel2.util.ParseTools.containsCheck;
+import static org.mvel2.util.ParseTools.createStringTrimmed;
+import static org.mvel2.util.ParseTools.handleStringEscapes;
+import static org.mvel2.util.ParseTools.isArrayType;
+import static org.mvel2.util.ParseTools.isDigit;
+import static org.mvel2.util.ParseTools.isIdentifierPart;
+import static org.mvel2.util.ParseTools.isNotValidNameorLabel;
+import static org.mvel2.util.ParseTools.isPropertyOnly;
+import static org.mvel2.util.ParseTools.isReservedWord;
+import static org.mvel2.util.ParseTools.isWhitespace;
+import static org.mvel2.util.ParseTools.opLookup;
+import static org.mvel2.util.ParseTools.similarity;
+import static org.mvel2.util.ParseTools.subset;
 import static org.mvel2.util.PropertyTools.isEmpty;
 import static org.mvel2.util.Soundex.soundex;
 
@@ -436,6 +514,15 @@ public class AbstractParser implements Parser, Serializable {
 
               case ELSE:
                 throw new CompileException("else without if", expr, st);
+
+              case SWITCH:
+                return captureCodeBlock(ASTNode.BLOCK_SWITCH);
+
+              case CASE:
+                throw new CompileException("case without switch", expr, st);
+
+              case DEFAULT:
+                throw new CompileException("default without switch", expr, st);
 
               case FOREACH:
                 return captureCodeBlock(ASTNode.BLOCK_FOREACH);
@@ -1593,6 +1680,23 @@ public class AbstractParser implements Parser, Serializable {
     }
   }
 
+  private ASTNode createSwitchBlockToken(final int condStart,final int condEnd, final int blockCaseStart, final int blockCaseEnd, final int blocSwitchEnd, final String switchKey, List<String> conditionValues) {
+    int condOffset = condEnd - condStart;
+    int blockCaseOffset = blockCaseEnd - blockCaseStart;
+    if (blockCaseOffset < 0) blockCaseOffset = 0;
+
+    if (expr  == null || condOffset <= 0) {
+      throw new CompileException("statement expected", expr, start);
+    }
+
+    lastWasIdentifier = false;
+    cursor++;
+    if (isStatementNotManuallyTerminated()) {
+      splitAccumulator.add(new EndOfStatement(pCtx));
+    }
+    return new SwitchNode(expr, condStart, condOffset, blockCaseStart, blockCaseOffset, fields, pCtx, blocSwitchEnd, switchKey, conditionValues);
+  }
+
   /**
    * Capture a code block by type.
    *
@@ -1631,6 +1735,29 @@ public class AbstractParser implements Parser, Serializable {
         return first;
       }
 
+      case ASTNode.BLOCK_SWITCH: {
+        do {
+          if (tk != null) {
+            captureToNextTokenJunction();
+            skipWhitespace();
+          }
+
+          if (((SwitchNode) (tk = _captureSwitchBlock(tk, expr))).getDefaultBlock() != null) {
+            cursor++;
+            return first;
+          }
+
+          if (first == null) first = tk;
+
+          if (cursor != end && expr[cursor] != ';') {
+            cursor++;
+          }
+        }
+        while (cursor < ((SwitchNode)tk).getBlocSwitchEnd());
+        if (expr[cursor] == '}') cursor++;
+        return first;
+      }
+
       case ASTNode.BLOCK_DO:
         skipWhitespace();
         return _captureBlock(null, expr, false, type);
@@ -1639,6 +1766,125 @@ public class AbstractParser implements Parser, Serializable {
         captureToNextTokenJunction();
         skipWhitespace();
         return _captureBlock(null, expr, true, type);
+    }
+  }
+
+  private ASTNode _captureSwitchBlock(ASTNode node, final char[] expr) {
+    skipWhitespace();
+    int startCond = 0;
+    int endCond = 0;
+    List conditionValues = new ArrayList<String>();
+
+    int blockSwitchStart = 0;
+    int blockSwitchEnd = 0;
+    int blockStart = 0;
+    int blockEnd = 0;
+
+    String switchKey = null;
+    if (cursor >= end) {
+      throw new CompileException("unexpected end of statement", expr, end);
+    }
+
+    SwitchNode switchNode = (SwitchNode) node;
+    boolean cond = false;
+    if (switchNode == null) {
+      if (expr[cursor] == '(') {
+        int startKey = ++cursor;
+        int endKey = cursor = balancedCaptureWithLineAccounting(expr, startKey, end, '(', pCtx);
+        switchKey =  new String(expr, startKey, (endKey-startKey));
+        cursor++;
+        skipWhitespace();
+      }
+      if (expr[cursor] == '{') {
+        blockSwitchEnd = balancedCaptureWithLineAccounting(expr, blockSwitchStart = cursor, end, '{', pCtx);
+        cursor++;
+        skipWhitespace();
+      }
+      if (blockSwitchStart == 0 || blockSwitchEnd == 0 || (blockSwitchEnd - blockSwitchStart) < 6 ) {
+        throw new CompileException("Switch without expression or not find start/end of switch block", expr, end);
+      }
+    } else {
+      switchKey = switchNode.getConditionSwitchKey();
+      blockSwitchEnd = switchNode.getBlocSwitchEnd();
+    }
+    if (expr[cursor] == 'c' && expr[cursor + 1] == 'a' && expr[cursor + 2] == 's' && expr[cursor + 3] == 'e') {
+     case_loop: while  (expr[cursor] == 'c' && expr[cursor + 1] == 'a' && expr[cursor + 2] == 's' && expr[cursor + 3] == 'e') {
+        cursor += 4;
+        skipWhitespace();
+        startCond = cursor;
+        while (cursor != end) {
+          if (expr[cursor] == ':' || isWhitespace(expr[cursor])) {
+            endCond = cursor;
+            cond = true;
+            if (isWhitespace(expr[cursor])) skipWhitespace();
+            break;
+          }
+          cursor++;
+        }
+        if (endCond <= startCond) {
+          throw new CompileException("expected ':' but encountered: " + expr[cursor], expr, cursor);
+        }
+        conditionValues.add(new String(expr, startCond, (endCond - startCond)));
+        if (expr[cursor] == ':') {
+          cursor++;
+          skipWhitespace();
+          if (expr[cursor] == 'c' && expr[cursor + 1] == 'a' && expr[cursor + 2] == 's' && expr[cursor + 3] == 'e')  continue case_loop;
+          blockStart = --cursor;
+          blockEnd = 0;
+          while (cursor <  blockSwitchEnd) {
+            if (expr[cursor] == '{') {
+              cursor =balancedCaptureWithLineAccounting(expr, blockSwitchStart = cursor, blockSwitchEnd, '{', pCtx);
+              cursor++;
+            }
+            if (cursor <= (end - 5) && expr[cursor] == 'b' && expr[cursor + 1] == 'r' && expr[cursor + 2] == 'e' && expr[cursor + 3] == 'a'
+                    && expr[cursor + 4] == 'k') {
+              blockEnd = cursor;
+              cursor += 5;
+              break;
+            } else if (cursor <= (end - 6) && expr[cursor] == 'r' && expr[cursor + 1] == 'e' && expr[cursor + 2] == 't' && expr[cursor + 3] == 'u'
+                    && expr[cursor + 4] == 'r' && expr[cursor + 5] == 'n') {
+              cursor += 6;
+              while (cursor !=  blockSwitchEnd) {
+                if (expr[cursor] == 'c' && expr[cursor + 1] == 'a' && expr[cursor + 2] == 's' && expr[cursor + 3] == 'e') {
+                  blockEnd = --cursor;
+                  cursor -= 2;
+                  break;
+                } else if (expr[cursor] == 'd' && expr[cursor + 1] == 'e' && expr[cursor + 2] == 'f' && expr[cursor + 3] == 'a' && expr[cursor + 4] == 'u'
+                        && expr[cursor + 5] == 'l' && expr[cursor + 6] == 't') {
+                  blockEnd = --cursor;
+                  cursor -= 2;
+                  break;
+                }
+                cursor++;
+              }
+              blockEnd = blockEnd == 0 ? --cursor : blockEnd;
+              break;
+            }
+            cursor++;
+          }
+        }
+      }
+    } else if (expr[cursor] == 'd' && expr[cursor + 1] == 'e' && expr[cursor + 2] == 'f' && expr[cursor + 3] == 'a' && expr[cursor + 4] == 'u' && expr[cursor + 5] == 'l' && expr[cursor + 6] == 't') {
+      cursor+=7;
+      skipWhitespace();
+      if (expr[cursor] == ':') {
+        blockStart = ++cursor;
+        cursor = blockSwitchEnd + 1;
+      } else {
+        throw new CompileException("after \"default\" expected ':' but encountered: " + expr[cursor], expr, cursor);
+      }
+
+    }
+    blockEnd = blockEnd == 0 ? blockSwitchEnd - 1 : blockEnd;
+    if (switchNode == null) {
+      return createSwitchBlockToken(startCond, endCond, trimRight(blockStart + 1), trimLeft(blockEnd), blockSwitchEnd, switchKey, conditionValues);
+    } else {
+      if (cond) {
+        return switchNode.setCase((SwitchNode) createSwitchBlockToken(startCond, endCond, trimRight(blockStart + 1),
+                trimLeft(blockEnd), switchNode.getBlocSwitchEnd(), switchNode.getConditionSwitchKey(), conditionValues));
+      } else {
+        return switchNode.setDefaultBlock(expr, st = trimRight(blockStart + 1), trimLeft(blockEnd) - st, pCtx);
+      }
     }
   }
 
@@ -2328,6 +2574,8 @@ public class AbstractParser implements Parser, Serializable {
         operatorsTable.put("else", ELSE);
         operatorsTable.put("?", TERNARY);
         operatorsTable.put("switch", SWITCH);
+        operatorsTable.put("case", CASE);
+        operatorsTable.put("default", DEFAULT);
         operatorsTable.put("function", FUNCTION);
         operatorsTable.put("def", FUNCTION);
         operatorsTable.put("stacklang", STACKLANG);
