@@ -17,6 +17,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -776,6 +777,626 @@ public class TbExpressionsTest extends TestCase {
         assertEquals(expected, actual);
     }
 
+    public void testSwitchNodeStandardCaseOneValue_Ok() {
+        String scriptBodyTestSwitchNodeStr = "\n" +
+                "var msg = {};\n" +
+                "msg[\"temperature\"] = 120;\n" +
+                "switch (msg.temperature){\n" +
+                "    case 120.0:\n" +
+                "        msg.temperature = 1.0;\n" +
+                "         break;\n" +
+                "    case 241:\n" +
+                "        msg.temperature = 2.0;\n" +
+                "        break;\n" +
+                "    default:\n" +
+                "        msg.temperature = 3.0;\n" +
+                "\n" +
+                "}\n" +
+                "return {temp: msg.temperature};\n";
+        LinkedHashMap<String, Double> expected = new LinkedHashMap<>();
+        Double dd = 1.0;
+        expected.put("temp", dd);
+        Object actual = executeScript(scriptBodyTestSwitchNodeStr);
+        assertEquals(expected, actual);
+    }
+    public void testSwitchNodeStandardCaseTwoValue_Ok() {
+        String scriptBodyTestSwitchNodeStr = "\n" +
+                "var msg = {};\n" +
+                "msg[\"temperature\"] = 241;\n" +
+                "switch (msg.temperature){\n" +
+                "    case 120.0:\n" +
+                "        msg.temperature = 1.0;\n" +
+                "         break;\n" +
+                "    case 241:\n" +
+                "        msg.temperature = 2.0;\n" +
+                "        break;\n" +
+                "    default:\n" +
+                "        msg.temperature = 3.0;\n" +
+                "\n" +
+                "}\n" +
+                "return {temp: msg.temperature};\n";
+        LinkedHashMap<String, Double> expected = new LinkedHashMap<>();
+        Double dd = 2.0;
+        expected.put("temp", dd);
+        Object actual = executeScript(scriptBodyTestSwitchNodeStr);
+        assertEquals(expected, actual);
+    }
+    public void testSwitchNodeStandardDefault_Ok() {
+        String scriptBodyTestSwitchNodeStr = "\n" +
+                "var msg = {};\n" +
+                "msg[\"temperature\"] = 130.0;\n" +
+                "switch (msg.temperature){\n" +
+                "    case 120.0:\n" +
+                "        msg.temperature = 1.0;\n" +
+                "         break;\n" +
+                "    case 241:\n" +
+                "        msg.temperature = 2.0;\n" +
+                "        break;\n" +
+                "    default:\n" +
+                "        msg.temperature = msg.temperature;\n" +
+                "\n" +
+                "}\n" +
+                "return {temp: msg.temperature};\n";
+        LinkedHashMap<String, Double> expected = new LinkedHashMap<>();
+        Double dd = 130.0;
+        expected.put("temp", dd);
+        Object actual = executeScript(scriptBodyTestSwitchNodeStr);
+        assertEquals(expected, actual);
+    }
+    public void testSwitchNodeOnlyCase_Ok() {
+        String scriptBodyTestSwitchNodeStr = "\n" +
+                "var msg = {};\n" +
+                "msg[\"temperature\"] = 120.0;\n" +
+                "switch (msg.temperature){\n" +
+                "    case 120.0:\n" +
+                "        msg.temperature = 1.0;\n" +
+                "\n" +
+                "}\n" +
+                "return {temp: msg.temperature};\n";
+        LinkedHashMap<String, Double> expected = new LinkedHashMap<>();
+        Double dd = 1.0;
+        expected.put("temp", dd);
+        Object actual = executeScript(scriptBodyTestSwitchNodeStr);
+        assertEquals(expected, actual);
+    }
+
+    public void testSwitchNodeCaseDoubleValue_Ok() {
+        String scriptBodyTestSwitchNodeStr = "\n" +
+                "var msg = {};\n" +
+                "msg[\"temperature\"] = 123;\n" +
+                "switch (msg.temperature){\n" +
+                "    case 120.0:\n" +
+                "    case 123.0:\n" +
+                "    case 126.0:\n" +
+                "        msg.temperature = 1.0;\n" +
+                "         break;\n" +
+                "    case 241:\n" +
+                "        msg.temperature = 2.0;\n" +
+                "        break;\n" +
+                "    default:\n" +
+                "        msg.temperature = 3.0;\n" +
+                "\n" +
+                "}\n" +
+                "return {temp: msg.temperature};\n";
+        LinkedHashMap<String, Double> expected = new LinkedHashMap<>();
+        Double dd = 1.0;
+        expected.put("temp", dd);
+        Object actual = executeScript(scriptBodyTestSwitchNodeStr);
+        assertEquals(expected, actual);
+    }
+
+    public void testSwitchNodeSwitchInSwitch_Ok() {
+        String scriptBodyTestSwitchNodeStr = "\n" +
+                "var msg = {};\n" +
+                "msg[\"temperature\"] = 19.0;\n" +
+                "var a = 25;\n" +
+                "\n" +
+                "if (msg.temperature === 19){\n" +
+                "    msg.temperature = 20.0;\n" +
+                "} else if (msg.temperature === 24){\n" +
+                "    msg.temperature = 23.11;\n" +
+                "}  else {\n" +
+                "    msg.temperature = msg.temperature;\n" +
+                "}\n" +
+                "\n" +
+                "switch (msg.temperature){\n" +
+                "    case 20.0:\n" +
+                "    case 120.0:\n" +
+                "         switch (msg.temperature){\n" +
+                "            case 122.4:\n" +
+                "            case 100.0:\n" +
+                "                 msg.temperature = 130.1;\n" +
+                "                 break;\n" +
+                "            case 112.0:\n" +
+                "                msg.temperature = 101;\n" +
+                "                break;\n" +
+                "            case 20.0:\n" +
+                "                msg.temperature = 105.6789;\n" +
+                "                msg.temperature += a;\n" +
+                "                msg.temperature = msg.temperature/2;\n" +
+                "                break;\n" +
+                "           default:\n" +
+                "                msg.temperature = 105.6789;\n" +
+                "                msg.temperature += a;\n" +
+                "                msg.temperature = msg.temperature/2;\n" +
+                "        }\n" +
+                "         break;\n" +
+                "    case 12.0:\n" +
+                "        msg.temperature = 1;\n" +
+                "        break;\n" +
+                "    case 15.0:\n" +
+                "        msg.temperature = 5;\n" +
+                "        break;\n" +
+                "    default:\n" +
+                "        msg.temperature = 2;\n" +
+                "\n" +
+                "}\n" +
+                "return {temp: msg.temperature};\n";
+        LinkedHashMap<String, Double> expected = new LinkedHashMap<>();
+        Double dd = (105.6789 + 25)/2;
+        expected.put("temp", dd);
+        Object actual = executeScript(scriptBodyTestSwitchNodeStr);
+        assertEquals(expected, actual);
+    }
+
+    public void testSwitchNodeParameterString_Ok() {
+        String scriptBodyTestSwitchNodeStr = "\n" +
+                "var msg = {};\n" +
+                "msg[\"temperature\"] = 120.0;\n" +
+                "var par = \"test1\";\n" +
+                "\n" +
+                "switch (par){\n" +
+                "    case \"test\":\n" +
+                "         msg.temperature = 1.0;\n" +
+                "         break;\n" +
+                "    case \"test1\":\n" +
+                "        msg.temperature = 2.0;\n" +
+                "        break;\n" +
+                "    case 15.0:\n" +
+                "        msg.temperature = 3;\n" +
+                "        break;\n" +
+                "    default:\n" +
+                "        msg.temperature = 4;\n" +
+                "}\n" +
+                "return {temp: msg.temperature};\n";
+        LinkedHashMap<String, Double> expected = new LinkedHashMap<>();
+        Double dd = 2.0;
+        expected.put("temp", dd);
+        Object actual = executeScript(scriptBodyTestSwitchNodeStr);
+        assertEquals(expected, actual);
+    }
+
+    public void testSwitchNodeInFunctionWithReturn_Ok() {
+        String scriptBodyTestSwitchNodeStr = "\n" +
+                "var msg = {};\n" +
+                "msg[\"temperature\"] = 120.0;\n" +
+                "var par = \"test\";\n" +
+                "\n" +
+                "switch (par){\n" +
+                "    case \"test\":\n" +
+                "         msg.temperature = switchReturn(par) ;\n" +
+                "         return {temp: msg.temperature};\n" +
+                "    case \"test2\":\n" +
+                "         msg.temperature = 1.0;\n" +
+                "}\n" +
+                "return {temp: msg.temperature};\n" +
+                "function switchReturn(val) {\n" +
+                "    switch (val) {\n" +
+                "        case \"test\":\n" +
+                "            return 48.0;\n" +
+                "        case 12.0:\n" +
+                "            msg.temperature = 4.0 / 2;\n" +
+                "           return 5.0;\n" +
+                "        case 15.0:\n" +
+                "            msg.temperature = 3;\n" +
+                "            break;\n" +
+                "        default:\n" +
+                "            msg.temperature = msg.temperature;\n" +
+                "    }\n" +
+                "    return 48;\n" +
+                "\n" +
+                "}";
+
+        LinkedHashMap<String, Double> expected = new LinkedHashMap<>();
+        Double dd = 48.0;
+        expected.put("temp", dd);
+        Object actual = executeScript(scriptBodyTestSwitchNodeStr);
+        assertEquals(expected, actual);
+    }
+
+    public void testSwitchNodeWithReturnInCase_Ok() {
+        String scriptBodyTestSwitchNodeStr = "\n" +
+                "var msg = {};\n" +
+                "msg[\"temperature\"] = 120.0;\n" +
+                "var par = \"test\";\n" +
+                "\n" +
+                "switch (par){\n" +
+                "    case \"test\":\n" +
+                "         msg.temperature = 3.0;\n" +
+                "         return {temp: msg.temperature};\n" +
+                "    case \"test2\":\n" +
+                "         msg.temperature = 1.0;\n" +
+                "}\n" +
+                "return {temp: msg.temperature};\n";
+        LinkedHashMap<String, Double> expected = new LinkedHashMap<>();
+        Double dd = 3.0;
+        expected.put("temp", dd);
+        Object actual = executeScript(scriptBodyTestSwitchNodeStr);
+        assertEquals(expected, actual);
+    }
+
+    public void testSwitchNodeWithComments_Ok() {
+        String scriptBodyTestSwitchNodeStr = " \n" +
+                "//switch (parCase){\n" +
+                "var msg = {};\n" +
+                "msg[\"temperature\"] = 120.0;\n" +
+                "var parCase = 15.0;\n" +
+                "\n" +
+                "switch (parCase){\n" +
+                "    case \"test\":\n" +
+                "        /**\n" +
+                "         // commit3\n" +
+                "         **/\n" +
+                "         msg.temperature = 1.0;\n" +
+                "        // bdreak_stop; \n" +
+                "         break;\n" +
+                "    case 12.0:\n" +
+                "        /*\n" +
+                "        commit2\n" +
+                "        \n" +
+                "        */\n" +
+                "        msg.temperature = 4.0;\n" +
+                "        break;\n" +
+                "        // case:;\n" +
+                "    case 15.0:\n" +
+                "        msg.temperature = 3.3;\n" +
+                "        break;\n" +
+                "        // default:;\n" +
+                "    default:\n" +
+                "        msg.temperature = msg.temperature;\n" +
+                "}\n" +
+                "return {temp: msg.temperature};\n";
+        LinkedHashMap<String, Double> expected = new LinkedHashMap<>();
+        Double dd = 3.3;
+        expected.put("temp", dd);
+        Object actual = executeScript(scriptBodyTestSwitchNodeStr);
+        assertEquals(expected, actual);
+    }
+
+    public void testSwitchNodeParameterNumberAsStringQuotes() {
+        String scriptBodyTestSwitchNodeStr = "\n" +
+                "var msg = {};\n" +
+                "msg[\"temperature\"] = 120.0;\n" +
+                "var par = \"203\";\n" +
+                "\n" +
+                "switch (par){\n" +
+                "    case \"test\":\n" +
+                "         msg.temperature = 1.0;\n" +
+                "         break;\n" +
+                "    case 203:\n" +
+                "        msg.temperature = 2.0;\n" +
+                "        break;\n" +
+                "    case 15.0:\n" +
+                "        msg.temperature = 3;\n" +
+                "        break;\n" +
+                "    default:\n" +
+                "        msg.temperature = 4;\n" +
+                "}\n" +
+                "return {temp: msg.temperature};\n";
+        LinkedHashMap<String, Double> expected = new LinkedHashMap<>();
+        Double dd = 2.0;
+        expected.put("temp", dd);
+        Object actual = executeScript(scriptBodyTestSwitchNodeStr);
+        assertEquals(expected, actual);
+    }
+
+    public void testSwitchNodeWithoutDefault() {
+        String scriptBodyTestSwitchNodeStr = "\n" +
+                "var msg = {};\n" +
+                "msg[\"temperature\"] = 115.0;\n" +
+                "var a = 25;\n" +
+                "\n" +
+                "if (msg.temperature === 19){\n" +
+                "    msg.temperature = 19;\n" +
+                "} else if (msg.temperature === 24){\n" +
+                "    msg.temperature = 23.11;\n" +
+                "}  else {\n" +
+                "    msg.temperature = msg.temperature;\n" +
+                "}\n" +
+                "\n" +
+                "switch (msg.temperature){\n" +
+                "    case 115.0:\n" +
+                "    case 10.0:\n" +
+                "         switch (msg.temperature){\n" +
+                "            case 122.4:\n" +
+                "            case 10.0:\n" +
+                "                 msg.temperature = 130.1;\n" +
+                "                 break;\n" +
+                "            case 112.0:\n" +
+                "                msg.temperature = 101;\n" +
+                "                break;\n" +
+                "            case 115.0:\n" +
+                "                msg.temperature = 105.6789;\n" +
+                "                msg.temperature += a;\n" +
+                "                msg.temperature = msg.temperature/2;\n" +
+                "        }\n" +
+                "         break;\n" +
+                "    case 12.0:\n" +
+                "        msg.temperature = 1;\n" +
+                "        break;\n" +
+                "    case 15.0:\n" +
+                "        msg.temperature = 5;\n" +
+                "        break;\n" +
+                "    default:\n" +
+                "        msg.temperature = 2;\n" +
+                "\n" +
+                "}\n" +
+                "return {temp: msg.temperature};\n";
+        LinkedHashMap<String, Double> expected = new LinkedHashMap<>();
+        Double dd = (105.6789 + 25)/2;
+        expected.put("temp", dd);
+        Object actual = executeScript(scriptBodyTestSwitchNodeStr);
+        assertEquals(expected, actual);
+    }
+
+    public void testSwitchNodeParameterStringWithoutEscapingQuotes_Error() {
+        String scriptBodyTestSwitchNodeStr = "\n" +
+                "var msg = {};\n" +
+                "msg[\"temperature\"] = 120.0;\n" +
+                "var par = \"test1\";\n" +
+                "\n" +
+                "switch (par){\n" +
+                "    case test:\n" +
+                "         msg.temperature = 1.0;\n" +
+                "         break;\n" +
+                "    case \"test1\":\n" +
+                "        msg.temperature = 2.0;\n" +
+                "        break;\n" +
+                "    case 15.0:\n" +
+                "        msg.temperature = 3;\n" +
+                "        break;\n" +
+                "    default:\n" +
+                "        msg.temperature = 4;\n" +
+                "}\n" +
+                "return {temp: msg.temperature};\n";
+        LinkedHashMap<String, Double> expected = new LinkedHashMap<>();
+        Double dd = 2.0;
+        expected.put("temp", dd);
+        try {
+            Object actual = executeScript(scriptBodyTestSwitchNodeStr);
+            assertEquals(expected, actual);
+        } catch (CompileException e) {
+            assertTrue(e.getMessage().contains("unresolvable property or identifier: test"));
+        }
+    }
+
+    public void testSwitchNodeWithout_Bracket_Error() {
+        try {
+            String scriptBodyTestSwitchNodeStr = "\n" +
+                    "var msg = {};\n" +
+                    "msg[\"temperature\"] = 100.0;\n" +
+                    "var a = 25;\n" +
+                    "\n" +
+                    "switch msg.temperature){\n" +
+                    "    case 115.0:\n" +
+                    "    case 100.0:\n" +
+                    "        msg.temperature = 1;\n" +
+                    "        break;\n" +
+                    "    case 12.0:\n" +
+                    "        msg.temperature = 2;\n" +
+                    "        break;\n" +
+                    "    case 15.0:\n" +
+                    "        msg.temperature = 5;\n" +
+                    "        break;\n" +
+                    "    default:\n" +
+                    "        msg.temperature = 6;\n" +
+                    "}\n" +
+                    "return {temp: msg.temperature};\n";
+            executeScript(scriptBodyTestSwitchNodeStr);
+            fail("Should throw CompileException");
+        } catch (CompileException e) {
+            assertTrue(e.getMessage().contains("Switch without expression or not find start/end of switch block"));
+        }
+    }
+
+    public void testSwitchNodeWithout_Brace_Error() {
+        try {
+            String scriptBodyTestSwitchNodeStr = "\n" +
+                    "var msg = {};\n" +
+                    "msg[\"temperature\"] = 100.0;\n" +
+                    "var a = 25;\n" +
+                    "\n" +
+                    "switch (msg.temperature) \n" +
+                    "    case 115.0:\n" +
+                    "    case 100.0:\n" +
+                    "        msg.temperature = 1;\n" +
+                    "        break;\n" +
+                    "    case 12.0:\n" +
+                    "        msg.temperature = 2;\n" +
+                    "        break;\n" +
+                    "    case 15.0:\n" +
+                    "        msg.temperature = 5;\n" +
+                    "        break;\n" +
+                    "    default:\n" +
+                    "        msg.temperature = 6;\n" +
+                    "}\n" +
+                    "return {temp: msg.temperature};\n";
+            executeScript(scriptBodyTestSwitchNodeStr);
+            fail("Should throw CompileException");
+        } catch (CompileException e) {
+            assertTrue(e.getMessage().contains("Switch without expression or not find start/end of switch block"));
+        }
+    }
+
+    public void testSwitchNodeWithout_BraceClose_Error() {
+        try {
+            String scriptBodyTestSwitchNodeStr = "\n" +
+                    "var msg = {};\n" +
+                    "msg[\"temperature\"] = 100.0;\n" +
+                    "var a = 25;\n" +
+                    "\n" +
+                    "switch (msg.temperature) {\n" +
+                    "    case 115.0:\n" +
+                    "    case 100.0:\n" +
+                    "        msg.temperature = 1;\n" +
+                    "        break;\n" +
+                    "    case 12.0:\n" +
+                    "        msg.temperature = 2;\n" +
+                    "        break;\n" +
+                    "    case 15.0:\n" +
+                    "        msg.temperature = 5;\n" +
+                    "        break;\n" +
+                    "    default:\n" +
+                    "        msg.temperature = 6;\n" +
+                    "\n" +
+                    "return {temp: msg.temperature};\n";
+            executeScript(scriptBodyTestSwitchNodeStr);
+            fail("Should throw CompileException");
+        } catch (CompileException e) {
+            assertTrue(e.getMessage().contains("unbalanced braces { ... }"));
+        }
+    }
+
+    public void testSwitchNodeFailedDefault_Error() {
+        try {
+            String scriptBodyTestSwitchNodeStr = "\n" +
+                    "var msg = {};\n" +
+                    "msg[\"temperature\"] = 100.0;\n" +
+                    "var a = 25;\n" +
+                    "\n" +
+                    "switch (msg.temperature) {\n" +
+                    "    case 115.0:\n" +
+                    "    case 100.0:\n" +
+                    "        msg.temperature = 1;\n" +
+                    "        break;\n" +
+                    "    case 12.0:\n" +
+                    "        msg.temperature = 2;\n" +
+                    "        break;\n" +
+                    "    case 15.0:\n" +
+                    "        msg.temperature = 5;\n" +
+                    "        break;\n" +
+                    "    default r :\n" +
+                    "        msg.temperature = 6;\n" +
+                    "}\n" +
+                    "return {temp: msg.temperature};\n";
+            executeScript(scriptBodyTestSwitchNodeStr);
+            fail("Should throw CompileException");
+        } catch (CompileException e) {
+            assertTrue(e.getMessage().contains("after \"default\" expected ':' but encountered: r"));
+        }
+    }
+    public void testSwitchNodeWithoutCaseWithDefault_Error() {
+        try {
+            String scriptBodyTestSwitchNodeStr = "\n" +
+                    "var msg = {};\n" +
+                    "msg[\"temperature\"] = 100.0;\n" +
+                    "var a = 25;\n" +
+                    "\n" +
+                    "switch (msg.temperature) {\n" +
+                    "    default:\n" +
+                    "        msg.temperature = 6;\n" +
+                    "}\n" +
+                    "return {temp: msg.temperature};\n";
+            executeScript(scriptBodyTestSwitchNodeStr);
+            fail("Should throw CompileException");
+        } catch (CompileException e) {
+            assertTrue(e.getMessage().contains("statement expected"));
+        }
+    }
+
+    public void testSwitchNodeEmpty_Error() {
+        try {
+            String scriptBodyTestSwitchNodeStr = "\n" +
+                    "var msg = {};\n" +
+                    "msg[\"temperature\"] = 100.0;\n" +
+                    "var a = 25;\n" +
+                    "\n" +
+                    "switch (msg.temperature) {\n" +
+                    "}\n" +
+                    "return {temp: msg.temperature};\n";
+            executeScript(scriptBodyTestSwitchNodeStr);
+            fail("Should throw CompileException");
+        } catch (CompileException e) {
+            assertTrue(e.getMessage().contains("Switch without expression or not find start/end of switch block"));
+        }
+    }
+    public void testSwitchNodeWithoutCaseAndDefault_Error() {
+        try {
+            String scriptBodyTestSwitchNodeStr = "\n" +
+                    "var msg = {};\n" +
+                    "msg[\"temperature\"] = 100.0;\n" +
+                    "var a = 25;\n" +
+                    "\n" +
+                    "switch (msg.temperature) {\n" +
+                    "rty\n" +
+                    "}\n" +
+                    "return {temp: msg.temperature};\n";
+            executeScript(scriptBodyTestSwitchNodeStr);
+            fail("Should throw CompileException");
+        } catch (CompileException e) {
+            assertTrue(e.getMessage().contains("statement expected"));
+        }
+    }
+    public void testSwitchNode_CaseWithoutSwitch_Error() {
+        String scriptBodyTestSwitchNodeStr = "\n" +
+                "var msg = {};\n" +
+                "msg[\"temperature\"] = 120;\n" +
+                "case (msg.temperature){\n" +
+                "    case 120.0:\n" +
+                "        msg.temperature = 1.0;\n" +
+                "         break;\n" +
+                "    case 241:\n" +
+                "        msg.temperature = 2.0;\n" +
+                "        break;\n" +
+                "    default:\n" +
+                "        msg.temperature = 3.0;\n" +
+                "\n" +
+                "}\n" +
+                "return {temp: msg.temperature};\n";
+        try{
+            executeScript(scriptBodyTestSwitchNodeStr);
+            fail("Should throw CompileException");
+        } catch (CompileException e) {
+            assertTrue(e.getMessage().contains("case without switch"));
+        }
+    }
+    public void testSwitchNodeDefaultWithoutCase_Error() {
+        String scriptBodyTestSwitchNodeStr = "\n" +
+                "var msg = {};\n" +
+                "msg[\"temperature\"] = 120;\n" +
+                "switch (msg.temperature){\n" +
+                "    default:\n" +
+                "        msg.temperature = 3.0;\n" +
+                "\n" +
+                "}\n" +
+                "return {temp: msg.temperature};\n";
+        try{
+            executeScript(scriptBodyTestSwitchNodeStr);
+            fail("Should throw CompileException");
+        } catch (CompileException e) {
+            assertTrue(e.getMessage().contains("statement expected"));
+        }
+    }
+    public void testSwitchNodeDefaultWithoutSwitch_Error() {
+        String scriptBodyTestSwitchNodeStr = "\n" +
+                "var msg = {};\n" +
+                "msg[\"temperature\"] = 120;\n" +
+                "default (msg.temperature){\n" +
+                "    case 120.0:\n" +
+                "        msg.temperature = 1.0;\n" +
+                "         break;\n" +
+                "    default:\n" +
+                "        msg.temperature = 3.0;\n" +
+                "\n" +
+                "}\n" +
+                "return {temp: msg.temperature};\n";
+        try{
+            executeScript(scriptBodyTestSwitchNodeStr);
+            fail("Should throw CompileException");
+        } catch (CompileException e) {
+            assertTrue(e.getMessage().contains("default without switch"));
+        }
+    }
     private Object executeScript(String ex, Map vars, ExecutionContext executionContext, long timeoutMs) throws Exception {
         final CountDownLatch countDown = new CountDownLatch(1);
         AtomicReference<Object> result = new AtomicReference<>();

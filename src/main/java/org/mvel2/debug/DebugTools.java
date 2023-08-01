@@ -224,6 +224,10 @@ public class DebugTools {
         return "+";
       case Operator.SWITCH:
         return "SWITCH";
+      case Operator.CASE:
+        return "CASE";
+      case Operator.DEFAULT:
+        return "DEFAULT";
       case Operator.TERNARY:
         return "TERNARY_IF";
       case Operator.TERNARY_ELSE:
@@ -339,6 +343,10 @@ public class DebugTools {
         return "STR_APPEND";
       case Operator.SWITCH:
         return "SWITCH";
+      case Operator.CASE:
+        return "CASE";
+      case Operator.DEFAULT:
+        return "DEFAULT";
       case Operator.TERNARY:
         return "TERNARY_IF";
       case Operator.TERNARY_ELSE:

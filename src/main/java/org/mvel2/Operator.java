@@ -123,6 +123,9 @@ public interface Operator {
   public static final int UNTIL = 42;
   public static final int FOR = 43;
   public static final int SWITCH = 44;
+
+  public static final int CASE = 64;
+  public static final int DEFAULT = 65;
   public static final int DO = 45;
   public static final int WITH = 46;
   public static final int ISDEF = 47;
