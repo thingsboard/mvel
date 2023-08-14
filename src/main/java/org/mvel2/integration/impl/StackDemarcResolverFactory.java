@@ -80,6 +80,16 @@ public class StackDemarcResolverFactory implements VariableResolverFactory {
     this.tilt = tilt;
   }
 
+  @Override
+  public boolean finishBreakFlag() {
+    return false;
+  }
+
+  @Override
+  public void setFinishBreakFlag(boolean mayBeBreak) {
+
+  }
+
   public VariableResolverFactory getDelegate() {
     return delegate;
   }

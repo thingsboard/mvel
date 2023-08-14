@@ -14,6 +14,7 @@ import org.mvel2.optimizers.OptimizerFactory;
 import org.mvel2.util.MethodStub;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -1396,6 +1397,107 @@ public class TbExpressionsTest extends TestCase {
         } catch (CompileException e) {
             assertTrue(e.getMessage().contains("default without switch"));
         }
+    }
+
+    public void testForWithBreakInIf_Function() {
+        String scriptBodyTestForWithBreakInIfStr =
+                "var input = [1, 2, 3, 4];\n" +
+                "var output = 10;\n" +
+                "forBreak();\n" +
+                "function forBreak() {\n" +
+                "    for (var i = 0; i < input.size; i++) {\n" +
+                "        output = i;\n" +
+                "        if (i === 1) {\n" +
+                "            output = input[i];\n" +
+                "            break;\n" +
+                "        }\n" +
+                "        output = i;\n" +
+                "    }\n" +
+                "}" +
+                 "return {\n" +
+                "    msg: output\n" +
+                "};\n" ;
+        LinkedHashMap<String, Integer> expected = new LinkedHashMap<>();
+        expected.put("msg", 2);
+        Object actual = executeScript(scriptBodyTestForWithBreakInIfStr);
+        assertEquals(expected, actual);
+    }
+
+    public void testForWithBreakOneFor() {
+        String scriptBodyTestForWithBreakInIfStr =
+                "var input = [-1, -7, -3, -4];\n" +
+                "var output = 9;\n" +
+                "for (var i = 0; i < input.size; i++) {\n" +
+                "    output = i * 10;\n" +
+                "    if (i === 3) {\n" +
+                "        output = input[i];\n" +
+                "        break;\n" +
+                "        output = i * 100;\n" +
+                "    }\n" +
+                "    output = i * 1000;\n" +
+                "}\n" +
+                "    output = output * 10000;\n" +
+                "return {msg: output};";
+        LinkedHashMap<String, Integer> expected = new LinkedHashMap<>();
+        expected.put("msg", -40000);
+        Object actual = executeScript(scriptBodyTestForWithBreakInIfStr);
+        assertEquals(expected, actual);
+    }
+    public void testForWithBreakIncludesForWithBreak() {
+        String scriptBodyTestForWithBreakInIfStr =
+                "var input = [-1, -7, -3, -4];\n" +
+                "var output = 9;\n" +
+                "var outputY = 19;\n" +
+                "for (var i = 0; i < input.size; i++) {\n" +
+                "      output = i*10;\n" +
+                "    if (i === 3) {\n" +
+                "      output = input[i];\n" +
+                "      break;\n" +
+                "      output = i*100;\n" +
+                "    } else if ( i === 0) {\n" +
+                "      outputY = 19;\n" +
+                "      for (var y = 0; y < input.size; y++) {\n" +
+                "        outputY = y*10*2;\n" +
+                "        if (y === 1) {\n" +
+                "          outputY = input[y];\n" +
+                "          break;\n" +
+                "          outputY = y*100*2;\n" +
+                "        }\n" +
+                "        outputY = y*1000*2;\n" +
+                "      }\n" +
+                "    }\n" +
+                "    output = i*1000;\n" +
+                "}\n" +
+                "return {msg: [output, outputY]};";
+        LinkedHashMap<String, ArrayList<Integer>> expected = new LinkedHashMap<>();
+        ArrayList<Integer> expIntList = new ArrayList<>();
+        expIntList.add(-4);
+        expIntList.add(-7);
+        expected.put("msg", expIntList);
+        Object actual = executeScript(scriptBodyTestForWithBreakInIfStr);
+        assertEquals(expected, actual);
+    }
+    public void testForWithBreakWithIncrementIndex() {
+        String scriptBodyTestSwitchNodeStr = "var input = [0x02, 0x75, 45, 0x01, 0x75, 55, 0x03, 0x76,  75];\n" +
+                "var output = { \"telemetry\": {\"battery\": 130}};\n" +
+                "for (var i = 0; i < input.size;) {\n" +
+                "        var channel_id = input[i++];\n" +
+                "        var channel_type = input[i++];\n" +
+                "\n" +
+                "        // BATTERY\n" +
+                "        if (channel_id === 0x01 && channel_type === 0x75) {\n" +
+                "            output.telemetry.battery = input[i];\n" +
+                "            break;\n" +
+                "        }\n" +
+                "        i += 1;\n" +
+                "\n" +
+                "}\n" +
+                "\n" +
+                "return {msg: output.telemetry.battery};";
+        LinkedHashMap<String, Integer> expected = new LinkedHashMap<>();
+        expected.put("msg", 55);
+        Object actual = executeScript(scriptBodyTestSwitchNodeStr);
+        assertEquals(expected, actual);
     }
     private Object executeScript(String ex, Map vars, ExecutionContext executionContext, long timeoutMs) throws Exception {
         final CountDownLatch countDown = new CountDownLatch(1);

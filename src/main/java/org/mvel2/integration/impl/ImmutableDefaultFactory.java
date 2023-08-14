@@ -101,4 +101,14 @@ public class ImmutableDefaultFactory implements VariableResolverFactory {
   public void setTiltFlag(boolean tilt) {
     this.tiltFlag = tilt;
   }
+
+  @Override
+  public boolean finishBreakFlag() {
+    return false;
+  }
+
+  @Override
+  public void setFinishBreakFlag(boolean mayBeBreak) {
+
+  }
 }
