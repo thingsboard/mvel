@@ -57,10 +57,13 @@ public class DoUntilNode extends BlockNode {
 
   public Object getReducedValueAccelerated(Object ctx, Object thisValue, VariableResolverFactory factory) {
     VariableResolverFactory lc = new MapVariableResolverFactory(new HashMap(0), factory);
-
+    factory.setFinishBreakFlag(true);
     do {
       checkExecution(ctx);
       compiledBlock.getValue(ctx, thisValue, lc);
+      if (factory.tiltFlag() & factory.finishBreakFlag()) {
+        break;
+      }
     }
     while (!(Boolean) condition.getValue(ctx, thisValue, lc));
 

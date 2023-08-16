@@ -19,6 +19,8 @@
 package org.mvel2;
 
 import org.mvel2.ast.ASTNode;
+import org.mvel2.ast.DoNode;
+import org.mvel2.ast.DoUntilNode;
 import org.mvel2.ast.ForEachNode;
 import org.mvel2.ast.ForNode;
 import org.mvel2.ast.Function;
@@ -74,7 +76,8 @@ public class MVELRuntime {
     while (node != null) {
       if (node instanceof Function) {
         node.getReducedValueAccelerated(ctx, ctx, variableFactory);
-      } else if (node instanceof ForNode || node instanceof ForEachNode || node instanceof WhileNode) {
+      } else if (node instanceof ForNode || node instanceof ForEachNode || node instanceof WhileNode
+              || node instanceof DoNode || node instanceof DoUntilNode) {
         variableFactory.setFinishBreakFlag(true);
       }
       node = node.nextASTNode;

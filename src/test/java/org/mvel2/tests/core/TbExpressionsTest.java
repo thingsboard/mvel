@@ -1601,7 +1601,7 @@ public class TbExpressionsTest extends TestCase {
         assertEquals(expected, actual);
     }
 
-    public void testWhilehWithBreakIncludesWhileWithBreak() {
+    public void testWhileWithBreakIncludesWhileWithBreak() {
         String scriptBodyTestForWithBreakInIfStr =
                 "var input = [-1, -10, -3, -4];\n" +
                         "var output = -9;\n" +
@@ -1663,6 +1663,219 @@ public class TbExpressionsTest extends TestCase {
                         "        output = i;\n" +
                         "        i++;\n" +
                         "    }\n" +
+                        "}" +
+                        "return {\n" +
+                        "    msg: [output, i]\n" +
+                        "};\n" ;
+        LinkedHashMap<String, ArrayList<Integer>> expected = new LinkedHashMap<>();
+        ArrayList<Integer> expIntList = new ArrayList<>();
+        expIntList.add(-2);
+        expIntList.add(1);
+        expected.put("msg", expIntList);
+        Object actual = executeScript(scriptBodyTestForWithBreakInIfStr);
+        assertEquals(expected, actual);
+    }
+
+    public void testDoWithBreak() {
+        String scriptBodyTestForWithBreakInIfStr =
+                "var input = [-1, -7, -3, -4];\n" +
+                "var output = -9;\n" +
+                "var i = 0;\n" +
+                "do {\n" +
+                   "    output = i * 10;\n" +
+                "    if (i === 1) {\n" +
+                "        output = input[i];\n" +
+                "        break;\n" +
+                "        output = i * 100;\n" +
+                "    }\n" +
+                "    i++;\n" +
+                "    output = i * 1000;\n" +
+                "}\n" +
+                "while (i < input.size()) \n" +
+                "output = output * 4;\n" +
+                "return {\n" +
+                "    msg: [output, i]\n" +
+                "};";
+        LinkedHashMap<String, ArrayList<Integer>> expected = new LinkedHashMap<>();
+        ArrayList<Integer> expIntList = new ArrayList<>();
+        expIntList.add(-28);
+        expIntList.add(1);
+        expected.put("msg", expIntList);
+        Object actual = executeScript(scriptBodyTestForWithBreakInIfStr);
+        assertEquals(expected, actual);
+    }
+
+    public void testDoWithBreakIncludesDoWithBreak() {
+        String scriptBodyTestForWithBreakInIfStr =
+                "var input = [-1, -10, -3, -4];\n" +
+                        "var output = -9;\n" +
+                        "var outputY = -19;\n" +
+                        "var i = 0;\n" +
+                        "var y = 0;\n" +
+                        "do {\n" +
+                        "    output = i * 10;\n" +
+                        "    if (i === 2) {\n" +
+                        "        output = input[i];\n" +
+                        "        break;\n" +
+                        "        output = i * 100;\n" +
+                        "    } else if (i === 0) {\n" +
+                        "        outputY = -20;\n" +
+                        "        y = 0;\n" +
+                        "       do {\n" +
+                        "            outputY = y * 10 * 2;\n" +
+                        "            if (y === 1) {\n" +
+                        "                outputY = input[y];\n" +
+                        "                break;\n" +
+                        "                outputY = y * 100 * 2;\n" +
+                        "            }\n" +
+                        "            outputY = y * 1000 * 2;\n" +
+                        "            y++;\n" +
+                        "        }\n" +
+                        "       while (y < input.size()) \n" +
+                        "    }\n" +
+                        "    output = i * 1000;\n" +
+                        "    i++;\n" +
+                        "}\n" +
+                        "while (i < input.size()) \n" +
+                        "output = output * 4;\n" +
+                        "outputY = outputY / 2;\n" +
+                        "return {\n" +
+                        "    msg: [output, outputY, i, y]\n" +
+                        "};";
+        LinkedHashMap<String, ArrayList<Integer>> expected = new LinkedHashMap<>();
+        ArrayList<Integer> expIntList = new ArrayList<>();
+        expIntList.add(-12);
+        expIntList.add(-5);
+        expIntList.add(2);
+        expIntList.add(1);
+        expected.put("msg", expIntList);
+        Object actual = executeScript(scriptBodyTestForWithBreakInIfStr);
+        assertEquals(expected, actual);
+    }
+
+    public void testDoWithBreakInIf_Function() {
+        String scriptBodyTestForWithBreakInIfStr =
+                "var input = [-1, -2, -3, -4];\n" +
+                        "var output = 10;\n" +
+                        "var i = 0;\n" +
+                        "forBreak();\n" +
+                        "function forBreak() {\n" +
+                        "   do {\n" +
+                        "        output = i;\n" +
+                        "        if (i === 1) {\n" +
+                        "            output = input[i];\n" +
+                        "            break;\n" +
+                        "        }\n" +
+                        "        output = i;\n" +
+                        "        i++;\n" +
+                        "    }\n" +
+                        "    while (i < input.size()) \n" +
+                        "}" +
+                        "return {\n" +
+                        "    msg: [output, i]\n" +
+                        "};\n" ;
+        LinkedHashMap<String, ArrayList<Integer>> expected = new LinkedHashMap<>();
+        ArrayList<Integer> expIntList = new ArrayList<>();
+        expIntList.add(-2);
+        expIntList.add(1);
+        expected.put("msg", expIntList);
+        Object actual = executeScript(scriptBodyTestForWithBreakInIfStr);
+        assertEquals(expected, actual);
+    }
+
+    public void testDoUntilWithBreak() {
+        String scriptBodyTestForWithBreakInIfStr =
+                "var input = [-1, -7, -3, -4];\n" +
+                "var output = -9;\n" +
+                "var i = 0;\n" +
+                "do {\n" +
+                "    output = i * 10;\n" +
+                "    if (i === 2) {\n" +
+                "        output = input[i];\n" +
+                "        break;\n" +
+                "        output = i * 100;\n" +
+                "    }\n" +
+                "    i++;\n" +
+                "    output = i * 1000;\n" +
+                "}\n" +
+                "until (i > input.size()) \n" +
+                "output = output * 4;\n" +
+                "return {\n" +
+                "    msg: [output, i]\n" +
+                "};";
+        LinkedHashMap<String, ArrayList<Integer>> expected = new LinkedHashMap<>();
+        ArrayList<Integer> expIntList = new ArrayList<>();
+        expIntList.add(-12);
+        expIntList.add(2);
+        expected.put("msg", expIntList);
+        Object actual = executeScript(scriptBodyTestForWithBreakInIfStr);
+        assertEquals(expected, actual);
+    }
+
+    public void testDoUntilWithBreakIncludesDoWithBreak() {
+        String scriptBodyTestForWithBreakInIfStr =
+                "var input = [-1, -7, -3, -4];\n" +
+                "var output = -9;\n" +
+                "var outputY = -19;\n" +
+                "var i = 0;\n" +
+                "var y = 0;\n" +
+                "do {\n" +
+                "    output = i * 10;\n" +
+                "    if (i === 2) {\n" +
+                "        output = input[i];\n" +
+                "        break;\n" +
+                "        output = i * 100;\n" +
+                "    } else if (i === 0) {\n" +
+                "        outputY = -20;\n" +
+                "        y = 0;\n" +
+                "       do {\n" +
+                "            outputY = y * 10 * 2;\n" +
+                "            if (y === 1) {\n" +
+                "                outputY = input[y];\n" +
+                "                break;\n" +
+                "                outputY = y * 100 * 2;\n" +
+                "            }\n" +
+                "            outputY = y * 1000 * 2;\n" +
+                "            y++;\n" +
+                "       }\n" +
+                "       until (y > input.size()) \n" +
+                "    }\n" +
+                "    i++;\n" +
+                "    output = i * 1000;\n" +
+                "}\n" +
+                "until (i > input.size()) \n" +
+                "output = output * 4;\n" +
+                "return {\n" +
+                "    msg: [output, outputY, i, y]\n" +
+                "};";
+        LinkedHashMap<String, ArrayList<Integer>> expected = new LinkedHashMap<>();
+        ArrayList<Integer> expIntList = new ArrayList<>();
+        expIntList.add(-12);
+        expIntList.add(-7);
+        expIntList.add(2);
+        expIntList.add(1);
+        expected.put("msg", expIntList);
+        Object actual = executeScript(scriptBodyTestForWithBreakInIfStr);
+        assertEquals(expected, actual);
+    }
+
+    public void testDoUntilWithBreakInIf_Function() {
+        String scriptBodyTestForWithBreakInIfStr =
+                "var input = [-1, -2, -3, -4];\n" +
+                        "var output = 10;\n" +
+                        "var i = 0;\n" +
+                        "forBreak();\n" +
+                        "function forBreak() {\n" +
+                        "   do {\n" +
+                        "        output = i;\n" +
+                        "        if (i === 1) {\n" +
+                        "            output = input[i];\n" +
+                        "            break;\n" +
+                        "        }\n" +
+                        "        output = i;\n" +
+                        "        i++;\n" +
+                        "    }\n" +
+                        "    until (i > input.size()) \n" +
                         "}" +
                         "return {\n" +
                         "    msg: [output, i]\n" +
