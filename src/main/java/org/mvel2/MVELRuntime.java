@@ -23,6 +23,7 @@ import org.mvel2.ast.ForEachNode;
 import org.mvel2.ast.ForNode;
 import org.mvel2.ast.Function;
 import org.mvel2.ast.LineLabel;
+import org.mvel2.ast.WhileNode;
 import org.mvel2.compiler.CompiledExpression;
 import org.mvel2.debug.Debugger;
 import org.mvel2.debug.DebuggerContext;
@@ -73,7 +74,7 @@ public class MVELRuntime {
     while (node != null) {
       if (node instanceof Function) {
         node.getReducedValueAccelerated(ctx, ctx, variableFactory);
-      } else if (node instanceof ForNode || node instanceof ForEachNode) {
+      } else if (node instanceof ForNode || node instanceof ForEachNode || node instanceof WhileNode) {
         variableFactory.setFinishBreakFlag(true);
       }
       node = node.nextASTNode;

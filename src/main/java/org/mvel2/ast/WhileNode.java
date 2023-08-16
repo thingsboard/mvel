@@ -53,10 +53,14 @@ public class WhileNode extends BlockNode {
   }
 
   public Object getReducedValueAccelerated(Object ctx, Object thisValue, VariableResolverFactory factory) {
+    factory.setFinishBreakFlag(true);
     VariableResolverFactory ctxFactory = new MapVariableResolverFactory(new HashMap<String, Object>(), factory);
     while ((Boolean) condition.getValue(ctx, thisValue, factory)) {
       checkExecution(ctx);
       compiledBlock.getValue(ctx, thisValue, ctxFactory);
+      if (factory.tiltFlag() & factory.finishBreakFlag()) {
+        break;
+      }
     }
 
     return null;
