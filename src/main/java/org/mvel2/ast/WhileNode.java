@@ -37,7 +37,7 @@ public class WhileNode extends BlockNode {
 
   public WhileNode(char[] expr, int start, int offset, int blockStart, int blockEnd, int fields, ParserContext pCtx) {
     super(pCtx);
-    expectType(pCtx, this.condition = (ExecutableStatement) subCompileExpression(expr, start, offset, pCtx),
+    expectType(pCtx, this.condition = (ExecutableStatement) subCompileExpression(this.expr = expr, this.start = start, this.offset = offset, pCtx),
         Boolean.class, ((fields & COMPILE_IMMEDIATE) != 0));
 
 
@@ -53,10 +53,14 @@ public class WhileNode extends BlockNode {
   }
 
   public Object getReducedValueAccelerated(Object ctx, Object thisValue, VariableResolverFactory factory) {
+    factory.setFinishBreakFlag(true);
     VariableResolverFactory ctxFactory = new MapVariableResolverFactory(new HashMap<String, Object>(), factory);
     while ((Boolean) condition.getValue(ctx, thisValue, factory)) {
       checkExecution(ctx);
       compiledBlock.getValue(ctx, thisValue, ctxFactory);
+      if (factory.tiltFlag() & factory.finishBreakFlag()) {
+        break;
+      }
     }
 
     return null;

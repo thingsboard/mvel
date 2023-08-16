@@ -19,8 +19,13 @@
 package org.mvel2;
 
 import org.mvel2.ast.ASTNode;
+import org.mvel2.ast.DoNode;
+import org.mvel2.ast.DoUntilNode;
+import org.mvel2.ast.ForEachNode;
+import org.mvel2.ast.ForNode;
 import org.mvel2.ast.Function;
 import org.mvel2.ast.LineLabel;
+import org.mvel2.ast.WhileNode;
 import org.mvel2.compiler.CompiledExpression;
 import org.mvel2.debug.Debugger;
 import org.mvel2.debug.DebuggerContext;
@@ -29,7 +34,13 @@ import org.mvel2.optimizers.OptimizerFactory;
 import org.mvel2.util.ErrorUtil;
 import org.mvel2.util.ExecutionStack;
 
-import static org.mvel2.Operator.*;
+import static org.mvel2.Operator.BREAK;
+import static org.mvel2.Operator.CHOR;
+import static org.mvel2.Operator.END_OF_STMT;
+import static org.mvel2.Operator.NOOP;
+import static org.mvel2.Operator.RETURN;
+import static org.mvel2.Operator.TERNARY;
+import static org.mvel2.Operator.TERNARY_ELSE;
 import static org.mvel2.util.PropertyTools.isEmpty;
 
 /**
@@ -65,6 +76,9 @@ public class MVELRuntime {
     while (node != null) {
       if (node instanceof Function) {
         node.getReducedValueAccelerated(ctx, ctx, variableFactory);
+      } else if (node instanceof ForNode || node instanceof ForEachNode || node instanceof WhileNode
+              || node instanceof DoNode || node instanceof DoUntilNode) {
+        variableFactory.setFinishBreakFlag(true);
       }
       node = node.nextASTNode;
     }
@@ -97,11 +111,16 @@ public class MVELRuntime {
         }
 
         if (variableFactory.tiltFlag()) {
-          return stk.pop();
+          if (variableFactory.finishBreakFlag()) {
+            variableFactory.setTiltFlag(false);
+          } else {
+            return stk.pop();
+          }
         }
 
         switch (operator = tk.getOperator()) {
           case RETURN:
+          case BREAK:
             variableFactory.setTiltFlag(true);
             return stk.pop();
 

@@ -216,6 +216,8 @@ public class DebugTools {
         return "REGEX";
       case Operator.RETURN:
         return "RETURN";
+      case Operator.BREAK:
+        return "BREAK";
       case Operator.SIMILARITY:
         return "SIMILARITY";
       case Operator.SOUNDEX:
@@ -335,6 +337,8 @@ public class DebugTools {
         return "REGEX";
       case Operator.RETURN:
         return "RETURN";
+      case Operator.BREAK:
+        return "BREAK";
       case Operator.SIMILARITY:
         return "SIMILARITY";
       case Operator.SOUNDEX:

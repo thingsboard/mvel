@@ -82,6 +82,16 @@ public class StackResetResolverFactory implements VariableResolverFactory {
     }
   }
 
+  @Override
+  public boolean finishBreakFlag() {
+    return false;
+  }
+
+  @Override
+  public void setFinishBreakFlag(boolean mayBeBreak) {
+
+  }
+
   public VariableResolverFactory getDelegate() {
     return delegate;
   }

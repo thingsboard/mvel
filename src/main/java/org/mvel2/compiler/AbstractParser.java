@@ -25,6 +25,7 @@ import org.mvel2.ast.ASTNode;
 import org.mvel2.ast.AssertNode;
 import org.mvel2.ast.AssignmentNode;
 import org.mvel2.ast.BooleanNode;
+import org.mvel2.ast.BreakNode;
 import org.mvel2.ast.DeclProtoVarNode;
 import org.mvel2.ast.DeclTypedVarNode;
 import org.mvel2.ast.DeepAssignmentNode;
@@ -102,6 +103,7 @@ import static org.mvel2.Operator.ASSIGN_ADD;
 import static org.mvel2.Operator.ASSIGN_DIV;
 import static org.mvel2.Operator.ASSIGN_MOD;
 import static org.mvel2.Operator.ASSIGN_SUB;
+import static org.mvel2.Operator.BREAK;
 import static org.mvel2.Operator.BW_AND;
 import static org.mvel2.Operator.BW_OR;
 import static org.mvel2.Operator.BW_SHIFT_LEFT;
@@ -508,6 +510,11 @@ public class AbstractParser implements Parser, Serializable {
                 st = cursor = trimRight(cursor);
                 captureToEOS();
                 return lastNode = new ReturnNode(expr, st, cursor - st, fields, pCtx);
+
+              case BREAK:
+                st = cursor = trimRight(cursor);
+                captureToEOS();
+                return new BreakNode(expr, st, cursor - st, fields, pCtx);
 
               case IF:
                 return captureCodeBlock(ASTNode.BLOCK_IF);
@@ -1762,6 +1769,12 @@ public class AbstractParser implements Parser, Serializable {
         skipWhitespace();
         return _captureBlock(null, expr, false, type);
 
+      case ASTNode.BLOCK_FOR: {
+        captureToNextTokenJunction();
+        skipWhitespace();
+        return _captureBlockWithBreak(expr, true, type);
+      }
+
       default: // either BLOCK_WITH or BLOCK_FOREACH
         captureToNextTokenJunction();
         skipWhitespace();
@@ -1886,6 +1899,40 @@ public class AbstractParser implements Parser, Serializable {
         return switchNode.setDefaultBlock(expr, st = trimRight(blockStart + 1), trimLeft(blockEnd) - st, pCtx);
       }
     }
+  }
+
+  private ASTNode _captureBlockWithBreak(final char[] expr, boolean cond, int type) {
+    skipWhitespace();
+    int startCond = 0;
+    int endCond = 0;
+
+    int blockStart;
+    int blockEnd;
+
+    if (cond) {
+      if (expr[cursor] != '(') {
+        throw new CompileException("expected '(' but encountered: " + expr[cursor], expr, cursor);
+      }
+
+      endCond = cursor = balancedCaptureWithLineAccounting(expr, startCond = cursor, end, '(', pCtx);
+      startCond++;
+      cursor++;
+    }
+
+    skipWhitespace();
+
+    if (cursor >= end) {
+      throw new CompileException("unexpected end of statement", expr, end);
+    }
+    else if (expr[cursor] == '{') {
+      blockEnd = cursor = balancedCaptureWithLineAccounting(expr, blockStart = cursor, end, '{', pCtx);
+    }
+    else {
+      blockStart = cursor - 1;
+      captureToEOSorEOL();
+      blockEnd = cursor + 1;
+    }
+    return createBlockToken(startCond, endCond, trimRight(blockStart + 1), trimLeft(blockEnd), type);
   }
 
   private ASTNode _captureBlock(ASTNode node, final char[] expr, boolean cond, int type) {
@@ -2598,6 +2645,7 @@ public class AbstractParser implements Parser, Serializable {
 
       case 2: // multi-statement
         operatorsTable.put("return", RETURN);
+        operatorsTable.put("break", BREAK);
         operatorsTable.put(";", END_OF_STMT);
 
       case 1: // boolean, math ops, projection, assertion, objection creation, block setters, imports

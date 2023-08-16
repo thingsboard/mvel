@@ -48,5 +48,7 @@ public class PostFixDecNode extends ASTNode {
     return getReducedValueAccelerated(ctx, thisValue, factory);
   }
 
-
+  public String toString() {
+    return "<<" + name + "-- " + this.egressType.getName() + ">>";
+  }
 }

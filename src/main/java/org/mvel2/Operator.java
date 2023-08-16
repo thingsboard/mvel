@@ -171,4 +171,6 @@ public interface Operator {
   public static final int SWAP = 115;
   public static final int XSWAP = 116;
 
+  public static final int BREAK = 117;
+
 }

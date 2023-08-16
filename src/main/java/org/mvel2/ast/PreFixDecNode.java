@@ -47,4 +47,8 @@ public class PreFixDecNode extends ASTNode {
   public Object getReducedValue(Object ctx, Object thisValue, VariableResolverFactory factory) {
     return getReducedValueAccelerated(ctx, thisValue, factory);
   }
+
+  public String toString() {
+    return "<<--" + name + " " + this.egressType.getName() + ">>";
+  }
 }
