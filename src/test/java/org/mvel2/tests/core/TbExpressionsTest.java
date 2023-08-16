@@ -1399,6 +1399,23 @@ public class TbExpressionsTest extends TestCase {
         }
     }
 
+    public void testForWithBreakInIf_OnlyBreak() {
+        String scriptBodyTestForWithBreakInIfStr =
+                "var y = 0;\n" +
+                "for (int i =0; i< 100; i++) {\n" +
+                "        y=i;\n" +
+                "        if (i > 2) {\n" +
+                "            break;\n" +
+                "        }\n" +
+                "    }\n" +
+                "return {\n" +
+                "    msg: y\n" +
+                "};" ;
+        LinkedHashMap<String, Integer> expected = new LinkedHashMap<>();
+        expected.put("msg", 3);
+        Object actual = executeScript(scriptBodyTestForWithBreakInIfStr);
+        assertEquals(expected, actual);
+    }
     public void testForWithBreakInIf_Function() {
         String scriptBodyTestForWithBreakInIfStr =
                 "var input = [1, 2, 3, 4];\n" +
