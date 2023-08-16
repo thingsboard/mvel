@@ -19,6 +19,7 @@
 package org.mvel2;
 
 import org.mvel2.ast.ASTNode;
+import org.mvel2.ast.ForEachNode;
 import org.mvel2.ast.ForNode;
 import org.mvel2.ast.Function;
 import org.mvel2.ast.LineLabel;
@@ -72,7 +73,7 @@ public class MVELRuntime {
     while (node != null) {
       if (node instanceof Function) {
         node.getReducedValueAccelerated(ctx, ctx, variableFactory);
-      } else if (node instanceof ForNode) {
+      } else if (node instanceof ForNode || node instanceof ForEachNode) {
         variableFactory.setFinishBreakFlag(true);
       }
       node = node.nextASTNode;
