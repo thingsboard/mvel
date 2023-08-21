@@ -101,9 +101,11 @@ public class Function extends ASTNode implements Safe, HasStatement {
      */
     if (pCtx.getVariables() != null) {
       for (Map.Entry<String, Class> e : pCtx.getVariables().entrySet()) {
-//        if (!ctx.hasLocalDeclaration(e.getKey())) {
-        if (!ctx.hasLocalDeclaration(e.getKey()) && !ctx.hasVariables(e.getKey())) {
+        if (pCtx.hasLocalDeclaration(e.getKey())) {
           ctx.getVariables().remove(e.getKey());
+          ctx.addInput(e.getKey(), e.getValue());
+        }
+        if (!ctx.hasVariables(e.getKey())) {
           ctx.addInput(e.getKey(), e.getValue());
         }
       }
@@ -112,7 +114,6 @@ public class Function extends ASTNode implements Safe, HasStatement {
     }
 
     ctx.addIndexedInputs(ctx.getVariables().keySet());
-    ctx.getVariables().clear();
 
     this.compiledBlock = (ExecutableStatement) subCompileExpression(expr, blockStart, blockOffset, ctx);
 

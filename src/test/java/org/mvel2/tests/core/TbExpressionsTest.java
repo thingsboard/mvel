@@ -1567,12 +1567,23 @@ public class TbExpressionsTest extends TestCase {
     public void testForeachWithBreakInIf_Function() {
         String scriptBodyTestForWithBreakInIfStr =
                 "var input = [-1, -2, -3, -4];\n" +
-                    "var output = 10;\n" +
-                    "var i = 0;\n" +
-                    "forBreak();\n" +
-                    "return {\n" +
-                    "    msg: output\n" +
-                    "};\n" ;
+                "var output = 10;\n" +
+                "var i = 0;\n" +
+                "forBreak();\n" +
+                "function forBreak() {\n" +
+                "    foreach(a: input) {\n" +
+                "        output = i;\n" +
+                "        if (i === 1) {\n" +
+                "            output = a;\n" +
+                "            break;\n" +
+                "        }\n" +
+                "        output = i;\n" +
+                "        i++;\n" +
+                "    }\n" +
+                "}" +
+                "return {\n" +
+                "    msg: output\n" +
+                "};\n" ;
         LinkedHashMap<String, Integer> expected = new LinkedHashMap<>();
         expected.put("msg",-2);
         Object actual = executeScript(scriptBodyTestForWithBreakInIfStr);
@@ -1913,7 +1924,7 @@ public class TbExpressionsTest extends TestCase {
                 "\n" ;
         LinkedHashMap<String, ArrayList<Integer>> expected = new LinkedHashMap<>();
         ArrayList<Integer> expIntList = new ArrayList<>();
-        expIntList.add(9);
+        expIntList.add(90);
         expected.put("msg", expIntList);
         Object actual = executeScript(scriptBodyTestForWithBreakInIfStr);
         assertEquals(expected, actual);
@@ -1939,9 +1950,10 @@ public class TbExpressionsTest extends TestCase {
     }
 
     /**
-     * Fix_buf:
-     * - For level0 (parameter 'a')
-     * - Function level0 with  For (parameter 'a')
+     * Fix_bug:
+     * - Script with `For` level0 (parameter name 'a')
+     * - Function level0 with  `For` (parameter name 'a')
+     * - condition_number_1 (`For` level0 parameter 'a')  IS EQUAL TO OR less than condition_number_2 (`For` level0 parameter 'a') by +1
      * - in Function result: "unable to resolve variable 'a'"
      */
     public void testLeve0ForVar_a_And_FunctionWithForVar_a_Function_Calling_Level0() {
@@ -1959,6 +1971,7 @@ public class TbExpressionsTest extends TestCase {
                 "    msg: [output]\n" +
                 "};\n" +
                 "function testBreak(val) {\n" +
+                "    var b = 45;\n" +
                 "    for (var r = 0; r < 5; r++) {\n" +
                 "        output++;\n" +
                 "    }\n" +
@@ -1978,9 +1991,12 @@ public class TbExpressionsTest extends TestCase {
     }
 
     /**
-     ?? Why not working ScriptRuntimeException ?
-    *
-     **/
+     * Fix_bug:
+     * - Script with `For` level0 (parameter name 'a')
+     * - Function level0 with  `For` (parameter name 'a')
+     * - condition_number_1 (`For` level0 parameter 'a')  is greater than condition_number_2 (`For` level0 parameter 'a') by more than +2
+     * - in Function with For result: "Infinite Loops For" -> Should throw ScriptExecutionStoppedException
+     */
     public void testOneNameVar_In_Another_Procedure_NotTimeout() {
         String scriptBodyTestForWithBreakInIfStr =
                 "var output = 0;\n" +
@@ -1992,7 +2008,7 @@ public class TbExpressionsTest extends TestCase {
                 "    msg: [output]\n" +
                 "};\n" +
                 "function testBug(val) {\n" +
-                "    for (var a = 0; a< 9; a++) {\n" +
+                "    for (var a = 0; a < 9; a++) {\n" +
                 "        val++;\n" +
                 "    }\n" +
                 "    return val;\n" +
