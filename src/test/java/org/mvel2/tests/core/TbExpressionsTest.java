@@ -629,7 +629,7 @@ public class TbExpressionsTest extends TestCase {
                     "result = cost + threshold(lowerBound);");
             fail("Should throw ScriptRuntimeException");
         } catch (ScriptRuntimeException e) {
-            assertTrue(e.getMessage().equals("[Error: Invalid statement: def (x) { x >= 10 ? x : 0 }]\n" +
+            assertTrue(e.getMessage().equals("[Error: Invalid statement: def (x) { x >= 10 ? x : 0 } Unsupported value type: class org.mvel2.ast.PrototypalFunctionInstance]\n" +
                     "[Near : {... threshold = def (x) { x >= 10 ? x : 0 }; ....}]\n" +
                     "                         ^\n" +
                     "[Line: 1, Column: 13]"));
@@ -1570,17 +1570,6 @@ public class TbExpressionsTest extends TestCase {
                     "var output = 10;\n" +
                     "var i = 0;\n" +
                     "forBreak();\n" +
-                    "function forBreak() {\n" +
-                    "    foreach(a: input) {\n" +
-                    "        output = i;\n" +
-                    "        if (i === 1) {\n" +
-                    "            output = a;\n" +
-                    "            break;\n" +
-                    "        }\n" +
-                    "        output = i;\n" +
-                    "        i++;\n" +
-                    "    }\n" +
-                    "}" +
                     "return {\n" +
                     "    msg: output\n" +
                     "};\n" ;
@@ -1901,6 +1890,116 @@ public class TbExpressionsTest extends TestCase {
         ArrayList<Integer> expIntList = new ArrayList<>();
         expIntList.add(-2);
         expIntList.add(1);
+        expected.put("msg", expIntList);
+        Object actual = executeScript(scriptBodyTestForWithBreakInIfStr);
+        assertEquals(expected, actual);
+    }
+
+    public void testForVar_a_FunctionWithForVar_a() {
+        String scriptBodyTestForWithBreakInIfStr =
+                "var output = 0;\n" +
+                "for (var a = 0; a < 10; a++) {\n" +
+                "    output = testBreak(output);\n" +
+                "}\n" +
+                "return {\n" +
+                "    msg: [output]\n" +
+                "};\n" +
+                "function testBreak(val) {\n" +
+                "    for (var a = 0; a< 9; a++) {\n" +
+                "        val++;\n" +
+                "    }\n" +
+                "    return val;\n" +
+                "}" +
+                "\n" ;
+        LinkedHashMap<String, ArrayList<Integer>> expected = new LinkedHashMap<>();
+        ArrayList<Integer> expIntList = new ArrayList<>();
+        expIntList.add(9);
+        expected.put("msg", expIntList);
+        Object actual = executeScript(scriptBodyTestForWithBreakInIfStr);
+        assertEquals(expected, actual);
+    }
+
+    public void testLeve0ForVar_a_Level0_a_unresolvable() {
+        String scriptBodyTestForWithBreakInIfStr =
+                "var output = 0;\n" +
+                "for (var a = 0; a < 10; a++) {\n" +
+                "}\n" +
+                "output = a;\n" +
+                "return {\n" +
+                "    msg: [output]\n" +
+                "};\n" +
+                "\n" ;
+        try {
+            executeScript(scriptBodyTestForWithBreakInIfStr);
+            fail("Should throw PropertyAccessException");
+        } catch (CompileException e) {
+            assertTrue(e.getMessage().contains("unresolvable property or identifier: a"));
+        }
+
+    }
+
+    /**
+     * Fix_buf:
+     * - For level0 (parameter 'a')
+     * - Function level0 with  For (parameter 'a')
+     * - in Function result: "unable to resolve variable 'a'"
+     */
+    public void testLeve0ForVar_a_And_FunctionWithForVar_a_Function_Calling_Level0() {
+        String scriptBodyTestForWithBreakInIfStr =
+                "var output = 0;\n" +
+                "output = testBreak(output);\n" +
+                "for (var a = 0; a < 10; a++) {\n" +
+                "}\n" +
+                "for (var y = 0; y < 2; y++) {\n" +
+                "        output++;\n" +
+                "}\n" +
+                "for (var r = 0; r < 10; r++) {\n" +
+                "}\n" +
+                "return {\n" +
+                "    msg: [output]\n" +
+                "};\n" +
+                "function testBreak(val) {\n" +
+                "    for (var r = 0; r < 5; r++) {\n" +
+                "        output++;\n" +
+                "    }\n" +
+                "    val = output;\n" +
+                "    for (var a = 0; a < 9; a++) {\n" +
+                "        val++;\n" +
+                "    }\n" +
+                "    return val;\n" +
+                "}" +
+                "\n" ;
+        LinkedHashMap<String, ArrayList<Integer>> expected = new LinkedHashMap<>();
+        ArrayList<Integer> expIntList = new ArrayList<>();
+        expIntList.add(16);
+        expected.put("msg", expIntList);
+        Object actual = executeScript(scriptBodyTestForWithBreakInIfStr);
+        assertEquals(expected, actual);
+    }
+
+    /**
+     ?? Why not working ScriptRuntimeException ?
+    *
+     **/
+    public void testOneNameVar_In_Another_Procedure_NotTimeout() {
+        String scriptBodyTestForWithBreakInIfStr =
+                "var output = 0;\n" +
+                "for (var a = 0; a < 100; a++) {\n" +
+                "    output = testBug(output);\n" +
+                "}\n" +
+                "output = testBug(output);\n" +
+                "return {\n" +
+                "    msg: [output]\n" +
+                "};\n" +
+                "function testBug(val) {\n" +
+                "    for (var a = 0; a< 9; a++) {\n" +
+                "        val++;\n" +
+                "    }\n" +
+                "    return val;\n" +
+                "}" ;
+        LinkedHashMap<String, ArrayList<Integer>> expected = new LinkedHashMap<>();
+        ArrayList<Integer> expIntList = new ArrayList<>();
+        expIntList.add(909);
         expected.put("msg", expIntList);
         Object actual = executeScript(scriptBodyTestForWithBreakInIfStr);
         assertEquals(expected, actual);

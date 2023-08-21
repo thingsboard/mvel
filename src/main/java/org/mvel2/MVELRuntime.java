@@ -200,10 +200,11 @@ public class MVELRuntime {
         } else if (e instanceof ScriptMemoryOverflowException || e instanceof ScriptExecutionStoppedException){
           throw e;
         } else {
-          CompileException ce = new CompileException("Invalid statement: " + tk.getName(), tk.getExpr(), tk.getStart(), e);
+          CompileException ce = new CompileException("Invalid statement: " + tk.getName() + " " + e.getMessage() , tk.getExpr(), tk.getStart(), e);
           if (e instanceof ScriptRuntimeException) {
             throw new ScriptRuntimeException(ce.getMessage(), e);
           } else {
+
             throw ce;
           }
         }

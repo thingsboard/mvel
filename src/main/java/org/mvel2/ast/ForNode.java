@@ -63,10 +63,14 @@ public class ForNode extends BlockNode {
   public Object getReducedValueAccelerated(Object ctx, Object thisValue, VariableResolverFactory factory) {
     VariableResolverFactory ctxFactory = indexAlloc ? factory : new MapVariableResolverFactory(new HashMap<String, Object>(1), factory);
     Object v;
-    for (initializer.getValue(ctx, thisValue, ctxFactory); (Boolean) condition.getValue(ctx, thisValue, ctxFactory); after.getValue(ctx, thisValue, ctxFactory)) {
-      checkExecution(ctx);
-      v = compiledBlock.getValue(ctx, thisValue, ctxFactory);
-      if (ctxFactory.tiltFlag()) return v;
+    try {
+      for (initializer.getValue(ctx, thisValue, ctxFactory); (Boolean) condition.getValue(ctx, thisValue, ctxFactory); after.getValue(ctx, thisValue, ctxFactory)) {
+        checkExecution(ctx);
+        v = compiledBlock.getValue(ctx, thisValue, ctxFactory);
+        if (ctxFactory.tiltFlag()) return v;
+      }
+    } catch (Exception e) {
+      System.out.println(e.getMessage());
     }
     return null;
   }

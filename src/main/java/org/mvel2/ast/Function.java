@@ -60,6 +60,8 @@ public class Function extends ASTNode implements Safe, HasStatement {
       this.name = null;
     }
     this.expr = expr;
+    this.start = start;
+    this.offset = offset;
 
     parmNum = (this.parameters = parseParameterDefList(expr, start, offset)).length;
 
@@ -99,7 +101,8 @@ public class Function extends ASTNode implements Safe, HasStatement {
      */
     if (pCtx.getVariables() != null) {
       for (Map.Entry<String, Class> e : pCtx.getVariables().entrySet()) {
-        if (!ctx.hasLocalDeclaration(e.getKey())) {
+//        if (!ctx.hasLocalDeclaration(e.getKey())) {
+        if (!ctx.hasLocalDeclaration(e.getKey()) && !ctx.hasVariables(e.getKey())) {
           ctx.getVariables().remove(e.getKey());
           ctx.addInput(e.getKey(), e.getValue());
         }

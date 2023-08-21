@@ -18,14 +18,14 @@
 
 package org.mvel2.compiler;
 
-import java.io.Serializable;
-
 import org.mvel2.ParserConfiguration;
 import org.mvel2.ast.ASTNode;
 import org.mvel2.ast.TypeCast;
 import org.mvel2.integration.VariableResolverFactory;
 import org.mvel2.optimizers.OptimizerFactory;
 import org.mvel2.util.ASTLinkedList;
+
+import java.io.Serializable;
 
 import static org.mvel2.MVELRuntime.execute;
 
