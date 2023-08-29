@@ -1063,13 +1063,6 @@ public class ParserContext implements Serializable {
       return false;
     }
   }
-  public boolean hasVariables(String name) {
-    if (variables != null) {
-      return  variables.containsKey(name);
-    } else {
-      return false;
-    }
-  }
 
   public Object getEvaluationContext() {
     return evaluationContext;

@@ -104,8 +104,7 @@ public class Function extends ASTNode implements Safe, HasStatement {
         if (pCtx.hasLocalDeclaration(e.getKey())) {
           ctx.getVariables().remove(e.getKey());
           ctx.addInput(e.getKey(), e.getValue());
-        }
-        if (!ctx.hasVariables(e.getKey())) {
+        } else if (!ctx.getVariables().containsKey(e.getKey())) {
           ctx.addInput(e.getKey(), e.getValue());
         }
       }

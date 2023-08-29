@@ -629,7 +629,7 @@ public class TbExpressionsTest extends TestCase {
                     "result = cost + threshold(lowerBound);");
             fail("Should throw ScriptRuntimeException");
         } catch (ScriptRuntimeException e) {
-            assertTrue(e.getMessage().equals("[Error: Invalid statement: def (x) { x >= 10 ? x : 0 } Unsupported value type: class org.mvel2.ast.PrototypalFunctionInstance]\n" +
+            assertTrue(e.getMessage().equals("[Error: Invalid statement: def (x) { x >= 10 ? x : 0 }]\n" +
                     "[Near : {... threshold = def (x) { x >= 10 ? x : 0 }; ....}]\n" +
                     "                         ^\n" +
                     "[Line: 1, Column: 13]"));
