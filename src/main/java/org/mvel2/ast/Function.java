@@ -113,6 +113,7 @@ public class Function extends ASTNode implements Safe, HasStatement {
     }
 
     ctx.addIndexedInputs(ctx.getVariables().keySet());
+    ctx.getVariables().clear();
 
     this.compiledBlock = (ExecutableStatement) subCompileExpression(expr, blockStart, blockOffset, ctx);
 

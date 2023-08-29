@@ -88,7 +88,7 @@ public class FunctionsTest extends AbstractTest {
   }
 
   public void testJIRA207() {
-    String ex = "x = 0; y = 0;" +
+    String ex = "var x = 0; var y = 0;" +
         "def foo() { x = 1; System.out.println('Word up'); }\n" +
         "def bar() { y = 1;  System.out.println('Peace out'); }\n" +
         "def doMany(fps) {\n" +
