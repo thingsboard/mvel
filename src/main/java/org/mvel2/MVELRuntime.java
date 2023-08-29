@@ -204,6 +204,7 @@ public class MVELRuntime {
           if (e instanceof ScriptRuntimeException) {
             throw new ScriptRuntimeException(ce.getMessage(), e);
           } else {
+
             throw ce;
           }
         }

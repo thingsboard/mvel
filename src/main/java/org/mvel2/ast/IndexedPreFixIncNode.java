@@ -46,4 +46,8 @@ public class IndexedPreFixIncNode extends ASTNode {
   public Object getReducedValue(Object ctx, Object thisValue, VariableResolverFactory factory) {
     return getReducedValueAccelerated(ctx, thisValue, factory);
   }
+
+  public String toString() {
+    return "<< --index " + this.pCtx.getIndexedVarNames()[this.register] + this.egressType.getName() + ">>";
+  }
 }

@@ -18,6 +18,17 @@
 
 package org.mvel2;
 
+import org.mvel2.ast.Function;
+import org.mvel2.ast.LineLabel;
+import org.mvel2.ast.Proto;
+import org.mvel2.compiler.AbstractParser;
+import org.mvel2.compiler.CompiledExpression;
+import org.mvel2.compiler.Parser;
+import org.mvel2.integration.Interceptor;
+import org.mvel2.util.LineMapper;
+import org.mvel2.util.MethodStub;
+import org.mvel2.util.ReflectionUtil;
+
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -34,17 +45,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-
-import org.mvel2.ast.Function;
-import org.mvel2.ast.LineLabel;
-import org.mvel2.ast.Proto;
-import org.mvel2.compiler.AbstractParser;
-import org.mvel2.compiler.CompiledExpression;
-import org.mvel2.compiler.Parser;
-import org.mvel2.integration.Interceptor;
-import org.mvel2.util.LineMapper;
-import org.mvel2.util.MethodStub;
-import org.mvel2.util.ReflectionUtil;
 
 /**
  * The <tt>ParserContext</tt> is the main environment object used for sharing state throughout the entire

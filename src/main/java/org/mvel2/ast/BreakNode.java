@@ -27,7 +27,7 @@ import static org.mvel2.MVEL.eval;
 import static org.mvel2.util.ParseTools.subCompileExpression;
 
 /**
- * @author Christopher Brock
+ * @author Nick
  */
 public class BreakNode extends ASTNode {
 

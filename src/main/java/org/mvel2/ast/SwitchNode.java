@@ -31,7 +31,7 @@ import static org.mvel2.util.CompilerTools.expectType;
 import static org.mvel2.util.ParseTools.subCompileExpression;
 
 /**
- * @author Christopher Brock
+ * @author Nick
  */
 public class SwitchNode extends BlockNode implements NestedStatement {
   protected ExecutableStatement condition;

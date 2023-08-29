@@ -1769,13 +1769,7 @@ public class AbstractParser implements Parser, Serializable {
         skipWhitespace();
         return _captureBlock(null, expr, false, type);
 
-      case ASTNode.BLOCK_FOR: {
-        captureToNextTokenJunction();
-        skipWhitespace();
-        return _captureBlockWithBreak(expr, true, type);
-      }
-
-      default: // either BLOCK_WITH or BLOCK_FOREACH
+      default: // either BLOCK_WITH or BLOCK_FOREACH or BLOCK_FOR
         captureToNextTokenJunction();
         skipWhitespace();
         return _captureBlock(null, expr, true, type);
@@ -1899,40 +1893,6 @@ public class AbstractParser implements Parser, Serializable {
         return switchNode.setDefaultBlock(expr, st = trimRight(blockStart + 1), trimLeft(blockEnd) - st, pCtx);
       }
     }
-  }
-
-  private ASTNode _captureBlockWithBreak(final char[] expr, boolean cond, int type) {
-    skipWhitespace();
-    int startCond = 0;
-    int endCond = 0;
-
-    int blockStart;
-    int blockEnd;
-
-    if (cond) {
-      if (expr[cursor] != '(') {
-        throw new CompileException("expected '(' but encountered: " + expr[cursor], expr, cursor);
-      }
-
-      endCond = cursor = balancedCaptureWithLineAccounting(expr, startCond = cursor, end, '(', pCtx);
-      startCond++;
-      cursor++;
-    }
-
-    skipWhitespace();
-
-    if (cursor >= end) {
-      throw new CompileException("unexpected end of statement", expr, end);
-    }
-    else if (expr[cursor] == '{') {
-      blockEnd = cursor = balancedCaptureWithLineAccounting(expr, blockStart = cursor, end, '{', pCtx);
-    }
-    else {
-      blockStart = cursor - 1;
-      captureToEOSorEOL();
-      blockEnd = cursor + 1;
-    }
-    return createBlockToken(startCond, endCond, trimRight(blockStart + 1), trimLeft(blockEnd), type);
   }
 
   private ASTNode _captureBlock(ASTNode node, final char[] expr, boolean cond, int type) {
