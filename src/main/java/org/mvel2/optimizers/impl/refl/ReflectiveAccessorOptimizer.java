@@ -1149,6 +1149,9 @@ public class ReflectiveAccessorOptimizer extends AbstractOptimizer implements Ac
           cExpr.computeTypeConversionRule();
         }
         if (!cExpr.isConvertableIngressEgress()) {
+          if (getClassName(cls).contains("TbUtils")) {
+            throw new PropertyAccessException("Invalid statement: " + getClassName(cls) + name, this.expr, this.start, pCtx);
+          }
           args[i] = convert(args[i], paramTypeVarArgsSafe(argParameterTypes, i, m.isVarArgs()));
         }
       }
