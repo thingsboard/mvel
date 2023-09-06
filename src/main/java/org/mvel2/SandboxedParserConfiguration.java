@@ -103,8 +103,8 @@ public class SandboxedParserConfiguration extends ParserConfiguration {
         sanboxedClassLoader.addAllowedClass(cls);
     }
    @Override
-    public void addReserved(String name) {
-        super.addReserved(name);
+    public void addNonConvertableClasses(String clazz) {
+        super.addNonConvertableClasses(clazz);
     }
 
     @Override

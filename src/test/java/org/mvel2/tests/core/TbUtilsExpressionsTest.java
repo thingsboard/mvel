@@ -36,8 +36,7 @@ public class TbUtilsExpressionsTest extends TestCase {
         try {
             TbUtils.register(parserConfig);
             parserConfig.addImport(TbUtilsExpressionsTest.TbUtils.class);
-//            parserConfig.addReserved("TbUtils");
-            parserConfig.addReserved(TbUtils.class.getName());
+            parserConfig.addNonConvertableClasses(TbUtils.class.getName());
         } catch (Exception e) {
             System.out.println("Cannot register functions " +e.getMessage());
         }

@@ -1150,7 +1150,7 @@ public class ReflectiveAccessorOptimizer extends AbstractOptimizer implements Ac
           cExpr.computeTypeConversionRule();
         }
         if (!cExpr.isConvertableIngressEgress()) {
-          if (pCtx.getParserConfiguration().hasReserved(cls.getName())) {
+          if (pCtx.getParserConfiguration().hasNonConvertableClasses(cls.getName())) {
             String ingressName;
             String egressName;
             if (cExpr.getKnownIngressType().getSimpleName().equals(cExpr.getKnownEgressType().getSimpleName())) {
