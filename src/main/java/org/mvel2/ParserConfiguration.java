@@ -18,6 +18,14 @@
 
 package org.mvel2;
 
+import org.mvel2.ast.Proto;
+import org.mvel2.compiler.AbstractParser;
+import org.mvel2.integration.Interceptor;
+import org.mvel2.integration.VariableResolverFactory;
+import org.mvel2.integration.impl.ClassImportResolverFactory;
+import org.mvel2.integration.impl.StackResetResolverFactory;
+import org.mvel2.util.MethodStub;
+
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -31,14 +39,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.mvel2.ast.Proto;
-import org.mvel2.compiler.AbstractParser;
-import org.mvel2.integration.Interceptor;
-import org.mvel2.integration.VariableResolverFactory;
-import org.mvel2.integration.impl.ClassImportResolverFactory;
-import org.mvel2.integration.impl.StackResetResolverFactory;
-import org.mvel2.util.MethodStub;
-
 import static org.mvel2.util.ParseTools.forNameWithInner;
 
 /**
@@ -47,6 +47,7 @@ import static org.mvel2.util.ParseTools.forNameWithInner;
 public class ParserConfiguration implements Serializable {
 
   protected final Map<String, Object> imports = new ConcurrentHashMap<String, Object>();
+  protected final Set<String> nonConvertableClasses = new HashSet<>();
   protected HashSet<String> packageImports;
   protected Map<String, Interceptor> interceptors;
   protected transient ClassLoader classLoader;
@@ -179,6 +180,9 @@ public class ParserConfiguration implements Serializable {
         AbstractParser.CLASS_LITERALS.containsKey(name) ||
         checkForDynamicImport(name);
   }
+  public boolean hasNonConvertableClasses(String clazz) {
+    return nonConvertableClasses.contains(clazz);
+  }
 
   public void addImport(Class cls) {
     addImport(cls.getSimpleName(), cls);
@@ -186,6 +190,9 @@ public class ParserConfiguration implements Serializable {
 
   public void addImport(String name, Class cls) {
     this.imports.put(name, cls);
+  }
+  public void addNonConvertableClasses(String clazz) {
+    this.nonConvertableClasses.add(clazz);
   }
 
   public void addImport(String name, Proto proto) {
@@ -210,6 +217,9 @@ public class ParserConfiguration implements Serializable {
 
   public Map<String, Object> getImports() {
     return imports;
+  }
+  public Set<String> getNonConvertableClasses() {
+    return nonConvertableClasses;
   }
 
   public void setImports(Map<String, Object> imports) {
