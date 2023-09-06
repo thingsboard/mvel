@@ -6,7 +6,6 @@ import org.mvel2.util.TriFunction;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -102,6 +101,10 @@ public class SandboxedParserConfiguration extends ParserConfiguration {
     public void addImport(String name, Class cls) {
         super.addImport(name, cls);
         sanboxedClassLoader.addAllowedClass(cls);
+    }
+   @Override
+    public void addReserved(String name, Class cls) {
+        super.addReserved(name, cls);
     }
 
     @Override

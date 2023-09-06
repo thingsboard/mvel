@@ -29,6 +29,7 @@ import org.mvel2.ast.FunctionInstance;
 import org.mvel2.ast.TypeDescriptor;
 import org.mvel2.compiler.Accessor;
 import org.mvel2.compiler.AccessorNode;
+import org.mvel2.compiler.ExecutableAccessor;
 import org.mvel2.compiler.ExecutableLiteral;
 import org.mvel2.compiler.ExecutableStatement;
 import org.mvel2.compiler.PropertyVerifier;
@@ -1149,6 +1150,9 @@ public class ReflectiveAccessorOptimizer extends AbstractOptimizer implements Ac
           cExpr.computeTypeConversionRule();
         }
         if (!cExpr.isConvertableIngressEgress()) {
+          if (pCtx.getParserConfiguration().hasReserved("TbUtils")) {
+            throw new PropertyAccessException("Invalid type of the " + ((ExecutableAccessor) cExpr).getNode().getName() + " parameter. Expected " +  cExpr.getKnownIngressType().getName() + " but was " +  cExpr.getKnownEgressType().getName(), this.expr, this.start, pCtx);
+          }
           args[i] = convert(args[i], paramTypeVarArgsSafe(argParameterTypes, i, m.isVarArgs()));
         }
       }
