@@ -19,13 +19,8 @@
 package org.mvel2;
 
 import org.mvel2.ast.ASTNode;
-import org.mvel2.ast.DoNode;
-import org.mvel2.ast.DoUntilNode;
-import org.mvel2.ast.ForEachNode;
-import org.mvel2.ast.ForNode;
 import org.mvel2.ast.Function;
 import org.mvel2.ast.LineLabel;
-import org.mvel2.ast.WhileNode;
 import org.mvel2.compiler.CompiledExpression;
 import org.mvel2.debug.Debugger;
 import org.mvel2.debug.DebuggerContext;
@@ -76,9 +71,6 @@ public class MVELRuntime {
     while (node != null) {
       if (node instanceof Function) {
         node.getReducedValueAccelerated(ctx, ctx, variableFactory);
-      } else if (node instanceof ForNode || node instanceof ForEachNode || node instanceof WhileNode
-              || node instanceof DoNode || node instanceof DoUntilNode) {
-        variableFactory.setFinishBreakFlag(true);
       }
       node = node.nextASTNode;
     }
@@ -110,20 +102,17 @@ public class MVELRuntime {
           stk.push(tk.getReducedValueAccelerated(ctx, ctx, variableFactory));
         }
 
-        if (variableFactory.tiltFlag()) {
-          if (variableFactory.finishBreakFlag()) {
-            variableFactory.setTiltFlag(false);
-          } else {
-            return stk.pop();
-          }
+        if (variableFactory.tiltFlag() || variableFactory.breakFlag()) {
+          return stk.pop();
         }
 
         switch (operator = tk.getOperator()) {
           case RETURN:
-          case BREAK:
             variableFactory.setTiltFlag(true);
             return stk.pop();
-
+          case BREAK:
+            variableFactory.setBreakFlag(true);
+            return stk.pop();
           case NOOP:
             continue;
 

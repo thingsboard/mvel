@@ -11,7 +11,7 @@ import java.util.Set;
 public class StackDemarcResolverFactory implements VariableResolverFactory {
   private VariableResolverFactory delegate;
   private boolean tilt = false;
-  private boolean finishBreak = false;
+  private boolean breakFlag = false;
 
   public StackDemarcResolverFactory(VariableResolverFactory delegate) {
     this.delegate = delegate;
@@ -82,13 +82,13 @@ public class StackDemarcResolverFactory implements VariableResolverFactory {
   }
 
   @Override
-  public boolean finishBreakFlag() {
-    return finishBreak;
+  public boolean breakFlag() {
+    return breakFlag;
   }
 
   @Override
-  public void setFinishBreakFlag(boolean finishBreak) {
-    this.finishBreak = finishBreak;
+  public void setBreakFlag(boolean breakFlag) {
+    this.breakFlag = breakFlag;
   }
 
   public VariableResolverFactory getDelegate() {

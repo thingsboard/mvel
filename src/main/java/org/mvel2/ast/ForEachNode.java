@@ -90,6 +90,10 @@ public class ForEachNode extends BlockNode {
           itemR.setValue(Array.get(iterCond, i));
           v = compiledBlock.getValue(ctx, thisValue, itemFactory);
           if (itemFactory.tiltFlag()) return v;
+          if (itemFactory.breakFlag()) {
+            itemFactory.setBreakFlag(false);
+            break;
+          }
         }
         break;
       case CHARSEQUENCE:
@@ -98,6 +102,10 @@ public class ForEachNode extends BlockNode {
           itemR.setValue(o);
           v = compiledBlock.getValue(ctx, thisValue, itemFactory);
           if (itemFactory.tiltFlag()) return v;
+          if (itemFactory.breakFlag()) {
+            itemFactory.setBreakFlag(false);
+            break;
+          }
         }
         break;
       case INTEGER:
@@ -107,6 +115,10 @@ public class ForEachNode extends BlockNode {
           itemR.setValue(i);
           v = compiledBlock.getValue(ctx, thisValue, itemFactory);
           if (itemFactory.tiltFlag()) return v;
+          if (itemFactory.breakFlag()) {
+            itemFactory.setBreakFlag(false);
+            break;
+          }
         }
         break;
 
@@ -116,6 +128,10 @@ public class ForEachNode extends BlockNode {
           itemR.setValue(o);
           v = compiledBlock.getValue(ctx, thisValue, itemFactory);
           if (itemFactory.tiltFlag()) return v;
+          if (itemFactory.breakFlag()) {
+            itemFactory.setBreakFlag(false);
+            break;
+          }
         }
 
         break;
@@ -142,6 +158,10 @@ public class ForEachNode extends BlockNode {
         itemR.setValue(o);
         v = compiledBlock.getValue(ctx, thisValue, itemFactory);
         if (itemFactory.tiltFlag()) return v;
+        if (itemFactory.breakFlag()) {
+          itemFactory.setBreakFlag(false);
+          break;
+        }
       }
     }
     else if (iterCond != null && iterCond.getClass().isArray()) {
@@ -151,6 +171,10 @@ public class ForEachNode extends BlockNode {
         itemR.setValue(Array.get(iterCond, i));
         v = compiledBlock.getValue(ctx, thisValue, itemFactory);
         if (itemFactory.tiltFlag()) return v;
+        if (itemFactory.breakFlag()) {
+          itemFactory.setBreakFlag(false);
+          break;
+        }
       }
     }
     else if (iterCond instanceof CharSequence) {
@@ -159,6 +183,10 @@ public class ForEachNode extends BlockNode {
         itemR.setValue(o);
         v = compiledBlock.getValue(ctx, thisValue, itemFactory);
         if (itemFactory.tiltFlag()) return v;
+        if (itemFactory.breakFlag()) {
+          itemFactory.setBreakFlag(false);
+          break;
+        }
       }
     }
     else if (iterCond instanceof Integer) {
@@ -168,6 +196,10 @@ public class ForEachNode extends BlockNode {
         itemR.setValue(i);
         v = compiledBlock.getValue(ctx, thisValue, itemFactory);
         if (itemFactory.tiltFlag()) return v;
+        if (itemFactory.breakFlag()) {
+          itemFactory.setBreakFlag(false);
+          break;
+        }
       }
     }
     else {

@@ -46,13 +46,13 @@ public class BreakNode extends ASTNode {
       setAccessor((Accessor) subCompileExpression(expr, start, offset, pCtx));
     }
 
-    factory.setTiltFlag(true);
+    factory.setBreakFlag(true);
 
     return accessor.getValue(ctx, thisValue, new StackDemarcResolverFactory(factory));
   }
 
   public Object getReducedValue(Object ctx, Object thisValue, VariableResolverFactory factory) {
-    factory.setTiltFlag(true);
+    factory.setBreakFlag(true);
     return eval(expr, start, offset, ctx, new StackDemarcResolverFactory(factory));
   }
 
