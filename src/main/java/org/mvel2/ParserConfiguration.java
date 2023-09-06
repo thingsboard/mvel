@@ -180,7 +180,7 @@ public class ParserConfiguration implements Serializable {
         AbstractParser.CLASS_LITERALS.containsKey(name) ||
         checkForDynamicImport(name);
   }
-  public boolean hasNonConvertableClasses(String clazz) {
+  public boolean isNonConvertableClass(String clazz) {
     return nonConvertableClasses.contains(clazz);
   }
 
@@ -191,7 +191,7 @@ public class ParserConfiguration implements Serializable {
   public void addImport(String name, Class cls) {
     this.imports.put(name, cls);
   }
-  public void addNonConvertableClasses(String clazz) {
+  public void addNonConvertableClass(String clazz) {
     this.nonConvertableClasses.add(clazz);
   }
 
@@ -217,9 +217,6 @@ public class ParserConfiguration implements Serializable {
 
   public Map<String, Object> getImports() {
     return imports;
-  }
-  public Set<String> getNonConvertableClasses() {
-    return nonConvertableClasses;
   }
 
   public void setImports(Map<String, Object> imports) {
