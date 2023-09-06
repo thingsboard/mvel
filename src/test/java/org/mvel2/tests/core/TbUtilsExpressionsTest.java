@@ -36,7 +36,8 @@ public class TbUtilsExpressionsTest extends TestCase {
         try {
             TbUtils.register(parserConfig);
             parserConfig.addImport(TbUtilsExpressionsTest.TbUtils.class);
-            parserConfig.addReserved("TbUtils", TbUtilsExpressionsTest.TbUtils.class);
+//            parserConfig.addReserved("TbUtils");
+            parserConfig.addReserved(TbUtils.class.getName());
         } catch (Exception e) {
             System.out.println("Cannot register functions " +e.getMessage());
         }
@@ -87,7 +88,7 @@ public class TbUtilsExpressionsTest extends TestCase {
             executeScript(scriptBody);
             fail("Should throw CompileException");
         } catch (CompileException e) {
-            assertTrue(e.getMessage().contains("Invalid type of the " + argument + " parameter. Expected java.lang.String but was java.util.Map"));
+            assertTrue(e.getMessage().contains("Invalid type of the " + argument + " parameter. Expected String but was Map"));
         }
     }
     private Object executeScript(String ex) {

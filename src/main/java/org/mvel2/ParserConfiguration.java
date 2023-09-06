@@ -47,7 +47,7 @@ import static org.mvel2.util.ParseTools.forNameWithInner;
 public class ParserConfiguration implements Serializable {
 
   protected final Map<String, Object> imports = new ConcurrentHashMap<String, Object>();
-  protected final Map<String, Object> reserved = new ConcurrentHashMap<String, Object>();
+  protected final Set<String> reserved = new HashSet<>();
   protected HashSet<String> packageImports;
   protected Map<String, Interceptor> interceptors;
   protected transient ClassLoader classLoader;
@@ -181,7 +181,7 @@ public class ParserConfiguration implements Serializable {
         checkForDynamicImport(name);
   }
   public boolean hasReserved(String name) {
-    return reserved.containsKey(name);
+    return reserved.contains(name);
   }
 
   public void addImport(Class cls) {
@@ -191,8 +191,8 @@ public class ParserConfiguration implements Serializable {
   public void addImport(String name, Class cls) {
     this.imports.put(name, cls);
   }
-  public void addReserved(String name, Class cls) {
-    this.reserved.put(name, cls);
+  public void addReserved(String name) {
+    this.reserved.add(name);
   }
 
   public void addImport(String name, Proto proto) {
@@ -218,7 +218,7 @@ public class ParserConfiguration implements Serializable {
   public Map<String, Object> getImports() {
     return imports;
   }
-  public Map<String, Object> getReserved() {
+  public Set<String> getReserved() {
     return reserved;
   }
 
