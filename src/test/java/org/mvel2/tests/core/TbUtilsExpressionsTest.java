@@ -88,7 +88,7 @@ public class TbUtilsExpressionsTest extends TestCase {
             executeScript(scriptBody);
             fail("Should throw CompileException");
         } catch (CompileException e) {
-            assertTrue(e.getMessage().contains("Invalid type of the " + argument + " parameter. Expected String but was Map"));
+            assertTrue(e.getMessage().contains("Invalid type of the '" + argument + "' parameter. Expected 'String' but was 'Map'"));
         }
     }
     private Object executeScript(String ex) {

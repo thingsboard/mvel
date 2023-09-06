@@ -1160,7 +1160,7 @@ public class ReflectiveAccessorOptimizer extends AbstractOptimizer implements Ac
               ingressName = cExpr.getKnownIngressType().getSimpleName();
               egressName = cExpr.getKnownEgressType().getSimpleName();
             }
-            throw new PropertyAccessException("Invalid type of the " + ((ExecutableAccessor) cExpr).getNode().getName() + " parameter. Expected " + ingressName + " but was " +   egressName, this.expr, this.start, pCtx);
+            throw new PropertyAccessException("Invalid type of the '" + ((ExecutableAccessor) cExpr).getNode().getName() + "' parameter. Expected '" + ingressName + "' but was '" +   egressName + "'.", this.expr, this.start, pCtx);
           }
           args[i] = convert(args[i], paramTypeVarArgsSafe(argParameterTypes, i, m.isVarArgs()));
         }
