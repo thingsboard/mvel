@@ -2021,6 +2021,85 @@ public class TbExpressionsTest extends TestCase {
         assertEquals(expected, actual);
     }
 
+    public void testInnerFunctionForReturn() {
+        String body = "var output = 0;\n" +
+                "\n" +
+                "output = testBug(output);\n" +
+                "\n" +
+                "return output;\n" +
+                "\n" +
+                "function testBug(val) {\n" +
+                "    for (var i=0 ;i<10;i++) {\n" +
+                "        return 1;\n" +
+                "    }\n" +
+                "    return 2;\n" +
+                "}";
+        Object result = executeScript(body);
+        assertTrue(result instanceof Integer);
+        assertEquals(1, result);
+    }
+
+    public void testInnerFunctionForConditionalReturn() {
+        String body = "var output = 0;\n" +
+                "\n" +
+                "output = testBug(output);\n" +
+                "\n" +
+                "return output;\n" +
+                "\n" +
+                "function testBug(val) {\n" +
+                "    for (var i=0 ;i<10;i++) {\n" +
+                "        if (i > 5) {\n" +
+                "             return i;\n" +
+                "        }\n" +
+                "    }\n" +
+                "    return 2;\n" +
+                "}";
+        Object result = executeScript(body);
+        assertTrue(result instanceof Integer);
+        assertEquals(6, result);
+    }
+
+   public void testInnerFunctionWhileReturn() {
+        String body = "var output = 0;\n" +
+                "\n" +
+                "output = testBug(output);\n" +
+                "\n" +
+                "return output;\n" +
+                "\n" +
+                "function testBug(val) {\n" +
+                "    var i = 0;              \n" +
+                "    while ( i < 10) {\n" +
+                "        return 1;\n" +
+                "    }\n" +
+                "    return 2;\n" +
+                "}";
+        Object result = executeScript(body);
+        assertTrue(result instanceof Integer);
+        assertEquals(1, result);
+    }
+
+    public void testInnerFunctionWhileConditionalReturn() {
+        String body = "var output = 0;\n" +
+                "\n" +
+                "output = testBug(output);\n" +
+                "\n" +
+                "return output;\n" +
+                "\n" +
+                "function testBug(val) {\n" +
+                "    var i = 0;              \n" +
+                "    while ( i < 10) {\n" +
+                "        if (i > 5) {\n" +
+                "           return i;\n" +
+                "        }\n" +
+                "        i++;" +
+                "    }\n" +
+                "    return 2;\n" +
+                "}";
+        Object result = executeScript(body);
+        assertTrue(result instanceof Integer);
+        assertEquals(6, result);
+    }
+
     private Object executeScript(String ex, Map vars, ExecutionContext executionContext, long timeoutMs) throws Exception {
         final CountDownLatch countDown = new CountDownLatch(1);
         AtomicReference<Object> result = new AtomicReference<>();

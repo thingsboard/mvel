@@ -67,6 +67,10 @@ public class ForNode extends BlockNode {
       checkExecution(ctx);
       v = compiledBlock.getValue(ctx, thisValue, ctxFactory);
       if (ctxFactory.tiltFlag()) return v;
+      if (ctxFactory.breakFlag()) {
+        ctxFactory.setBreakFlag(false);
+        break;
+      }
     }
     return null;
   }
@@ -77,6 +81,10 @@ public class ForNode extends BlockNode {
       checkExecution(ctx);
       v = compiledBlock.getValue(ctx, thisValue, factory);
       if (factory.tiltFlag()) return v;
+      if (factory.breakFlag()) {
+        factory.setBreakFlag(false);
+        break;
+      }
     }
 
     return null;

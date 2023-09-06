@@ -33,6 +33,7 @@ import org.mvel2.util.ErrorUtil;
 import org.mvel2.util.ExecutionStack;
 
 import static org.mvel2.Operator.AND;
+import static org.mvel2.Operator.BREAK;
 import static org.mvel2.Operator.CHOR;
 import static org.mvel2.Operator.END_OF_STMT;
 import static org.mvel2.Operator.NOOP;
@@ -131,13 +132,16 @@ public class MVELInterpretedRuntime extends AbstractParser {
           }
         }
 
-        if (variableFactory.tiltFlag()) {
+        if (variableFactory.tiltFlag() || variableFactory.breakFlag()) {
           return stk.pop();
         }
 
         switch (procBooleanOperator(operator = tk.getOperator())) {
           case RETURN:
             variableFactory.setTiltFlag(true);
+            return stk.pop();
+          case BREAK:
+            variableFactory.setBreakFlag(true);
             return stk.pop();
           case OP_TERMINATE:
             return stk.peek();

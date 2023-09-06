@@ -41,7 +41,7 @@ public abstract class BaseVariableResolverFactory implements VariableResolverFac
 
   private boolean tiltFlag;
 
-  private boolean finishBreak;
+  private boolean breakFlag;
 
   public VariableResolverFactory getNextFactory() {
     return nextFactory;
@@ -180,12 +180,12 @@ public abstract class BaseVariableResolverFactory implements VariableResolverFac
     this.tiltFlag = tiltFlag;
     if (nextFactory != null) nextFactory.setTiltFlag(tiltFlag);
   }
-  public boolean finishBreakFlag() {
-    return finishBreak;
+  public boolean breakFlag() {
+    return breakFlag;
   }
 
-  public void setFinishBreakFlag(boolean finishBreak) {
-    this.finishBreak = finishBreak;
-    if (nextFactory != null) nextFactory.setFinishBreakFlag(finishBreak);
+  public void setBreakFlag(boolean breakFlag) {
+    this.breakFlag = breakFlag;
+    if (nextFactory != null) nextFactory.setBreakFlag(breakFlag);
   }
 }

@@ -124,7 +124,7 @@ public interface VariableResolverFactory extends Serializable {
 
   public void setTiltFlag(boolean tilt);
 
-  public boolean finishBreakFlag();
+  public boolean breakFlag();
 
-  public void setFinishBreakFlag(boolean mayBeBreak);
+  public void setBreakFlag(boolean breakFlag);
 }

@@ -60,11 +60,13 @@ public class DoNode extends BlockNode {
 
   public Object getReducedValueAccelerated(Object ctx, Object thisValue, VariableResolverFactory factory) {
     VariableResolverFactory ctxFactory = new MapVariableResolverFactory(new HashMap<String, Object>(0), factory);
-    factory.setFinishBreakFlag(true);
+    Object v;
     do {
       checkExecution(ctx);
-      compiledBlock.getValue(ctx, thisValue, ctxFactory);
-      if (factory.tiltFlag() & factory.finishBreakFlag()) {
+      v = compiledBlock.getValue(ctx, thisValue, ctxFactory);
+      if (ctxFactory.tiltFlag()) return v;
+      if (ctxFactory.breakFlag()) {
+        ctxFactory.setBreakFlag(false);
         break;
       }
     }
@@ -75,10 +77,15 @@ public class DoNode extends BlockNode {
 
   public Object getReducedValue(Object ctx, Object thisValue, VariableResolverFactory factory) {
     VariableResolverFactory ctxFactory = new MapVariableResolverFactory(new HashMap<String, Object>(0), factory);
-
+    Object v;
     do {
       checkExecution(ctx);
-      compiledBlock.getValue(ctx, thisValue, ctxFactory);
+      v = compiledBlock.getValue(ctx, thisValue, ctxFactory);
+      if (ctxFactory.tiltFlag()) return v;
+      if (ctxFactory.breakFlag()) {
+        ctxFactory.setBreakFlag(false);
+        break;
+      }
     }
     while ((Boolean) condition.getValue(ctx, thisValue, factory));
 

@@ -27,6 +27,7 @@ import java.util.Set;
 
 public class ImmutableDefaultFactory implements VariableResolverFactory {
   private boolean tiltFlag;
+  private boolean breakFlag;
 
   private void throwError() {
     throw new ScriptRuntimeException("cannot assign variables; no variable resolver factory available.");
@@ -103,12 +104,12 @@ public class ImmutableDefaultFactory implements VariableResolverFactory {
   }
 
   @Override
-  public boolean finishBreakFlag() {
-    return false;
+  public boolean breakFlag() {
+    return breakFlag;
   }
 
   @Override
-  public void setFinishBreakFlag(boolean mayBeBreak) {
-
+  public void setBreakFlag(boolean breakFlag) {
+    this.breakFlag = breakFlag;
   }
 }
