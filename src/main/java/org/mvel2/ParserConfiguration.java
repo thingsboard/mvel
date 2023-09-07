@@ -47,7 +47,7 @@ import static org.mvel2.util.ParseTools.forNameWithInner;
 public class ParserConfiguration implements Serializable {
 
   protected final Map<String, Object> imports = new ConcurrentHashMap<String, Object>();
-  protected final Set<String> nonConvertableClasses = new HashSet<>();
+  protected final Map<String, Set<String>> nonConvertableClasses = new ConcurrentHashMap<>();
   protected HashSet<String> packageImports;
   protected Map<String, Interceptor> interceptors;
   protected transient ClassLoader classLoader;
@@ -180,8 +180,11 @@ public class ParserConfiguration implements Serializable {
         AbstractParser.CLASS_LITERALS.containsKey(name) ||
         checkForDynamicImport(name);
   }
-  public boolean isNonConvertableClass(String clazz) {
-    return nonConvertableClasses.contains(clazz);
+  public boolean isNonConvertableClass(String clazz, String methodName) {
+    if (nonConvertableClasses.containsKey(clazz)) {
+      return nonConvertableClasses.get(clazz).contains(methodName);
+    }
+    return false;
   }
 
   public void addImport(Class cls) {
@@ -191,8 +194,8 @@ public class ParserConfiguration implements Serializable {
   public void addImport(String name, Class cls) {
     this.imports.put(name, cls);
   }
-  public void addNonConvertableClass(String clazz) {
-    this.nonConvertableClasses.add(clazz);
+  public void addNonConvertableClass(String clazz, Set methods) {
+    this.nonConvertableClasses.put(clazz, methods);
   }
 
   public void addImport(String name, Proto proto) {

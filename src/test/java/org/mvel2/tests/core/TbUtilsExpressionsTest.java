@@ -15,9 +15,11 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.mvel2.MVEL.compileExpression;
 import static org.mvel2.MVEL.executeTbExpression;
@@ -36,7 +38,6 @@ public class TbUtilsExpressionsTest extends TestCase {
         try {
             TbUtils.register(parserConfig);
             parserConfig.addImport(TbUtilsExpressionsTest.TbUtils.class);
-            parserConfig.addNonConvertableClass(TbUtils.class.getName());
         } catch (Exception e) {
             System.out.println("Cannot register functions " +e.getMessage());
         }
@@ -115,12 +116,14 @@ public class TbUtilsExpressionsTest extends TestCase {
     public static class TbUtils {
 
         private static final byte[] HEX_ARRAY = "0123456789ABCDEF".getBytes(StandardCharsets.US_ASCII);
-
         public static void register(ParserConfiguration parserConfig) throws Exception {
+            Set<String> nonConvertableMethods = new HashSet<>();
             parserConfig.addImport("stringToBytes", new MethodStub(TbUtils.class.getMethod("stringToBytes",
                     ExecutionContext.class, String.class)));
+            nonConvertableMethods.add("stringToBytes");
             parserConfig.addImport("stringToBytes", new MethodStub(TbUtils.class.getMethod("stringToBytes",
                     ExecutionContext.class, String.class, String.class)));
+            parserConfig.addNonConvertableClass(TbUtils.class.getName(), nonConvertableMethods);
         }
 
         public static List<Byte> stringToBytes(ExecutionContext ctx, String str) {
