@@ -14,6 +14,7 @@ import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -26,9 +27,7 @@ import static org.mvel2.MVEL.executeTbExpression;
 
 public class TbUtilsExpressionsTest extends TestCase {
 
-    private ExecutionContext ctx;
-    SandboxedParserConfiguration parserConfig;
-    private ExecutionContext currentExecutionContext;
+    private SandboxedParserConfiguration parserConfig;
 
     @Override
     protected void setUp() throws Exception {
@@ -41,7 +40,6 @@ public class TbUtilsExpressionsTest extends TestCase {
         } catch (Exception e) {
             System.out.println("Cannot register functions " +e.getMessage());
         }
-        ctx = new ExecutionContext(parserConfig);
     }
 
     @Override
@@ -101,8 +99,7 @@ public class TbUtilsExpressionsTest extends TestCase {
 
     private Object executeScript(String ex, Map vars, ExecutionContext executionContext) {
         Serializable compiled = compileExpression(ex, new ParserContext());
-        this.currentExecutionContext = executionContext;
-        return executeTbExpression(compiled, this.currentExecutionContext, vars);
+        return executeTbExpression(compiled, executionContext, vars);
     }
 
     private List<Byte> bytesToList(byte[] bytes) {
@@ -117,13 +114,11 @@ public class TbUtilsExpressionsTest extends TestCase {
 
         private static final byte[] HEX_ARRAY = "0123456789ABCDEF".getBytes(StandardCharsets.US_ASCII);
         public static void register(ParserConfiguration parserConfig) throws Exception {
-            Set<String> nonConvertableMethods = new HashSet<>();
             parserConfig.addImport("stringToBytes", new MethodStub(TbUtils.class.getMethod("stringToBytes",
                     ExecutionContext.class, String.class)));
-            nonConvertableMethods.add("stringToBytes");
             parserConfig.addImport("stringToBytes", new MethodStub(TbUtils.class.getMethod("stringToBytes",
                     ExecutionContext.class, String.class, String.class)));
-            parserConfig.addNonConvertableClass(TbUtils.class.getName(), nonConvertableMethods);
+            parserConfig.registerNonConvertableMethods(TbUtils.class, Collections.singleton("stringToBytes"));
         }
 
         public static List<Byte> stringToBytes(ExecutionContext ctx, String str) {

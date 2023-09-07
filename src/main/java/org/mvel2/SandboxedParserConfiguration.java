@@ -103,10 +103,6 @@ public class SandboxedParserConfiguration extends ParserConfiguration {
         super.addImport(name, cls);
         sanboxedClassLoader.addAllowedClass(cls);
     }
-   @Override
-    public void addNonConvertableClass(String clazz, Set methods) {
-        super.addNonConvertableClass(clazz, methods);
-    }
 
     @Override
     public Object getStaticOrClassImport(String name) {
