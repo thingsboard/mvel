@@ -6,6 +6,7 @@ import org.mvel2.util.TriFunction;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -103,8 +104,8 @@ public class SandboxedParserConfiguration extends ParserConfiguration {
         sanboxedClassLoader.addAllowedClass(cls);
     }
    @Override
-    public void addNonConvertableClass(String clazz) {
-        super.addNonConvertableClass(clazz);
+    public void addNonConvertableClass(String clazz, Set methods) {
+        super.addNonConvertableClass(clazz, methods);
     }
 
     @Override
