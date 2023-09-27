@@ -376,7 +376,9 @@ public strictfp class MathProcessor {
           case DIV:
             return toDouble(val1) / toInteger(val2);
           case MULT:
-            return toInteger(val1) * toInteger(val2);
+            long l = (long) (toDouble(val1) * toInteger(val2));
+            if (l > Integer.MAX_VALUE) return l;
+            else return toInteger(val1) * toInteger(val2);
           case POWER:
             double d = Math.pow(toInteger(val1), toInteger(val2));
             if (d > Integer.MAX_VALUE) return d;

@@ -1,6 +1,7 @@
 package org.mvel2.tests.core;
 
 import junit.framework.Assert;
+import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 import org.mvel2.CompileException;
 import org.mvel2.ExecutionContext;
@@ -2098,6 +2099,84 @@ public class TbExpressionsTest extends TestCase {
         Object result = executeScript(body);
         assertTrue(result instanceof Integer);
         assertEquals(6, result);
+    }
+
+    public void testIntegerToLongFromJson() {
+        Integer sunriseValueOld = 1695435081;
+        Long sunriseValueNew = Long.valueOf(sunriseValueOld) * 1000;
+        String sunriseName = "sunrise";
+        LinkedHashMap<String, LinkedHashMap> vars = new LinkedHashMap<>();
+        LinkedHashMap<String, Integer> msg = new LinkedHashMap<>();
+
+        msg.put("sys", sunriseValueOld);
+        vars.put("msg", msg);
+        String body = "var time = msg.sys * 1000;\n" +
+                "msg."  + sunriseName +  " = time;\n" +
+                "return {\"msg\": msg};";
+        Object actual = executeScript(body, vars);
+
+        LinkedHashMap<String, LinkedHashMap> expected = vars;
+        expected.get("msg").put(sunriseName, sunriseValueNew);
+        assertEquals(expected, actual);
+    }
+    public void testIntegerToIntegrFromJson() {
+        Integer sunriseValueOld = 169543;
+        Integer sunriseValueNew = sunriseValueOld * 10;
+        String sunriseName = "sunrise";
+        LinkedHashMap<String, LinkedHashMap> vars = new LinkedHashMap<>();
+        LinkedHashMap<String, Integer> msg = new LinkedHashMap<>();
+
+        msg.put("sys", sunriseValueOld);
+        vars.put("msg", msg);
+        String body = "var time = msg.sys * 10;\n" +
+                "msg."  + sunriseName +  " = time;\n" +
+                "return {\"msg\": msg};";
+        Object actual = executeScript(body, vars);
+
+        LinkedHashMap<String, LinkedHashMap> expected = vars;
+        expected.get("msg").put(sunriseName, sunriseValueNew);
+        assertEquals(expected, actual);
+    }
+    public void testIntegerToLongFromJson_Error() {
+        Integer sunriseValueOld = 1695435081;
+        Integer sunriseValueNew = sunriseValueOld * 1000;
+        String sunriseName = "sunrise";
+        LinkedHashMap<String, LinkedHashMap> vars = new LinkedHashMap<>();
+        LinkedHashMap<String, Integer> msg = new LinkedHashMap<>();
+
+        msg.put("sys", sunriseValueOld);
+        vars.put("msg", msg);
+        String body = "var time = msg.sys * 1000;\n" +
+                "msg."  + sunriseName +  " = time;\n" +
+                "return {\"msg\": msg};";
+        Object actual = executeScript(body, vars);
+
+        LinkedHashMap<String, LinkedHashMap> expected = vars;
+        expected.get("msg").put(sunriseName, sunriseValueNew);
+        try{
+            executeScript(body, vars);
+            assertEquals(expected, actual);
+        } catch (AssertionFailedError e) {
+            assertTrue(e.getMessage().contains("{msg={sys=1695435081, sunrise=-1077000920}}> but was:<{msg={sys=1695435081, sunrise=1695435081000}"));
+        }
+    }
+
+    public void testIntegerAsObjectToLongFromJson_Ok() {
+        Object sunriseValueOld = 1695435081;
+        String sunriseName = "sunrise";
+        LinkedHashMap<String, LinkedHashMap> vars = new LinkedHashMap<>();
+        LinkedHashMap<String, Integer> msg = new LinkedHashMap<>();
+
+        msg.put("sys", (Integer) sunriseValueOld);
+        vars.put("msg", msg);
+        String body = "var time = " + sunriseValueOld + " * 1000;\n" +
+                "msg."  + sunriseName +  " = time;\n" +
+                "return {\"msg\": msg};";
+        Object actual = executeScript(body, vars);
+
+        LinkedHashMap<String, LinkedHashMap> expected = vars;
+        expected.get("msg").put(sunriseName, 1695435081000L);
+        assertEquals(expected, actual);
     }
 
     private Object executeScript(String ex, Map vars, ExecutionContext executionContext, long timeoutMs) throws Exception {
