@@ -2119,7 +2119,7 @@ public class TbExpressionsTest extends TestCase {
         expected.get("msg").put(sunriseName, sunriseValueNew);
         assertEquals(expected, actual);
     }
-    public void testIntegerToIntegrFromJson() {
+    public void testIntegerToIntegerFromJson() {
         Integer sunriseValueOld = 169543;
         Integer sunriseValueNew = sunriseValueOld * 10;
         String sunriseName = "sunrise";

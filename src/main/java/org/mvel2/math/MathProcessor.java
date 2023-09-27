@@ -33,8 +33,31 @@ import static java.lang.String.valueOf;
 import static org.mvel2.DataConversion.convert;
 import static org.mvel2.DataTypes.BIG_DECIMAL;
 import static org.mvel2.DataTypes.EMPTY;
-import static org.mvel2.Operator.*;
-import static org.mvel2.util.ParseTools.*;
+import static org.mvel2.Operator.ADD;
+import static org.mvel2.Operator.BW_AND;
+import static org.mvel2.Operator.BW_NOT;
+import static org.mvel2.Operator.BW_OR;
+import static org.mvel2.Operator.BW_SHIFT_LEFT;
+import static org.mvel2.Operator.BW_SHIFT_RIGHT;
+import static org.mvel2.Operator.BW_USHIFT_LEFT;
+import static org.mvel2.Operator.BW_USHIFT_RIGHT;
+import static org.mvel2.Operator.BW_XOR;
+import static org.mvel2.Operator.DIV;
+import static org.mvel2.Operator.EQUAL;
+import static org.mvel2.Operator.GETHAN;
+import static org.mvel2.Operator.GTHAN;
+import static org.mvel2.Operator.LETHAN;
+import static org.mvel2.Operator.LTHAN;
+import static org.mvel2.Operator.MOD;
+import static org.mvel2.Operator.MULT;
+import static org.mvel2.Operator.NEQUAL;
+import static org.mvel2.Operator.POWER;
+import static org.mvel2.Operator.SOUNDEX;
+import static org.mvel2.Operator.STR_APPEND;
+import static org.mvel2.Operator.SUB;
+import static org.mvel2.util.ParseTools.__resolveType;
+import static org.mvel2.util.ParseTools.isNumber;
+import static org.mvel2.util.ParseTools.narrowType;
 import static org.mvel2.util.Soundex.soundex;
 
 /**
@@ -376,9 +399,9 @@ public strictfp class MathProcessor {
           case DIV:
             return toDouble(val1) / toInteger(val2);
           case MULT:
-            long l = (long) (toDouble(val1) * toInteger(val2));
+            long l = toLong(val1) * toInteger(val2);
             if (l > Integer.MAX_VALUE) return l;
-            else return toInteger(val1) * toInteger(val2);
+            else return (int) l;
           case POWER:
             double d = Math.pow(toInteger(val1), toInteger(val2));
             if (d > Integer.MAX_VALUE) return d;
