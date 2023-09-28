@@ -379,7 +379,7 @@ public strictfp class MathProcessor {
             int i1 = toInteger(val1);
             int i2 = toInteger(val2);
             long l = (long)i1 * i2;
-            if (l > Integer.MAX_VALUE) return l;
+            if (l > Integer.MAX_VALUE || l < Integer.MIN_VALUE) return l;
             else return i1 * i2;
           case POWER:
             double d = Math.pow(toInteger(val1), toInteger(val2));
