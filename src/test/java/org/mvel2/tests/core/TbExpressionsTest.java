@@ -2100,6 +2100,98 @@ public class TbExpressionsTest extends TestCase {
         assertEquals(6, result);
     }
 
+    public void testIntegerToLongFromJson() {
+        Integer sunriseValueOld = 1695435081;
+        Long sunriseValueNew = Long.valueOf(sunriseValueOld) * 1000;
+        String sunriseName = "sunrise";
+        LinkedHashMap<String, LinkedHashMap> vars = new LinkedHashMap<>();
+        LinkedHashMap<String, Integer> msg = new LinkedHashMap<>();
+
+        msg.put("sys", sunriseValueOld);
+        vars.put("msg", msg);
+        String body = "var time = msg.sys * 1000;\n" +
+                "msg."  + sunriseName +  " = time;\n" +
+                "return {\"msg\": msg};";
+        Object actual = executeScript(body, vars);
+
+        LinkedHashMap<String, LinkedHashMap> expected = vars;
+        expected.get("msg").put(sunriseName, sunriseValueNew);
+        assertEquals(expected, actual);
+    }
+    public void testIntegerToIntegerFromJson() {
+        Integer sunriseValueOld = 169543;
+        Integer sunriseValueNew = sunriseValueOld * 10;
+        String sunriseName = "sunrise";
+        LinkedHashMap<String, LinkedHashMap> vars = new LinkedHashMap<>();
+        LinkedHashMap<String, Integer> msg = new LinkedHashMap<>();
+
+        msg.put("sys", sunriseValueOld);
+        vars.put("msg", msg);
+        String body = "var time = msg.sys * 10;\n" +
+                "msg."  + sunriseName +  " = time;\n" +
+                "return {\"msg\": msg};";
+        Object actual = executeScript(body, vars);
+
+        LinkedHashMap<String, LinkedHashMap> expected = vars;
+        expected.get("msg").put(sunriseName, sunriseValueNew);
+        assertEquals(expected, actual);
+    }
+    public void testIntegerAsObjectToLongFromJson_Ok() {
+        Integer sunriseValueOld = 1695435081;
+        Long sunriseValueNew = Long.valueOf(sunriseValueOld) * 1000;
+        String sunriseName = "sunrise";
+        LinkedHashMap<String, LinkedHashMap> vars = new LinkedHashMap<>();
+        LinkedHashMap<String, Integer> msg = new LinkedHashMap<>();
+
+        msg.put("sys", (Integer) sunriseValueOld);
+        vars.put("msg", msg);
+        String body = "var time = " + sunriseValueOld + " * 1000;\n" +
+                "msg."  + sunriseName +  " = time;\n" +
+                "return {\"msg\": msg};";
+        Object actual = executeScript(body, vars);
+
+        LinkedHashMap<String, LinkedHashMap> expected = vars;
+        expected.get("msg").put(sunriseName, sunriseValueNew);
+        assertEquals(expected, actual);
+    }
+    public void testIntegerAsObjectToLongFromJson_If_result_less_Integer_MIN_VALUE() {
+        Integer sunriseValueOld = -1695435081;
+        Long sunriseValueNew = Long.valueOf(sunriseValueOld) * -1000;
+        String sunriseName = "sunrise";
+        LinkedHashMap<String, LinkedHashMap> vars = new LinkedHashMap<>();
+        LinkedHashMap<String, Integer> msg = new LinkedHashMap<>();
+
+        msg.put("sys", (Integer) sunriseValueOld);
+        vars.put("msg", msg);
+        String body = "var time = " + sunriseValueOld + " * -1000;\n" +
+                "msg."  + sunriseName +  " = time;\n" +
+                "return {\"msg\": msg};";
+        Object actual = executeScript(body, vars);
+
+        LinkedHashMap<String, LinkedHashMap> expected = vars;
+        expected.get("msg").put(sunriseName, sunriseValueNew);
+        assertEquals(expected, actual);
+    }
+
+   public void testIntegerToIntegerFromJson_If_result_less_Integer_MIN_VALUE() {
+        Integer sunriseValueOld = -1695435081;
+        Long sunriseValueNew = Long.valueOf(sunriseValueOld) * 10000;
+        String sunriseName = "sunrise";
+        LinkedHashMap<String, LinkedHashMap> vars = new LinkedHashMap<>();
+        LinkedHashMap<String, Integer> msg = new LinkedHashMap<>();
+
+        msg.put("sys", sunriseValueOld);
+        vars.put("msg", msg);
+        String body = "var time = msg.sys * 10000;\n" +
+                "msg."  + sunriseName +  " = time;\n" +
+                "return {\"msg\": msg};";
+        Object actual = executeScript(body, vars);
+
+        LinkedHashMap<String, LinkedHashMap> expected = vars;
+        expected.get("msg").put(sunriseName, sunriseValueNew);
+        assertEquals(expected, actual);
+    }
+
     private Object executeScript(String ex, Map vars, ExecutionContext executionContext, long timeoutMs) throws Exception {
         final CountDownLatch countDown = new CountDownLatch(1);
         AtomicReference<Object> result = new AtomicReference<>();
