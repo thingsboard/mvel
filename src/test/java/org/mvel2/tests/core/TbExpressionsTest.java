@@ -410,6 +410,16 @@ public class TbExpressionsTest extends TestCase {
         }
     }
 
+    public void testForbiddenMethodAccess() {
+        try {
+            this.parserConfig.addImport("JSON", MyTestClass.class);
+            executeScript("JSON.getModule().getClassLoader().loadClass(\"java.lang.Runtime\")");
+            fail("Should throw PropertyAccessException");
+        } catch (CompileException e) {
+            assertTrue(e.getMessage().contains("unable to resolve method: " + MyTestClass.class.getName() + ".getModule"));
+        }
+    }
+
     public void testForbiddenClassAccess() {
         try {
             executeScript("new StringBuffer();");

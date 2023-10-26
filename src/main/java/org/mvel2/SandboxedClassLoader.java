@@ -17,8 +17,7 @@ public class SandboxedClassLoader extends URLClassLoader {
 
     protected static final Set<Method> forbiddenMethods = Set.of(
             getMethod(Object.class, "getClass"),
-            getMethod(Class.class, "getClassLoader"),
-            getMethod(Class.class, "getModule")
+            getMethod(Class.class, "getClassLoader")
     );
 
     static Method getMethod(Class<?> cls, String method, Class<?>... parameterTypes) {
