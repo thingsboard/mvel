@@ -1170,16 +1170,7 @@ public class ParserContext implements Serializable {
 
   public boolean isMethodAllowed(Method method) {
     if (sandboxedMode) {
-      String clazzName = method.getDeclaringClass().getSimpleName();
-      boolean allowed = !(SandboxedClassLoader.forbiddenMethodsClasses.contains(clazzName) || SandboxedClassLoader.forbiddenMethods.contains(method));
-      if (!allowed) {
-        Object o = getImports().get(method.getName());
-        if (o instanceof MethodStub) {
-          MethodStub ms = (MethodStub) o;
-          allowed = ms.getMethod().equals(method);
-        }
-      }
-      return allowed;
+      return !SandboxedClassLoader.forbiddenMethods.stream().filter(m -> m.getReturnType().equals(method.getReturnType())).findFirst().isPresent();
     } else {
       return true;
     }
