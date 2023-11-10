@@ -659,8 +659,8 @@ public class TbExpressionsTest extends TestCase {
         } catch (CompileException e) {
             assertTrue(e.getMessage().equals("[Error: unable to resolve method: java.lang.Integer.toInt() [arglength=0]]\n" +
                     "[Near : {... b += a[0].toInt(); ....}]\n" +
-                    "                            ^\n" +
-                    "[Line: 4, Column: 16]"));
+                    "                 ^\n" +
+                    "[Line: 4, Column: 5]"));
         }
     }
 
@@ -2214,12 +2214,14 @@ public class TbExpressionsTest extends TestCase {
 
     public void testExecutionArrayListJoin() {
         ExecutionArrayList dataList = new ExecutionArrayList(new ExecutionContext(this.parserConfig));
+        String expected = "";
+        String actual = dataList.join();
         dataList.add("hello");
         dataList.add(34567);
-        String expected = "hello, 34567";
-        String actual = dataList.join();
+        expected = "hello,34567";
+        actual = dataList.join();
         assertEquals(expected, actual);
-        expected = "hello: 34567";
+        expected = "hello:34567";
         actual = dataList.join(":");
         assertEquals(expected, actual);
     }

@@ -83,9 +83,9 @@ public class TbUtilsExpressionsTest extends TestCase {
             fail("Should throw CompileException");
         } catch (CompileException e) {
             assertTrue(e.getMessage().equals("[Error: stringToBytes(msgTest): Invalid type parameter [ExecutionHashMap]. Expected 'String']\n" +
-                    "[Near : {... wMsg = stringToBytes(msgTest); ....}]\n" +
-                    "                                 ^\n" +
-                    "[Line: 2, Column: 27]"));
+                    "[Near : {... var newMsg = stringToBytes(msgTest); ....}]\n" +
+                    "                          ^\n" +
+                    "[Line: 2, Column: 14]"));
         }
     }
 

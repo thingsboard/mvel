@@ -122,20 +122,15 @@ public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObje
 
     public String join(String separator) {
         Iterator<E> it = this.iterator();
-        if (!it.hasNext()) {
-            return "";
-        } else {
-            StringBuilder sb = new StringBuilder();
-
-            while (true) {
-                E e = it.next();
-                sb.append(e == this ? "(this Collection)" : e);
-                if (!it.hasNext()) {
-                    return sb.toString();
-                }
-
-                sb.append(separator).append(' ');
+        StringBuilder sb = new StringBuilder();
+        while (it.hasNext()) {
+            E e = it.next();
+            sb.append(e == this ? "(this Collection)" : e);
+            if (!it.hasNext()) {
+                return sb.toString();
             }
+            sb.append(separator);
         }
+        return sb.toString();
     }
 }
