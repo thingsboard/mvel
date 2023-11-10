@@ -4,6 +4,7 @@ import org.mvel2.ExecutionContext;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObject {
 
@@ -115,9 +116,13 @@ public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObje
         return memorySize;
     }
 
-    @Override
-    public String toString() {
-        String res = super.toString();
-        return "(id=" + id + ") " + res;
+    public String join() {
+        return join(",");
+    }
+
+    public String join(String separator) {
+        return this.stream()
+                .map( Object::toString )
+                .collect( Collectors.joining( separator ) );
     }
 }

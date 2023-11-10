@@ -87,8 +87,13 @@ public class ExecutionHashMap<K, V> extends LinkedHashMap<K, V> implements Execu
     }
 
     @Override
-    public String toString() {
-        String res = super.toString();
-        return "(id=" + id + ") " + res;
+    public ExecutionArrayList<V> values() {
+        return new ExecutionArrayList<>(super.values(), this.executionContext);
     }
+
+    public ExecutionArrayList<K> keys() {
+        return new ExecutionArrayList<>(super.keySet(), this.executionContext);
+    }
+
+
 }

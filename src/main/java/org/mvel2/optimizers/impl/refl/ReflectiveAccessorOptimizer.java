@@ -468,15 +468,15 @@ public class ReflectiveAccessorOptimizer extends AbstractOptimizer implements Ac
       }
 
       throw new PropertyAccessException(new String(expr, start, length) + ": "
-          + e.getTargetException().getMessage(), this.expr, this.st, e, pCtx);
+              + e.getTargetException().getMessage(), this.expr, getSt(), e, pCtx);
     }
     catch (IllegalAccessException e) {
       throw new PropertyAccessException(new String(expr, start, length) + ": "
-          + e.getMessage(), this.expr, this.st, e, pCtx);
+              + e.getMessage(), this.expr, getSt(), e, pCtx);
     }
     catch (IndexOutOfBoundsException e) {
       throw new PropertyAccessException(new String(expr, start, length)
-          + ": array index out of bounds.", this.expr, this.st, e, pCtx);
+              + ": array index out of bounds.", this.expr, getSt(), e, pCtx);
     }
     catch (CompileException e) {
       throw e;
@@ -486,14 +486,16 @@ public class ReflectiveAccessorOptimizer extends AbstractOptimizer implements Ac
     }
     catch (ScriptRuntimeException e) {
       throw new CompileException(e.getMessage(), this.expr, start, e);
-    }
-    catch (NullPointerException e) {
-      throw new PropertyAccessException("null pointer: " + new String(expr, start, length), this.expr, this.st, e, pCtx);
-    }
-    catch (Exception e) {
+    } catch (NullPointerException e) {
+      throw new PropertyAccessException("null pointer: " + new String(expr, start, length), this.expr, getSt(), e, pCtx);
+    } catch (Exception e) {
       LOG.log(Level.WARNING, "", e);
-      throw new CompileException(e.getMessage(), this.expr, st, e);
+      throw new CompileException(e.getMessage(), this.expr, getSt(), e);
     }
+  }
+
+  private int getSt() {
+    return this.st == 0 ? start : this.st;
   }
 
   private void addAccessorNode(AccessorNode an) {
@@ -1048,7 +1050,6 @@ public class ReflectiveAccessorOptimizer extends AbstractOptimizer implements Ac
         }
       }
     }
-
     return getMethod(ctx, execCtx, name, args, argTypes, es);
   }
 

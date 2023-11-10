@@ -2184,6 +2184,7 @@ public class TbExpressionsTest extends TestCase {
     }
 
    public void testIntegerToIntegerFromJson_If_result_less_Integer_MIN_VALUE() {
+
         Integer sunriseValueOld = -1695435081;
         Long sunriseValueNew = Long.valueOf(sunriseValueOld) * 10000;
         String sunriseName = "sunrise";
@@ -2191,15 +2192,70 @@ public class TbExpressionsTest extends TestCase {
         LinkedHashMap<String, Integer> msg = new LinkedHashMap<>();
 
         msg.put("sys", sunriseValueOld);
-        vars.put("msg", msg);
-        String body = "var time = msg.sys * 10000;\n" +
-                "msg."  + sunriseName +  " = time;\n" +
-                "return {\"msg\": msg};";
-        Object actual = executeScript(body, vars);
+       vars.put("msg", msg);
+       String body = "var time = msg.sys * 10000;\n" +
+               "msg." + sunriseName + " = time;\n" +
+               "return {\"msg\": msg};";
+       Object actual = executeScript(body, vars);
 
-        LinkedHashMap<String, LinkedHashMap> expected = vars;
-        expected.get("msg").put(sunriseName, sunriseValueNew);
-        assertEquals(expected, actual);
+       LinkedHashMap<String, LinkedHashMap> expected = vars;
+       expected.get("msg").put(sunriseName, sunriseValueNew);
+       assertEquals(expected, actual);
+   }
+
+    public void testExecutionArrayListToString() {
+        String body = "var list = ['hello', 34567];\n" +
+                      "var res = '' + list;\n" +
+                      "return res;";
+        Object result = executeScript(body);
+        assertTrue(result instanceof String);
+        assertEquals("[hello, 34567]", result);
+    }
+
+    public void testExecutionArrayListJoin() {
+        String body = "var list = [];\n" +
+                "return list.join();";
+        Object result = executeScript(body);
+        assertTrue(result instanceof String);
+        assertEquals("", result);
+        body = "var list = ['hello', 34567];\n" +
+                      "return list.join();";
+        result = executeScript(body);
+        assertTrue(result instanceof String);
+        assertEquals("hello,34567", result);
+        body = "var list = ['hello', 34567];\n" +
+                "return list.join(':');";
+        result = executeScript(body);
+        assertTrue(result instanceof String);
+        assertEquals("hello:34567", result);
+    }
+
+    public void testExecutionHashMapToString() {
+        String body = "var map = {hello: 'world', testmap: 'toString'};\n" +
+                      "return '' + map;";
+        Object result = executeScript(body);
+        assertTrue(result instanceof String);
+        assertEquals("{hello=world, testmap=toString}", result);
+    }
+
+    public void testExecutionHashMapKeys() {
+        String body = "var map = {hello: 'world', testmap: 'toString'};\n" +
+                      "return map.keys();";
+        Object result = executeScript(body);
+        assertTrue(result instanceof List);
+        assertEquals(2, ((List)result).size());
+        assertEquals("hello", ((List)result).get(0));
+        assertEquals("testmap", ((List)result).get(1));
+    }
+
+    public void testExecutionHashMapValues() {
+        String body = "var map = {hello: 'world', testmap: 'toString'};\n" +
+                "return map.values();";
+        Object result = executeScript(body);
+        assertTrue(result instanceof List);
+        assertEquals(2, ((List)result).size());
+        assertEquals("world", ((List)result).get(0));
+        assertEquals("toString", ((List)result).get(1));
     }
 
     private Object executeScript(String ex, Map vars, ExecutionContext executionContext, long timeoutMs) throws Exception {
