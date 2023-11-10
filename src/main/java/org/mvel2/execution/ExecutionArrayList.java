@@ -4,7 +4,7 @@ import org.mvel2.ExecutionContext;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.stream.Collectors;
 
 public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObject {
 
@@ -121,16 +121,8 @@ public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObje
     }
 
     public String join(String separator) {
-        Iterator<E> it = this.iterator();
-        StringBuilder sb = new StringBuilder();
-        while (it.hasNext()) {
-            E e = it.next();
-            sb.append(e == this ? "(this Collection)" : e);
-            if (!it.hasNext()) {
-                return sb.toString();
-            }
-            sb.append(separator);
-        }
-        return sb.toString();
+        return this.stream()
+                .map( Object::toString )
+                .collect( Collectors.joining( separator ) );
     }
 }

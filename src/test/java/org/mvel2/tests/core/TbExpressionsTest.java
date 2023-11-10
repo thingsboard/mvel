@@ -2204,58 +2204,58 @@ public class TbExpressionsTest extends TestCase {
    }
 
     public void testExecutionArrayListToString() {
-        ExecutionArrayList dataList = new ExecutionArrayList(new ExecutionContext(this.parserConfig));
-        dataList.add("hello");
-        dataList.add(34567);
-        String expected = "[hello, 34567]";
-        String actual = dataList.toString();
-        assertEquals(expected, actual);
+        String body = "var list = ['hello', 34567];\n" +
+                      "var res = '' + list;\n" +
+                      "return res;";
+        Object result = executeScript(body);
+        assertTrue(result instanceof String);
+        assertEquals("[hello, 34567]", result);
     }
 
     public void testExecutionArrayListJoin() {
-        ExecutionArrayList dataList = new ExecutionArrayList(new ExecutionContext(this.parserConfig));
-        String expected = "";
-        String actual = dataList.join();
-        assertEquals(expected, actual);
-        dataList.add("hello");
-        dataList.add(34567);
-        expected = "hello,34567";
-        actual = dataList.join();
-        assertEquals(expected, actual);
-        expected = "hello:34567";
-        actual = dataList.join(":");
-        assertEquals(expected, actual);
+        String body = "var list = [];\n" +
+                "return list.join();";
+        Object result = executeScript(body);
+        assertTrue(result instanceof String);
+        assertEquals("", result);
+        body = "var list = ['hello', 34567];\n" +
+                      "return list.join();";
+        result = executeScript(body);
+        assertTrue(result instanceof String);
+        assertEquals("hello,34567", result);
+        body = "var list = ['hello', 34567];\n" +
+                "return list.join(':');";
+        result = executeScript(body);
+        assertTrue(result instanceof String);
+        assertEquals("hello:34567", result);
     }
 
     public void testExecutionHashMapToString() {
-        ExecutionHashMap<String, String> dataMap = new ExecutionHashMap<>(2, new ExecutionContext(this.parserConfig));
-        dataMap.put("hello", "world");
-        dataMap.put("testmap", "toString");
-        String expected = "{hello=world, testmap=toString}";
-        String actual = dataMap.toString();
-        assertEquals(expected, actual);
+        String body = "var map = {hello: 'world', testmap: 'toString'};\n" +
+                      "return '' + map;";
+        Object result = executeScript(body);
+        assertTrue(result instanceof String);
+        assertEquals("{hello=world, testmap=toString}", result);
     }
 
     public void testExecutionHashMapKeys() {
-        ExecutionHashMap<String, String> dataMap = new ExecutionHashMap<>(2, new ExecutionContext(this.parserConfig));
-        dataMap.put("hello", "world");
-        dataMap.put("testmap", "toString");
-        ExecutionArrayList expected = new ExecutionArrayList(new ExecutionContext(this.parserConfig));
-        expected.add("hello");
-        expected.add("testmap");
-        ExecutionArrayList actual = dataMap.keys();
-        assertEquals(expected, actual);
+        String body = "var map = {hello: 'world', testmap: 'toString'};\n" +
+                      "return map.keys();";
+        Object result = executeScript(body);
+        assertTrue(result instanceof List);
+        assertEquals(2, ((List)result).size());
+        assertEquals("hello", ((List)result).get(0));
+        assertEquals("testmap", ((List)result).get(1));
     }
 
     public void testExecutionHashMapValues() {
-        ExecutionHashMap<String, String> dataMap = new ExecutionHashMap<>(2, new ExecutionContext(this.parserConfig));
-        dataMap.put("hello", "world");
-        dataMap.put("testmap", "toString");
-        ExecutionArrayList expected = new ExecutionArrayList(new ExecutionContext(this.parserConfig));
-        expected.add("world");
-        expected.add("toString");
-        ExecutionArrayList actual = dataMap.values();
-        assertEquals(expected, actual);
+        String body = "var map = {hello: 'world', testmap: 'toString'};\n" +
+                "return map.values();";
+        Object result = executeScript(body);
+        assertTrue(result instanceof List);
+        assertEquals(2, ((List)result).size());
+        assertEquals("world", ((List)result).get(0));
+        assertEquals("toString", ((List)result).get(1));
     }
 
     private Object executeScript(String ex, Map vars, ExecutionContext executionContext, long timeoutMs) throws Exception {
