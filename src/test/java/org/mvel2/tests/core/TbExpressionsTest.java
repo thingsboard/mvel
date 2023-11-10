@@ -2216,6 +2216,7 @@ public class TbExpressionsTest extends TestCase {
         ExecutionArrayList dataList = new ExecutionArrayList(new ExecutionContext(this.parserConfig));
         String expected = "";
         String actual = dataList.join();
+        assertEquals(expected, actual);
         dataList.add("hello");
         dataList.add(34567);
         expected = "hello,34567";
