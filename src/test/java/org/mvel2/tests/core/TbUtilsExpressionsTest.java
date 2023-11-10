@@ -16,11 +16,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static org.mvel2.MVEL.compileExpression;
 import static org.mvel2.MVEL.executeTbExpression;
@@ -61,22 +59,20 @@ public class TbUtilsExpressionsTest extends TestCase {
         assertEquals(expected, actual);
     }
 
-    /**
-     * The first: ReflectiveAccessorOptimizer
-     * var msgTest = {
-     *     "hello": "world"
-     * };
-     * org.mvel2.execution.ExecutionHashMap
-     *    public String toString() {
-     *         String res = super.toString();
-     *         return "(id=" + id + ") " + res;
-     *     }
-     * return String actualStr = "(id=1) {hello=world}"
-     * Another: MVELRuntime -> MethodAccessor
-     * ! Not have Class[] argParameterTypes = removeExecutionContextParam(parameterTypes); !
-     * @throws Exception
-     */
-    public void testStringToBytes_ArgumentTypeIsNotString_Bad() throws Exception {
+    public void testStringToBytes_ArgumentTypeIsObjectAsString_Ok() throws Exception {
+        String expectedStr = "world";
+        String scriptBody = "var dataMap = {};\n" +
+                "dataMap.hello = \"world\";\n" +
+                "var newMsg =  stringToBytes(dataMap.get(\"hello\"));\n" +
+                "return {msg: newMsg}";
+        LinkedHashMap<String, List<Byte>> expected = new LinkedHashMap<>();
+        List<Byte> expIntList = bytesToList(expectedStr.getBytes());
+        expected.put("msg", expIntList);
+        Object actual = executeScript(scriptBody);
+        assertEquals(expected, actual);
+    }
+
+    public void testStringToBytes_ArgumentTypeIsNotStringLineNotZero_Bad() throws Exception {
         String argument = "msgTest";
         String scriptBody = "var " + argument + "  = {\"hello\": \"world\"}; \n" +
                 "var newMsg = stringToBytes(" + argument + ");\n" +
@@ -86,9 +82,13 @@ public class TbUtilsExpressionsTest extends TestCase {
             executeScript(scriptBody);
             fail("Should throw CompileException");
         } catch (CompileException e) {
-            assertTrue(e.getMessage().contains("Invalid type of the '" + argument + "' parameter. Expected 'String' but was 'Map'"));
+            assertTrue(e.getMessage().equals("[Error: stringToBytes(msgTest): Invalid type parameter [ExecutionHashMap]. Expected 'String']\n" +
+                    "[Near : {... wMsg = stringToBytes(msgTest); ....}]\n" +
+                    "                                 ^\n" +
+                    "[Line: 2, Column: 27]"));
         }
     }
+
     private Object executeScript(String ex) {
         return executeScript(ex, new HashMap());
     }
@@ -113,22 +113,31 @@ public class TbUtilsExpressionsTest extends TestCase {
     public static class TbUtils {
 
         private static final byte[] HEX_ARRAY = "0123456789ABCDEF".getBytes(StandardCharsets.US_ASCII);
+
         public static void register(ParserConfiguration parserConfig) throws Exception {
             parserConfig.addImport("stringToBytes", new MethodStub(TbUtils.class.getMethod("stringToBytes",
-                    ExecutionContext.class, String.class)));
+                    ExecutionContext.class, Object.class)));
             parserConfig.addImport("stringToBytes", new MethodStub(TbUtils.class.getMethod("stringToBytes",
-                    ExecutionContext.class, String.class, String.class)));
+                    ExecutionContext.class, Object.class, String.class)));
             parserConfig.registerNonConvertableMethods(TbUtils.class, Collections.singleton("stringToBytes"));
         }
 
-        public static List<Byte> stringToBytes(ExecutionContext ctx, String str) {
-            byte[] bytes = str.getBytes();
-            return bytesToList(ctx, bytes);
+        public static List<Byte> stringToBytes(ExecutionContext ctx, Object str) throws IllegalAccessException {
+            if (str instanceof String) {
+                byte[] bytes = str.toString().getBytes();
+                return bytesToList(ctx, bytes);
+            } else {
+                throw new IllegalAccessException("Invalid type parameter [" + str.getClass().getSimpleName() + "]. Expected 'String'");
+            }
         }
 
-        public static List<Byte> stringToBytes(ExecutionContext ctx, String str, String charsetName) throws UnsupportedEncodingException {
-            byte[] bytes = str.getBytes(charsetName);
-            return bytesToList(ctx, bytes);
+        public static List<Byte> stringToBytes(ExecutionContext ctx, Object str, String charsetName) throws UnsupportedEncodingException, IllegalAccessException {
+            if (str instanceof String) {
+                byte[] bytes = str.toString().getBytes(charsetName);
+                return bytesToList(ctx, bytes);
+            } else {
+                throw new IllegalAccessException("Invalid type parameter [" + str.getClass().getSimpleName() + "]. Expected 'String'");
+            }
         }
 
         private static List<Byte> bytesToList(ExecutionContext ctx, byte[] bytes) {

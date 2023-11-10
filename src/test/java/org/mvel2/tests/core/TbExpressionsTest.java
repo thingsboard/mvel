@@ -659,8 +659,8 @@ public class TbExpressionsTest extends TestCase {
         } catch (CompileException e) {
             assertTrue(e.getMessage().equals("[Error: unable to resolve method: java.lang.Integer.toInt() [arglength=0]]\n" +
                     "[Near : {... b += a[0].toInt(); ....}]\n" +
-                    "                 ^\n" +
-                    "[Line: 4, Column: 5]"));
+                    "                            ^\n" +
+                    "[Line: 4, Column: 16]"));
         }
     }
 
@@ -2184,6 +2184,7 @@ public class TbExpressionsTest extends TestCase {
     }
 
    public void testIntegerToIntegerFromJson_If_result_less_Integer_MIN_VALUE() {
+
         Integer sunriseValueOld = -1695435081;
         Long sunriseValueNew = Long.valueOf(sunriseValueOld) * 10000;
         String sunriseName = "sunrise";
@@ -2191,14 +2192,66 @@ public class TbExpressionsTest extends TestCase {
         LinkedHashMap<String, Integer> msg = new LinkedHashMap<>();
 
         msg.put("sys", sunriseValueOld);
-        vars.put("msg", msg);
-        String body = "var time = msg.sys * 10000;\n" +
-                "msg."  + sunriseName +  " = time;\n" +
-                "return {\"msg\": msg};";
-        Object actual = executeScript(body, vars);
+       vars.put("msg", msg);
+       String body = "var time = msg.sys * 10000;\n" +
+               "msg." + sunriseName + " = time;\n" +
+               "return {\"msg\": msg};";
+       Object actual = executeScript(body, vars);
 
-        LinkedHashMap<String, LinkedHashMap> expected = vars;
-        expected.get("msg").put(sunriseName, sunriseValueNew);
+       LinkedHashMap<String, LinkedHashMap> expected = vars;
+       expected.get("msg").put(sunriseName, sunriseValueNew);
+       assertEquals(expected, actual);
+   }
+
+    public void testExecutionArrayListToString() {
+        ExecutionArrayList dataList = new ExecutionArrayList(new ExecutionContext(this.parserConfig));
+        dataList.add("hello");
+        dataList.add(34567);
+        String expected = "[hello, 34567]";
+        String actual = dataList.toString();
+        assertEquals(expected, actual);
+    }
+
+    public void testExecutionArrayListJoin() {
+        ExecutionArrayList dataList = new ExecutionArrayList(new ExecutionContext(this.parserConfig));
+        dataList.add("hello");
+        dataList.add(34567);
+        String expected = "hello, 34567";
+        String actual = dataList.join();
+        assertEquals(expected, actual);
+        expected = "hello: 34567";
+        actual = dataList.join(":");
+        assertEquals(expected, actual);
+    }
+
+    public void testExecutionHashMapToString() {
+        ExecutionHashMap<String, String> dataMap = new ExecutionHashMap<>(2, new ExecutionContext(this.parserConfig));
+        dataMap.put("hello", "world");
+        dataMap.put("testmap", "toString");
+        String expected = "{hello=world, testmap=toString}";
+        String actual = dataMap.toString();
+        assertEquals(expected, actual);
+    }
+
+    public void testExecutionHashMapKeys() {
+        ExecutionHashMap<String, String> dataMap = new ExecutionHashMap<>(2, new ExecutionContext(this.parserConfig));
+        dataMap.put("hello", "world");
+        dataMap.put("testmap", "toString");
+        ExecutionArrayList expected = new ExecutionArrayList(new ExecutionContext(this.parserConfig));
+        expected.add("hello");
+        expected.add("testmap");
+        ExecutionArrayList actual = dataMap.keys();
+        assertEquals(expected, actual);
+    }
+
+    public void testExecutionHashMapValues() {
+        ExecutionHashMap<String, String> dataMap = new ExecutionHashMap<>(2, new ExecutionContext(this.parserConfig));
+        dataMap.put("hello", "world");
+        dataMap.put("testmap", "toString");
+        ExecutionArrayList expected = new ExecutionArrayList(new ExecutionContext(this.parserConfig));
+        expected.add("world");
+        expected.add("toString");
+        ExecutionArrayList actual = dataMap.values();
         assertEquals(expected, actual);
     }
 

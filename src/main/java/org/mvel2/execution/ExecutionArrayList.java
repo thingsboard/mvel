@@ -4,6 +4,7 @@ import org.mvel2.ExecutionContext;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 
 public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObject {
 
@@ -115,9 +116,26 @@ public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObje
         return memorySize;
     }
 
-    @Override
-    public String toString() {
-        String res = super.toString();
-        return "(id=" + id + ") " + res;
+    public String join() {
+        return join(",");
+    }
+
+    public String join(String separator) {
+        Iterator<E> it = this.iterator();
+        if (!it.hasNext()) {
+            return "";
+        } else {
+            StringBuilder sb = new StringBuilder();
+
+            while (true) {
+                E e = it.next();
+                sb.append(e == this ? "(this Collection)" : e);
+                if (!it.hasNext()) {
+                    return sb.toString();
+                }
+
+                sb.append(separator).append(' ');
+            }
+        }
     }
 }
