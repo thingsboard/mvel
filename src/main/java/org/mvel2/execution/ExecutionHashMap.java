@@ -2,8 +2,10 @@ package org.mvel2.execution;
 
 import org.mvel2.ExecutionContext;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ExecutionHashMap<K, V> extends LinkedHashMap<K, V> implements ExecutionObject {
 
@@ -54,7 +56,7 @@ public class ExecutionHashMap<K, V> extends LinkedHashMap<K, V> implements Execu
     @Override
     public boolean replace(K key, V oldValue, V newValue) {
         boolean result = super.replace(key, oldValue, newValue);
-        if(result){
+        if (result) {
             this.memorySize -= this.executionContext.onValRemove(this, key, oldValue);
             this.memorySize += this.executionContext.onValAdd(this, key, newValue);
         }
@@ -95,5 +97,51 @@ public class ExecutionHashMap<K, V> extends LinkedHashMap<K, V> implements Execu
         return new ExecutionArrayList<>(super.keySet(), this.executionContext);
     }
 
+    public void sortByValue() {
+        sortByValue(true);
+    }
 
+    public void sortByValue(boolean desc) {
+        Map valueSort = desc ? sortMapByValue((HashMap) super.clone()) : sortMapByValueDescending((HashMap) super.clone());
+        valueSort.keySet().forEach(this::remove);
+        this.putAll(valueSort);
+    }
+
+    public void sortByKey() {
+        this.sortByKey(true);
+    }
+
+    public void sortByKey(boolean desc) {
+        Map valueSort = desc ? sortMapByKey((HashMap) super.clone()) : sortMapByKeyDescending((HashMap) super.clone());
+        valueSort.keySet().forEach(this::remove);
+        this.putAll(valueSort);
+    }
+
+    public static <K extends Comparable<? super K>, V> Map<K, V> sortMapByKey(Map<K, V> map) {
+        return map.entrySet()
+                .stream()
+                .sorted(Map.Entry.<K, V>comparingByKey())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+    }
+
+    public static <K extends Comparable<? super K>, V> Map<K, V> sortMapByKeyDescending(Map<K, V> map) {
+        return map.entrySet()
+                .stream()
+                .sorted(Map.Entry.<K, V>comparingByKey().reversed())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+    }
+
+    public static <K, V extends Comparable<? super V>> Map<K, V> sortMapByValue(Map<K, V> map) {
+        return map.entrySet()
+                .stream()
+                .sorted(Map.Entry.<K, V>comparingByValue())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+    }
+
+    public static <K, V extends Comparable<? super V>> Map<K, V> sortMapByValueDescending(Map<K, V> map) {
+        return map.entrySet()
+                .stream()
+                .sorted(Map.Entry.<K, V>comparingByValue().reversed())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+    }
 }

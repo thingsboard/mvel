@@ -4,6 +4,9 @@ import org.mvel2.ExecutionContext;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObject {
@@ -91,6 +94,16 @@ public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObje
     }
 
     @Override
+    public boolean remove(Object value) {
+        int index = super.indexOf(value);
+        if (index >= 0 && super.remove(value)) {
+            this.memorySize -= this.executionContext.onValRemove(this, index, value);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
     public E set(int index, E element) {
         E oldValue = super.set(index, element);
         this.memorySize -= this.executionContext.onValRemove(this, index, oldValue);
@@ -122,7 +135,54 @@ public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObje
 
     public String join(String separator) {
         return this.stream()
-                .map( Object::toString )
-                .collect( Collectors.joining( separator ) );
+                .map(Object::toString)
+                .collect(Collectors.joining(separator));
+    }
+
+    public void sort() {
+        this.sort(true);
+    }
+
+    public void sort(boolean desc) {
+        List listSort = (List) super.clone();
+        boolean result = false;
+        try {
+            if (listSort.get(0) instanceof Number) {
+                Collections.sort(listSort, new Comparator() {
+                    public int compare(Object o1, Object o2) {
+                        Double first = Double.parseDouble(String.valueOf(o1));
+                        Double second = Double.parseDouble(String.valueOf(o2));
+                        return second.compareTo(first);
+                    }
+                });
+            } else if (listSort.get(0) instanceof String) {
+                listSort = (List) listSort.stream().sorted().collect(Collectors.toList());
+            }
+
+            result = true;
+        } catch (ClassCastException e) {
+            Collections.sort(listSort, new Comparator() {
+                public int compare(Object o1, Object o2) {
+                    Double first = Double.parseDouble(String.valueOf(o1));
+                    Double second = Double.parseDouble(String.valueOf(o2));
+                    return first.compareTo(second);
+                }
+            });
+            result = true;
+        }
+        if (result) {
+            if (!desc) {
+                Collections.reverse(listSort);
+            }
+            listSort.forEach(e -> remove(e));
+            addAll(listSort);
+        }
+    }
+
+    public void toReversed() {
+        List listRev = (List) super.clone();
+        Collections.reverse(listRev);
+        listRev.forEach(e -> remove(e));
+        addAll(listRev);
     }
 }
