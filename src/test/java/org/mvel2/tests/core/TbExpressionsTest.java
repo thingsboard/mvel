@@ -2253,9 +2253,129 @@ public class TbExpressionsTest extends TestCase {
                 "return map.values();";
         Object result = executeScript(body);
         assertTrue(result instanceof List);
-        assertEquals(2, ((List)result).size());
-        assertEquals("world", ((List)result).get(0));
-        assertEquals("toString", ((List)result).get(1));
+        assertEquals(2, ((List) result).size());
+        assertEquals("world", ((List) result).get(0));
+        assertEquals("toString", ((List) result).get(1));
+    }
+
+    public void testExecutionArrayListSortAsc() {
+        String body = "var msg = {};\n" +
+                "var arrayString = ['March', 'Feb', 'Jan', 'Dec'];\n" +
+                "arrayString.sort();\n" +
+                "var arrayInt = [1, 30, 4, -214748, 57, 214748, 100000];\n" +
+                "arrayInt.sort();\n" +
+                "var arrayLong = [450000000000, 9223372036854775807, 300000000000, 40000000000,  -9223372036854775808, 1000000000000000];\n" +
+                "arrayLong.sort();\n" +
+                "var arrayFloat = [3.40282, 34.17549467, 45.40283, 1.1754943];\n" +
+                "arrayFloat.sort();\n" +
+                "var mixedNumericArray = [\"8\", \"9\", \"700\", 40, 1, 5, 200];\n" +
+                "mixedNumericArray.sort();\n" +
+                "msg.arrayString = arrayString;\n" +
+                "msg.arrayInt = arrayInt;\n" +
+                "msg.arrayLong = arrayLong;\n" +
+                "msg.arrayFloat = arrayFloat;\n" +
+                "msg.mixedNumericArray = mixedNumericArray;\n" +
+                "return {msg: msg};";
+        Object result = executeScript(body);
+        LinkedHashMap resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
+
+        String[] arrayString = new String[]{"Dec", "Feb", "Jan", "March"};
+        List expectedArrayString = Arrays.asList(arrayString);
+        List actualArray = (List) resMap.get("arrayString");
+        assertEquals(expectedArrayString, actualArray);
+
+        Integer[] arrayInt = new Integer[]{-214748, 1, 4, 30, 57, 100000, 214748};
+        List expectedArrayInteger = Arrays.asList(arrayInt);
+        actualArray = (List) resMap.get("arrayInt");
+        assertEquals(expectedArrayInteger, actualArray);
+
+        Long[] arrayLong = new Long[]{-9223372036854775808L, 40000000000L, 300000000000L, 450000000000L, 1000000000000000L, 9223372036854775807L};
+        List expectedArrayLong = Arrays.asList(arrayLong);
+        actualArray = (List) resMap.get("arrayLong");
+        assertEquals(expectedArrayLong, actualArray);
+
+        Double[] arrayFloat = new Double[]{1.1754943, 3.40282, 34.17549467, 45.40283};
+        List expectedArrayFloat = Arrays.asList(arrayFloat);
+        actualArray = (List) resMap.get("arrayFloat");
+        assertEquals(expectedArrayFloat, actualArray);
+
+        List expectedArrayMixedNumeric = new ArrayList();
+        expectedArrayMixedNumeric.add(1);
+        expectedArrayMixedNumeric.add(5);
+        expectedArrayMixedNumeric.add("8");
+        expectedArrayMixedNumeric.add("9");
+        expectedArrayMixedNumeric.add(40);
+        expectedArrayMixedNumeric.add(200);
+        expectedArrayMixedNumeric.add("700");
+        actualArray = (List) resMap.get("mixedNumericArray");
+        assertEquals(expectedArrayMixedNumeric, actualArray);
+    }
+
+    public void testExecutionArrayListSortDesc() {
+        String body = "var msg = {};\n" +
+                "var arrayString = ['March', 'Feb', 'Jan', 'Dec'];\n" +
+                "arrayString.sort(false);\n" +
+                "var arrayInt = [1, 30, 4, -214748, 57, 214748, 100000];\n" +
+                "arrayInt.sort(false);\n" +
+                "var arrayLong = [450000000000, 9223372036854775807, 300000000000, 40000000000,  -9223372036854775808, 1000000000000000];\n" +
+                "arrayLong.sort(false);\n" +
+                "var arrayFloat = [3.40282, 34.17549467, 45.40283, 1.1754943];\n" +
+                "arrayFloat.sort(false);\n" +
+                "var mixedNumericArray = [\"8\", \"9\", \"700\", 40, 1, 5, 200];\n" +
+                "mixedNumericArray.sort(false);\n" +
+                "msg.arrayString = arrayString;\n" +
+                "msg.arrayInt = arrayInt;\n" +
+                "msg.arrayLong = arrayLong;\n" +
+                "msg.arrayFloat = arrayFloat;\n" +
+                "msg.mixedNumericArray = mixedNumericArray;\n" +
+                "return {msg: msg};";
+        Object result = executeScript(body);
+        LinkedHashMap resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
+
+        String[] arrayString = new String[]{"March", "Jan", "Feb", "Dec"};
+        List expectedArrayString = Arrays.asList(arrayString);
+        List actualArray = (List) resMap.get("arrayString");
+        assertEquals(expectedArrayString, actualArray);
+
+        Integer[] arrayInt = new Integer[]{214748, 100000, 57, 30, 4, 1, -214748};
+        List expectedArrayInteger = Arrays.asList(arrayInt);
+        actualArray = (List) resMap.get("arrayInt");
+        assertEquals(expectedArrayInteger, actualArray);
+
+        Long[] arrayLong = new Long[]{9223372036854775807L, 1000000000000000L, 450000000000L, 300000000000L, 40000000000L, -9223372036854775808L};
+        List expectedArrayLong = Arrays.asList(arrayLong);
+        actualArray = (List) resMap.get("arrayLong");
+        assertEquals(expectedArrayLong, actualArray);
+
+        Double[] arrayFloat = new Double[]{45.40283, 34.17549467, 3.40282, 1.1754943};
+        List expectedArrayFloat = Arrays.asList(arrayFloat);
+        actualArray = (List) resMap.get("arrayFloat");
+        assertEquals(expectedArrayFloat, actualArray);
+
+        List expectedArrayMixedNumeric = new ArrayList();
+        expectedArrayMixedNumeric.add("700");
+        expectedArrayMixedNumeric.add(200);
+        expectedArrayMixedNumeric.add(40);
+        expectedArrayMixedNumeric.add("9");
+        expectedArrayMixedNumeric.add("8");
+        expectedArrayMixedNumeric.add(5);
+        expectedArrayMixedNumeric.add(1);
+        actualArray = (List) resMap.get("mixedNumericArray");
+        assertEquals(expectedArrayMixedNumeric, actualArray);
+    }
+
+    public void testExecutionArrayListSortNumericWithString_Error() {
+        String body = "var msg = {};\n" +
+                "var mixedNumericStringArray = [\"8\", \"9\", 'Jabnm', 40, 1, 5, 200];\n" +
+                "mixedNumericStringArray.sort();\n" +
+                "msg.mixedNumericStringArray = mixedNumericStringArray;\n" +
+                "return {msg: msg};";
+        try {
+            executeScript(body);
+            fail("Should throw CompileException");
+        } catch (CompileException e) {
+            assertTrue(e.getMessage().contains("For input string: \"Jabnm\""));
+        }
     }
 
     private Object executeScript(String ex, Map vars, ExecutionContext executionContext, long timeoutMs) throws Exception {
