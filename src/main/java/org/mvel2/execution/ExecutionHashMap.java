@@ -2,10 +2,13 @@ package org.mvel2.execution;
 
 import org.mvel2.ExecutionContext;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static org.mvel2.execution.ExecutionArrayList.validateClazzInArrayIsOnlyString;
 
 public class ExecutionHashMap<K, V> extends LinkedHashMap<K, V> implements ExecutionObject {
 
@@ -101,8 +104,9 @@ public class ExecutionHashMap<K, V> extends LinkedHashMap<K, V> implements Execu
         sortByValue(true);
     }
 
-    public void sortByValue(boolean desc) {
-        Map valueSort = desc ? sortMapByValue((HashMap) super.clone()) : sortMapByValueDescending((HashMap) super.clone());
+
+    public void sortByValue(boolean asc) {
+        Map valueSort = sortMapByValue((HashMap) super.clone(), validateClazzInArrayIsOnlyString(this.values()), asc);
         valueSort.keySet().forEach(this::remove);
         this.putAll(valueSort);
     }
@@ -111,37 +115,40 @@ public class ExecutionHashMap<K, V> extends LinkedHashMap<K, V> implements Execu
         this.sortByKey(true);
     }
 
-    public void sortByKey(boolean desc) {
-        Map valueSort = desc ? sortMapByKey((HashMap) super.clone()) : sortMapByKeyDescending((HashMap) super.clone());
-        valueSort.keySet().forEach(this::remove);
-        this.putAll(valueSort);
+    public void sortByKey(boolean asc) {
+        ExecutionArrayList keys = this.keys();
+        keys.sort(asc);
+        HashMap keysMapSort = new LinkedHashMap();
+        keys.forEach(k -> keysMapSort.put(k, this.get(k)));
+        keysMapSort.keySet().forEach(this::remove);
+        this.putAll(keysMapSort);
     }
 
-    public static <K extends Comparable<? super K>, V> Map<K, V> sortMapByKey(Map<K, V> map) {
+    private static <K, V extends Comparable<? super V>> Map<K, V> sortMapByValue(Map<K, V> map, boolean isString, boolean asc) {
+        Comparator<? super Map.Entry> cmp = isString ? compByValueString(asc) : compByValueDouble(asc);
         return map.entrySet()
                 .stream()
-                .sorted(Map.Entry.<K, V>comparingByKey())
+                .sorted(cmp)
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
     }
 
-    public static <K extends Comparable<? super K>, V> Map<K, V> sortMapByKeyDescending(Map<K, V> map) {
-        return map.entrySet()
-                .stream()
-                .sorted(Map.Entry.<K, V>comparingByKey().reversed())
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+    private static <K, V extends Comparable<? super V>> Comparator compByValueString(boolean asc) {
+        return new Comparator() {
+            public int compare(Object o1, Object o2) {
+                String first = String.valueOf(((Map.Entry) o1).getValue());
+                String second = String.valueOf(((Map.Entry) o2).getValue());
+                return asc ? first.compareTo(second) : second.compareTo(first);
+            }
+        };
     }
 
-    public static <K, V extends Comparable<? super V>> Map<K, V> sortMapByValue(Map<K, V> map) {
-        return map.entrySet()
-                .stream()
-                .sorted(Map.Entry.<K, V>comparingByValue())
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-    }
-
-    public static <K, V extends Comparable<? super V>> Map<K, V> sortMapByValueDescending(Map<K, V> map) {
-        return map.entrySet()
-                .stream()
-                .sorted(Map.Entry.<K, V>comparingByValue().reversed())
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+    private static <K, V extends Comparable<? super V>> Comparator compByValueDouble(boolean asc) {
+        return new Comparator() {
+            public int compare(Object o1, Object o2) {
+                Double first = Double.parseDouble(String.valueOf(((Map.Entry) o1).getValue()));
+                Double second = Double.parseDouble(String.valueOf(((Map.Entry) o2).getValue()));
+                return asc ? first.compareTo(second) : second.compareTo(first);
+            }
+        };
     }
 }

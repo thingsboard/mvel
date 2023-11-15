@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObject {
@@ -96,8 +97,8 @@ public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObje
     @Override
     public boolean remove(Object value) {
         int index = super.indexOf(value);
-        if (index >= 0 && super.remove(value)) {
-            this.memorySize -= this.executionContext.onValRemove(this, index, value);
+        if (index >= 0) {
+            super.remove(index);
             return true;
         }
         return false;
@@ -143,40 +144,18 @@ public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObje
         this.sort(true);
     }
 
-    public void sort(boolean desc) {
+    public void sort(boolean asc) {
         List listSort = (List) super.clone();
-        boolean result = false;
-        try {
-            if (listSort.get(0) instanceof Number) {
-                Collections.sort(listSort, new Comparator() {
-                    public int compare(Object o1, Object o2) {
-                        Double first = Double.parseDouble(String.valueOf(o1));
-                        Double second = Double.parseDouble(String.valueOf(o2));
-                        return second.compareTo(first);
-                    }
-                });
-            } else if (listSort.get(0) instanceof String) {
-                listSort = (List) listSort.stream().sorted().collect(Collectors.toList());
-            }
-
-            result = true;
-        } catch (ClassCastException e) {
-            Collections.sort(listSort, new Comparator() {
-                public int compare(Object o1, Object o2) {
-                    Double first = Double.parseDouble(String.valueOf(o1));
-                    Double second = Double.parseDouble(String.valueOf(o2));
-                    return first.compareTo(second);
-                }
-            });
-            result = true;
-        }
-        if (result) {
-            if (!desc) {
+        if (validateClazzInArrayIsOnlyString(listSort)) {
+            listSort = (List) listSort.stream().sorted().collect(Collectors.toList());
+            if (!asc) {
                 Collections.reverse(listSort);
             }
-            listSort.forEach(e -> remove(e));
-            addAll(listSort);
+        } else {
+            Collections.sort(listSort, numericComp(asc));
         }
+        listSort.forEach(e -> remove(e));
+        addAll(listSort);
     }
 
     public void toReversed() {
@@ -184,5 +163,20 @@ public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObje
         Collections.reverse(listRev);
         listRev.forEach(e -> remove(e));
         addAll(listRev);
+    }
+
+    private static Comparator numericComp(boolean asc) {
+        return new Comparator() {
+            public int compare(Object o1, Object o2) {
+                Double first = Double.parseDouble(String.valueOf(o1));
+                Double second = Double.parseDouble(String.valueOf(o2));
+                return asc ? first.compareTo(second) : second.compareTo(first);
+            }
+        };
+    }
+
+    public static boolean validateClazzInArrayIsOnlyString(List list) {
+        Optional simpleNamOpt = list.stream().filter(e -> !"String".equals(e.getClass().getSimpleName())).findFirst();
+        return !simpleNamOpt.isPresent();
     }
 }
