@@ -16,6 +16,7 @@ import org.mvel2.util.MethodStub;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -2264,7 +2265,7 @@ public class TbExpressionsTest extends TestCase {
                 "arrayString.sort();\n" +
                 "var arrayInt = [1, 30, 4, -214748, 57, 214748, 100000];\n" +
                 "arrayInt.sort();\n" +
-                "var arrayLong = [450000000000, 9223372036854775807, 300000000000, 40000000000,  -9223372036854775808, 1000000000000000];\n" +
+                "var arrayLong = [45, 9223372036854775807, 30, 40,  -9223372036854775808, 1000];\n" +
                 "arrayLong.sort();\n" +
                 "var arrayFloat = [3.40282, 34.17549467, 45.40283, 1.1754943];\n" +
                 "arrayFloat.sort();\n" +
@@ -2289,10 +2290,15 @@ public class TbExpressionsTest extends TestCase {
         actualArray = (List) resMap.get("arrayInt");
         assertEquals(expectedArrayInteger, actualArray);
 
-        Long[] arrayLong = new Long[]{-9223372036854775808L, 40000000000L, 300000000000L, 450000000000L, 1000000000000000L, 9223372036854775807L};
-        List expectedArrayLong = Arrays.asList(arrayLong);
+        List expectedArrayIntLong = new ArrayList();
+        expectedArrayIntLong.add(-9223372036854775808L);
+        expectedArrayIntLong.add(30);
+        expectedArrayIntLong.add(40);
+        expectedArrayIntLong.add(45);
+        expectedArrayIntLong.add(1000);
+        expectedArrayIntLong.add(9223372036854775807L);
         actualArray = (List) resMap.get("arrayLong");
-        assertEquals(expectedArrayLong, actualArray);
+        assertEquals(expectedArrayIntLong, actualArray);
 
         Double[] arrayFloat = new Double[]{1.1754943, 3.40282, 34.17549467, 45.40283};
         List expectedArrayFloat = Arrays.asList(arrayFloat);
@@ -2317,7 +2323,7 @@ public class TbExpressionsTest extends TestCase {
                 "arrayString.sort(false);\n" +
                 "var arrayInt = [1, 30, 4, -214748, 57, 214748, 100000];\n" +
                 "arrayInt.sort(false);\n" +
-                "var arrayLong = [450000000000, 9223372036854775807, 300000000000, 40000000000,  -9223372036854775808, 1000000000000000];\n" +
+                "var arrayLong = [45, 9223372036854775807, 30, 40,  -9223372036854775808, 1000];\n" +
                 "arrayLong.sort(false);\n" +
                 "var arrayFloat = [3.40282, 34.17549467, 45.40283, 1.1754943];\n" +
                 "arrayFloat.sort(false);\n" +
@@ -2332,8 +2338,9 @@ public class TbExpressionsTest extends TestCase {
         Object result = executeScript(body);
         LinkedHashMap resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
 
-        String[] arrayString = new String[]{"March", "Jan", "Feb", "Dec"};
+        String[] arrayString = new String[]{"Dec", "Feb", "Jan", "March"};
         List expectedArrayString = Arrays.asList(arrayString);
+        Collections.reverse(expectedArrayString);
         List actualArray = (List) resMap.get("arrayString");
         assertEquals(expectedArrayString, actualArray);
 
@@ -2342,10 +2349,16 @@ public class TbExpressionsTest extends TestCase {
         actualArray = (List) resMap.get("arrayInt");
         assertEquals(expectedArrayInteger, actualArray);
 
-        Long[] arrayLong = new Long[]{9223372036854775807L, 1000000000000000L, 450000000000L, 300000000000L, 40000000000L, -9223372036854775808L};
-        List expectedArrayLong = Arrays.asList(arrayLong);
+        List expectedArrayIntLong = new ArrayList();
+        expectedArrayIntLong.add(-9223372036854775808L);
+        expectedArrayIntLong.add(30);
+        expectedArrayIntLong.add(40);
+        expectedArrayIntLong.add(45);
+        expectedArrayIntLong.add(1000);
+        expectedArrayIntLong.add(9223372036854775807L);
+        Collections.reverse(expectedArrayIntLong);
         actualArray = (List) resMap.get("arrayLong");
-        assertEquals(expectedArrayLong, actualArray);
+        assertEquals(expectedArrayIntLong, actualArray);
 
         Double[] arrayFloat = new Double[]{45.40283, 34.17549467, 3.40282, 1.1754943};
         List expectedArrayFloat = Arrays.asList(arrayFloat);
@@ -2353,15 +2366,75 @@ public class TbExpressionsTest extends TestCase {
         assertEquals(expectedArrayFloat, actualArray);
 
         List expectedArrayMixedNumeric = new ArrayList();
-        expectedArrayMixedNumeric.add("700");
-        expectedArrayMixedNumeric.add(200);
-        expectedArrayMixedNumeric.add(40);
-        expectedArrayMixedNumeric.add("9");
-        expectedArrayMixedNumeric.add("8");
-        expectedArrayMixedNumeric.add(5);
         expectedArrayMixedNumeric.add(1);
+        expectedArrayMixedNumeric.add(5);
+        expectedArrayMixedNumeric.add("8");
+        expectedArrayMixedNumeric.add("9");
+        expectedArrayMixedNumeric.add(40);
+        expectedArrayMixedNumeric.add(200);
+        expectedArrayMixedNumeric.add("700");
+        Collections.reverse(expectedArrayMixedNumeric);
         actualArray = (List) resMap.get("mixedNumericArray");
         assertEquals(expectedArrayMixedNumeric, actualArray);
+    }
+
+    public void testExecutionHashMapSortByValueAsc() {
+        String body = "var msg = {};\n" +
+                "var sortValString = {2:\"21Dragon\", 3:\"Brain\", 4:\"20\", 1:\"30\"};\n" +
+                "sortValString.sortByValue();\n" +
+                "var sortValInt = {2:1, 5:30, 225:4, 8:-214748, 1:57, 3:214748, 9:100000};\n" +
+                "sortValInt.sortByValue();\n" +
+                "var sortValIntLong = {2:45,5:9223372036854775807, 225:30, 8:40,  3:-9223372036854775808, 9:1000};\n" +
+                "sortValIntLong.sortByValue();\n" +
+                "\n" +
+                "msg.sortValString = sortValString;\n" +
+                "msg.sortValInt = sortValInt;\n" +
+                "msg.sortValIntLong = sortValIntLong;\n" +
+                "return {\n" +
+                "    msg: msg\n" +
+                "};";
+        Object result = executeScript(body);
+        LinkedHashMap resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
+
+        LinkedHashMap<Integer, String> expectedSortValString = new LinkedHashMap<>();
+        expectedSortValString.put(4, "20");
+        expectedSortValString.put(2, "21Dragon");
+        expectedSortValString.put(1, "30");
+        expectedSortValString.put(3, "Brain");
+        LinkedHashMap actualHashMap = (LinkedHashMap) resMap.get("sortValString");
+        assertEquals(expectedSortValString, actualHashMap);
+
+        LinkedHashMap<Integer, Integer> expectedSortValInt = new LinkedHashMap<>();
+        expectedSortValInt.put(8, -214748);
+        expectedSortValInt.put(2, 1);
+        expectedSortValInt.put(225, 4);
+        expectedSortValInt.put(5, 30);
+        expectedSortValInt.put(1, 57);
+        expectedSortValInt.put(9, 100000);
+        expectedSortValInt.put(3, 214748);
+        actualHashMap = (LinkedHashMap) resMap.get("sortValInt");
+        assertEquals(expectedSortValInt, actualHashMap);
+
+        LinkedHashMap<Integer, Object> expectedSortValIntLong = new LinkedHashMap<>();
+        expectedSortValIntLong.put(3, -9223372036854775808L);
+        expectedSortValIntLong.put(225, 30);
+        expectedSortValIntLong.put(8, 40);
+        expectedSortValIntLong.put(2, 45);
+        expectedSortValIntLong.put(9, 1000);
+        expectedSortValIntLong.put(5, 9223372036854775807L);
+        actualHashMap = (LinkedHashMap) resMap.get("sortValIntLong");
+        assertEquals(expectedSortValIntLong, actualHashMap);
+
+        LinkedHashMap<Integer, Object> expectedSortValFloat = new LinkedHashMap<>();
+        expectedSortValFloat.put(3, -9223372036854775808L);
+        expectedSortValFloat.put(225, 30);
+        expectedSortValFloat.put(8, 40);
+        expectedSortValFloat.put(2, 45);
+        expectedSortValFloat.put(9, 1000);
+        expectedSortValFloat.put(5, 9223372036854775807L);
+        actualHashMap = (LinkedHashMap) resMap.get("sortValIntLong");
+        assertEquals(expectedSortValFloat, actualHashMap);
+
     }
 
     public void testExecutionArrayListSortNumericWithString_Error() {

@@ -8,9 +8,38 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.mvel2.execution.ExecutionArrayList.validateClazzInArrayIsOnlyString;
-
 public class ExecutionHashMap<K, V> extends LinkedHashMap<K, V> implements ExecutionObject {
+
+    private static final Comparator compByValueStringAsc = new Comparator() {
+        public int compare(Object o1, Object o2) {
+            String first = String.valueOf(((Map.Entry) o1).getValue());
+            String second = String.valueOf(((Map.Entry) o2).getValue());
+            return first.compareTo(second);
+        }
+    };
+    private static final Comparator compByValueStringDesc = new Comparator() {
+        public int compare(Object o1, Object o2) {
+            String first = String.valueOf(((Map.Entry) o1).getValue());
+            String second = String.valueOf(((Map.Entry) o2).getValue());
+            return second.compareTo(first);
+        }
+    };
+
+    private static final Comparator compByValueDoubleAsc = new Comparator() {
+        public int compare(Object o1, Object o2) {
+            Double first = Double.parseDouble(String.valueOf(((Map.Entry) o1).getValue()));
+            Double second = Double.parseDouble(String.valueOf(((Map.Entry) o2).getValue()));
+            return first.compareTo(second);
+        }
+    };
+
+    private static final Comparator compByValueDoubleDesc = new Comparator() {
+        public int compare(Object o1, Object o2) {
+            Double first = Double.parseDouble(String.valueOf(((Map.Entry) o1).getValue()));
+            Double second = Double.parseDouble(String.valueOf(((Map.Entry) o2).getValue()));
+            return second.compareTo(first);
+        }
+    };
 
     private final ExecutionContext executionContext;
 
@@ -104,9 +133,8 @@ public class ExecutionHashMap<K, V> extends LinkedHashMap<K, V> implements Execu
         sortByValue(true);
     }
 
-
     public void sortByValue(boolean asc) {
-        Map valueSort = sortMapByValue((HashMap) super.clone(), validateClazzInArrayIsOnlyString(this.values()), asc);
+        Map valueSort = sortMapByValue((HashMap) super.clone(), asc);
         valueSort.keySet().forEach(this::remove);
         this.putAll(valueSort);
     }
@@ -124,31 +152,15 @@ public class ExecutionHashMap<K, V> extends LinkedHashMap<K, V> implements Execu
         this.putAll(keysMapSort);
     }
 
-    private static <K, V extends Comparable<? super V>> Map<K, V> sortMapByValue(Map<K, V> map, boolean isString, boolean asc) {
-        Comparator<? super Map.Entry> cmp = isString ? compByValueString(asc) : compByValueDouble(asc);
+    private <K, V extends Comparable<? super V>> Map<K, V> sortMapByValue(Map<K, V> map, boolean asc) {
+        boolean isString = this.values().validateClazzInArrayIsOnlyString();
+        Comparator<? super Map.Entry> cmp =
+                isString ?
+                        asc ? compByValueStringAsc : compByValueStringDesc :
+                        asc ? compByValueDoubleAsc : compByValueDoubleDesc;
         return map.entrySet()
                 .stream()
                 .sorted(cmp)
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-    }
-
-    private static <K, V extends Comparable<? super V>> Comparator compByValueString(boolean asc) {
-        return new Comparator() {
-            public int compare(Object o1, Object o2) {
-                String first = String.valueOf(((Map.Entry) o1).getValue());
-                String second = String.valueOf(((Map.Entry) o2).getValue());
-                return asc ? first.compareTo(second) : second.compareTo(first);
-            }
-        };
-    }
-
-    private static <K, V extends Comparable<? super V>> Comparator compByValueDouble(boolean asc) {
-        return new Comparator() {
-            public int compare(Object o1, Object o2) {
-                Double first = Double.parseDouble(String.valueOf(((Map.Entry) o1).getValue()));
-                Double second = Double.parseDouble(String.valueOf(((Map.Entry) o2).getValue()));
-                return asc ? first.compareTo(second) : second.compareTo(first);
-            }
-        };
     }
 }

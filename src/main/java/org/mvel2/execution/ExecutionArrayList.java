@@ -12,6 +12,28 @@ import java.util.stream.Collectors;
 
 public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObject {
 
+    private static final Comparator stringCompDesc = new Comparator() {
+        public int compare(Object o1, Object o2) {
+            String first = String.valueOf(o1);
+            String second = String.valueOf(o2);
+            return second.compareTo(first);
+        }
+    };
+    private static final Comparator numericCompAsc = new Comparator() {
+        public int compare(Object o1, Object o2) {
+            Double first = Double.parseDouble(String.valueOf(o1));
+            Double second = Double.parseDouble(String.valueOf(o2));
+            return first.compareTo(second);
+        }
+    };
+    private static final Comparator numericCompDesc = new Comparator() {
+        public int compare(Object o1, Object o2) {
+            Double first = Double.parseDouble(String.valueOf(o1));
+            Double second = Double.parseDouble(String.valueOf(o2));
+            return second.compareTo(first);
+        }
+    };
+
     private final ExecutionContext executionContext;
 
     private final int id;
@@ -98,7 +120,7 @@ public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObje
     public boolean remove(Object value) {
         int index = super.indexOf(value);
         if (index >= 0) {
-            super.remove(index);
+            this.remove(index);
             return true;
         }
         return false;
@@ -145,17 +167,19 @@ public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObje
     }
 
     public void sort(boolean asc) {
-        List listSort = (List) super.clone();
-        if (validateClazzInArrayIsOnlyString(listSort)) {
-            listSort = (List) listSort.stream().sorted().collect(Collectors.toList());
-            if (!asc) {
-                Collections.reverse(listSort);
+        if (validateClazzInArrayIsOnlyString()) {
+            if (asc) {
+                super.sort(null);
+            } else {
+                super.sort(stringCompDesc);
             }
         } else {
-            Collections.sort(listSort, numericComp(asc));
+            if (asc) {
+                super.sort(numericCompAsc);
+            } else {
+                super.sort(numericCompDesc);
+            }
         }
-        listSort.forEach(e -> remove(e));
-        addAll(listSort);
     }
 
     public void toReversed() {
@@ -165,18 +189,8 @@ public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObje
         addAll(listRev);
     }
 
-    private static Comparator numericComp(boolean asc) {
-        return new Comparator() {
-            public int compare(Object o1, Object o2) {
-                Double first = Double.parseDouble(String.valueOf(o1));
-                Double second = Double.parseDouble(String.valueOf(o2));
-                return asc ? first.compareTo(second) : second.compareTo(first);
-            }
-        };
-    }
-
-    public static boolean validateClazzInArrayIsOnlyString(List list) {
-        Optional simpleNamOpt = list.stream().filter(e -> !"String".equals(e.getClass().getSimpleName())).findFirst();
+    public boolean validateClazzInArrayIsOnlyString() {
+        Optional simpleNamOpt = super.stream().filter(e -> !(e instanceof String)).findAny();
         return !simpleNamOpt.isPresent();
     }
 }
