@@ -2384,12 +2384,18 @@ public class TbExpressionsTest extends TestCase {
                 "sortValString.sortByValue();\n" +
                 "var sortValInt = {2:1, 5:30, 225:4, 8:-214748, 1:57, 3:214748, 9:100000};\n" +
                 "sortValInt.sortByValue();\n" +
-                "var sortValIntLong = {2:45,5:9223372036854775807, 225:30, 8:40,  3:-9223372036854775808, 9:1000};\n" +
+                "var sortValIntLong = {2:45, 5:9223372036854775807, 225:30, 8:40,  3:-9223372036854775808, 9:1000};\n" +
                 "sortValIntLong.sortByValue();\n" +
+                "var sortValFloat = {2:3.40282, 225:34.17549467, 3:45.40283, 5:1.1754943};\n" +
+                "sortValFloat.sortByValue();\n" +
+                "var sortValMixedNumeric = {2:\"8\", 225:\"-9223372036854775808\", 3:\"700\", 5:40, 9:9223372036854775807, 4:5, 300:200};\n" +
+                "sortValMixedNumeric.sortByValue();\n" +
                 "\n" +
                 "msg.sortValString = sortValString;\n" +
                 "msg.sortValInt = sortValInt;\n" +
                 "msg.sortValIntLong = sortValIntLong;\n" +
+                "msg.sortValFloat = sortValFloat;\n" +
+                "msg.sortValMixedNumeric = sortValMixedNumeric;\n" +
                 "return {\n" +
                 "    msg: msg\n" +
                 "};";
@@ -2403,6 +2409,9 @@ public class TbExpressionsTest extends TestCase {
         expectedSortValString.put(3, "Brain");
         LinkedHashMap actualHashMap = (LinkedHashMap) resMap.get("sortValString");
         assertEquals(expectedSortValString, actualHashMap);
+        ArrayList expectedList = new ArrayList<Object>(expectedSortValString.values());
+        ArrayList actualList = new ArrayList<Object>(actualHashMap.values());
+        assertEquals(expectedList, actualList);
 
         LinkedHashMap<Integer, Integer> expectedSortValInt = new LinkedHashMap<>();
         expectedSortValInt.put(8, -214748);
@@ -2414,6 +2423,9 @@ public class TbExpressionsTest extends TestCase {
         expectedSortValInt.put(3, 214748);
         actualHashMap = (LinkedHashMap) resMap.get("sortValInt");
         assertEquals(expectedSortValInt, actualHashMap);
+        expectedList = new ArrayList<Object>(expectedSortValInt.values());
+        actualList = new ArrayList<Object>(actualHashMap.values());
+        assertEquals(expectedList, actualList);
 
         LinkedHashMap<Integer, Object> expectedSortValIntLong = new LinkedHashMap<>();
         expectedSortValIntLong.put(3, -9223372036854775808L);
@@ -2424,17 +2436,309 @@ public class TbExpressionsTest extends TestCase {
         expectedSortValIntLong.put(5, 9223372036854775807L);
         actualHashMap = (LinkedHashMap) resMap.get("sortValIntLong");
         assertEquals(expectedSortValIntLong, actualHashMap);
+        expectedList = new ArrayList<Object>(expectedSortValIntLong.values());
+        actualList = new ArrayList<Object>(actualHashMap.values());
+        assertEquals(expectedList, actualList);
 
-        LinkedHashMap<Integer, Object> expectedSortValFloat = new LinkedHashMap<>();
-        expectedSortValFloat.put(3, -9223372036854775808L);
-        expectedSortValFloat.put(225, 30);
-        expectedSortValFloat.put(8, 40);
-        expectedSortValFloat.put(2, 45);
-        expectedSortValFloat.put(9, 1000);
-        expectedSortValFloat.put(5, 9223372036854775807L);
-        actualHashMap = (LinkedHashMap) resMap.get("sortValIntLong");
+        LinkedHashMap<Integer, Double> expectedSortValFloat = new LinkedHashMap<>();
+        expectedSortValFloat.put(5, 1.1754943);
+        expectedSortValFloat.put(2, 3.40282);
+        expectedSortValFloat.put(225, 34.17549467);
+        expectedSortValFloat.put(3, 45.40283);
+        actualHashMap = (LinkedHashMap) resMap.get("sortValFloat");
         assertEquals(expectedSortValFloat, actualHashMap);
+        expectedList = new ArrayList<Object>(expectedSortValFloat.values());
+        actualList = new ArrayList<Object>(actualHashMap.values());
+        assertEquals(expectedList, actualList);
 
+        LinkedHashMap<Integer, Object> expectedSortValMixedNumeric = new LinkedHashMap<>();
+        expectedSortValMixedNumeric.put(225, "-9223372036854775808");
+        expectedSortValMixedNumeric.put(4, 5);
+        expectedSortValMixedNumeric.put(2, "8");
+        expectedSortValMixedNumeric.put(5, 40);
+        expectedSortValMixedNumeric.put(300, 200);
+        expectedSortValMixedNumeric.put(3, "700");
+        expectedSortValMixedNumeric.put(9, 9223372036854775807L);
+        actualHashMap = (LinkedHashMap) resMap.get("sortValMixedNumeric");
+        assertEquals(expectedSortValMixedNumeric, actualHashMap);
+        expectedList = new ArrayList<Object>(expectedSortValMixedNumeric.values());
+        actualList = new ArrayList<Object>(actualHashMap.values());
+        assertEquals(expectedList, actualList);
+    }
+
+    public void testExecutionHashMapSortByValueDesc() {
+        String body = "var msg = {};\n" +
+                "var sortValString = {2:\"21Dragon\", 3:\"Brain\", 4:\"20\", 1:\"30\"};\n" +
+                "sortValString.sortByValue(false);\n" +
+                "var sortValInt = {2:1, 5:30, 225:4, 8:-214748, 1:57, 3:214748, 9:100000};\n" +
+                "sortValInt.sortByValue(false);\n" +
+                "var sortValIntLong = {2:45, 5:9223372036854775807, 225:30, 8:40,  3:-9223372036854775808, 9:1000};\n" +
+                "sortValIntLong.sortByValue(false);\n" +
+                "var sortValFloat = {2:3.40282, 225:34.17549467, 3:45.40283, 5:1.1754943};\n" +
+                "sortValFloat.sortByValue(false);\n" +
+                "var sortValMixedNumeric = {2:\"8\", 225:\"-9223372036854775808\", 3:\"700\", 5:40, 9:9223372036854775807, 4:5, 300:200};\n" +
+                "sortValMixedNumeric.sortByValue(false);\n" +
+                "\n" +
+                "msg.sortValString = sortValString;\n" +
+                "msg.sortValInt = sortValInt;\n" +
+                "msg.sortValIntLong = sortValIntLong;\n" +
+                "msg.sortValFloat = sortValFloat;\n" +
+                "msg.sortValMixedNumeric = sortValMixedNumeric;\n" +
+                "return {\n" +
+                "    msg: msg\n" +
+                "};";
+        Object result = executeScript(body);
+        LinkedHashMap resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
+
+        LinkedHashMap<Integer, String> expectedSortValString = new LinkedHashMap<>();
+        expectedSortValString.put(4, "20");
+        expectedSortValString.put(2, "21Dragon");
+        expectedSortValString.put(1, "30");
+        expectedSortValString.put(3, "Brain");
+        LinkedHashMap actualHashMap = (LinkedHashMap) resMap.get("sortValString");
+        assertEquals(expectedSortValString, actualHashMap);
+        ArrayList expectedList = new ArrayList<Object>(expectedSortValString.values());
+        ArrayList actualList = new ArrayList<Object>(actualHashMap.values());
+        Collections.reverse(expectedList);
+        assertEquals(expectedList, actualList);
+
+        LinkedHashMap<Integer, Integer> expectedSortValInt = new LinkedHashMap<>();
+        expectedSortValInt.put(8, -214748);
+        expectedSortValInt.put(2, 1);
+        expectedSortValInt.put(225, 4);
+        expectedSortValInt.put(5, 30);
+        expectedSortValInt.put(1, 57);
+        expectedSortValInt.put(9, 100000);
+        expectedSortValInt.put(3, 214748);
+        actualHashMap = (LinkedHashMap) resMap.get("sortValInt");
+        assertEquals(expectedSortValInt, actualHashMap);
+        expectedList = new ArrayList<Object>(expectedSortValInt.values());
+        actualList = new ArrayList<Object>(actualHashMap.values());
+        Collections.reverse(expectedList);
+        assertEquals(expectedList, actualList);
+
+        LinkedHashMap<Integer, Object> expectedSortValIntLong = new LinkedHashMap<>();
+        expectedSortValIntLong.put(3, -9223372036854775808L);
+        expectedSortValIntLong.put(225, 30);
+        expectedSortValIntLong.put(8, 40);
+        expectedSortValIntLong.put(2, 45);
+        expectedSortValIntLong.put(9, 1000);
+        expectedSortValIntLong.put(5, 9223372036854775807L);
+        actualHashMap = (LinkedHashMap) resMap.get("sortValIntLong");
+        assertEquals(expectedSortValIntLong, actualHashMap);
+        expectedList = new ArrayList<Object>(expectedSortValIntLong.values());
+        actualList = new ArrayList<Object>(actualHashMap.values());
+        Collections.reverse(expectedList);
+        assertEquals(expectedList, actualList);
+
+        LinkedHashMap<Integer, Double> expectedSortValFloat = new LinkedHashMap<>();
+        expectedSortValFloat.put(5, 1.1754943);
+        expectedSortValFloat.put(2, 3.40282);
+        expectedSortValFloat.put(225, 34.17549467);
+        expectedSortValFloat.put(3, 45.40283);
+        actualHashMap = (LinkedHashMap) resMap.get("sortValFloat");
+        assertEquals(expectedSortValFloat, actualHashMap);
+        expectedList = new ArrayList<Object>(expectedSortValFloat.values());
+        actualList = new ArrayList<Object>(actualHashMap.values());
+        Collections.reverse(expectedList);
+        assertEquals(expectedList, actualList);
+
+        LinkedHashMap<Integer, Object> expectedSortValMixedNumeric = new LinkedHashMap<>();
+        expectedSortValMixedNumeric.put(225, "-9223372036854775808");
+        expectedSortValMixedNumeric.put(4, 5);
+        expectedSortValMixedNumeric.put(2, "8");
+        expectedSortValMixedNumeric.put(5, 40);
+        expectedSortValMixedNumeric.put(300, 200);
+        expectedSortValMixedNumeric.put(3, "700");
+        expectedSortValMixedNumeric.put(9, 9223372036854775807L);
+        actualHashMap = (LinkedHashMap) resMap.get("sortValMixedNumeric");
+        assertEquals(expectedSortValMixedNumeric, actualHashMap);
+        expectedList = new ArrayList<Object>(expectedSortValMixedNumeric.values());
+        actualList = new ArrayList<Object>(actualHashMap.values());
+        Collections.reverse(expectedList);
+        assertEquals(expectedList, actualList);
+    }
+
+    public void testExecutionHashMapSortByVKeyAsc() {
+        String body = "var msg = {};\n" +
+                "var sortValString = {\"21Dragon\":2, \"Brain\":3, \"20\":4, \"30\":1};\n" +
+                "sortValString.sortByKey();\n" +
+                "var sortValInt = {2:1, 5:30, 225:4, 8:-214748, 1:57, 3:214748, 9:100000};\n" +
+                "sortValInt.sortByKey();\n" +
+                "var sortValIntLong = {2:45, 9223372036854775807:5, 225:30, 8:40, -9223372036854775808:3, 9:1000};\n" +
+                "sortValIntLong.sortByKey();\n" +
+                "var sortValFloat = {3.40282:2, 34.17549467:225, 45.40283:3, 1.1754943:5};\n" +
+                "sortValFloat.sortByKey();\n" +
+                "var sortValMixedNumeric = {\"8\":21, \"-9223372036854775808\":225, \"700\":3, 40:40, 9223372036854775807:9, 4:5, 300:200};\n" +
+                "sortValMixedNumeric.sortByKey();\n" +
+                "\n" +
+                "msg.sortValString = sortValString;\n" +
+                "msg.sortValInt = sortValInt;\n" +
+                "msg.sortValIntLong = sortValIntLong;\n" +
+                "msg.sortValFloat = sortValFloat;\n" +
+                "msg.sortValMixedNumeric = sortValMixedNumeric;\n" +
+                "return {\n" +
+                "    msg: msg\n" +
+                "};";
+        Object result = executeScript(body);
+        LinkedHashMap resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
+
+        LinkedHashMap<Object, Object> expectedSortKeyString = new LinkedHashMap<>();
+        expectedSortKeyString.put("20", 4);
+        expectedSortKeyString.put("21Dragon", 2);
+        expectedSortKeyString.put("30", 1);
+        expectedSortKeyString.put("Brain", 3);
+        LinkedHashMap actualHashMap = (LinkedHashMap) resMap.get("sortValString");
+        assertEquals(expectedSortKeyString, actualHashMap);
+        assertEquals(expectedSortKeyString.keySet(), actualHashMap.keySet());
+        ArrayList expectedList = new ArrayList<Object>(expectedSortKeyString.keySet());
+        ArrayList actualList = new ArrayList<Object>(actualHashMap.keySet());
+        assertEquals(expectedList, actualList);
+
+        LinkedHashMap<Object, Object> expectedSortKeyInt = new LinkedHashMap<>();
+        expectedSortKeyInt.put(1, 57);
+        expectedSortKeyInt.put(2, 1);
+        expectedSortKeyInt.put(3, 214748);
+        expectedSortKeyInt.put(5, 30);
+        expectedSortKeyInt.put(8, -214748);
+        expectedSortKeyInt.put(9, 100000);
+        expectedSortKeyInt.put(225, 4);
+        actualHashMap = (LinkedHashMap) resMap.get("sortValInt");
+        assertEquals(expectedSortKeyInt, actualHashMap);
+        expectedList = new ArrayList<Object>(expectedSortKeyInt.keySet());
+        actualList = new ArrayList<Object>(actualHashMap.keySet());
+        assertEquals(expectedList, actualList);
+
+        LinkedHashMap<Object, Object> expectedSortKeyIntLong = new LinkedHashMap<>();
+        expectedSortKeyIntLong.put(-9223372036854775808L, 3);
+        expectedSortKeyIntLong.put(2, 45);
+        expectedSortKeyIntLong.put(8, 40);
+        expectedSortKeyIntLong.put(9, 1000);
+        expectedSortKeyIntLong.put(225, 30);
+        expectedSortKeyIntLong.put(9223372036854775807L, 5);
+        actualHashMap = (LinkedHashMap) resMap.get("sortValIntLong");
+        assertEquals(expectedSortKeyIntLong, actualHashMap);
+        expectedList = new ArrayList<Object>(expectedSortKeyIntLong.keySet());
+        actualList = new ArrayList<Object>(actualHashMap.keySet());
+        assertEquals(expectedList, actualList);
+
+        LinkedHashMap<Double, Object> expectedSortValFloat = new LinkedHashMap<>();
+        expectedSortValFloat.put(1.1754943, 5);
+        expectedSortValFloat.put(3.40282, 2);
+        expectedSortValFloat.put(34.17549467, 225);
+        expectedSortValFloat.put(45.40283, 3);
+        actualHashMap = (LinkedHashMap) resMap.get("sortValFloat");
+        assertEquals(expectedSortValFloat, actualHashMap);
+        expectedList = new ArrayList<Object>(expectedSortValFloat.keySet());
+        actualList = new ArrayList<Object>(actualHashMap.keySet());
+        assertEquals(expectedList, actualList);
+
+        LinkedHashMap<Object, Object> expectedSortValMixedNumeric = new LinkedHashMap<>();
+        expectedSortValMixedNumeric.put("-9223372036854775808", 225);
+        expectedSortValMixedNumeric.put(4, 5);
+        expectedSortValMixedNumeric.put("8", 21);
+        expectedSortValMixedNumeric.put(40, 40);
+        expectedSortValMixedNumeric.put(300, 200);
+        expectedSortValMixedNumeric.put("700", 3);
+        expectedSortValMixedNumeric.put(9223372036854775807L, 9);
+        actualHashMap = (LinkedHashMap) resMap.get("sortValMixedNumeric");
+        assertEquals(expectedSortValMixedNumeric, actualHashMap);
+        expectedList = new ArrayList<Object>(expectedSortValMixedNumeric.keySet());
+        actualList = new ArrayList<Object>(actualHashMap.keySet());
+        assertEquals(expectedList, actualList);
+    }
+
+    public void testExecutionHashMapSortByVKeyDesc() {
+        String body = "var msg = {};\n" +
+                "var sortValString = {\"21Dragon\":2, \"Brain\":3, \"20\":4, \"30\":1};\n" +
+                "sortValString.sortByKey(false);\n" +
+                "var sortValInt = {2:1, 5:30, 225:4, 8:-214748, 1:57, 3:214748, 9:100000};\n" +
+                "sortValInt.sortByKey(false);\n" +
+                "var sortValIntLong = {2:45, 9223372036854775807:5, 225:30, 8:40, -9223372036854775808:3, 9:1000};\n" +
+                "sortValIntLong.sortByKey(false);\n" +
+                "var sortValFloat = {3.40282:2, 34.17549467:225, 45.40283:3, 1.1754943:5};\n" +
+                "sortValFloat.sortByKey(false);\n" +
+                "var sortValMixedNumeric = {\"8\":21, \"-9223372036854775808\":225, \"700\":3, 40:40, 9223372036854775807:9, 4:5, 300:200};\n" +
+                "sortValMixedNumeric.sortByKey(false);\n" +
+                "\n" +
+                "msg.sortValString = sortValString;\n" +
+                "msg.sortValInt = sortValInt;\n" +
+                "msg.sortValIntLong = sortValIntLong;\n" +
+                "msg.sortValFloat = sortValFloat;\n" +
+                "msg.sortValMixedNumeric = sortValMixedNumeric;\n" +
+                "return {\n" +
+                "    msg: msg\n" +
+                "};";
+        Object result = executeScript(body);
+        LinkedHashMap resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
+
+        LinkedHashMap<Object, Object> expectedSortKeyString = new LinkedHashMap<>();
+        expectedSortKeyString.put("20", 4);
+        expectedSortKeyString.put("21Dragon", 2);
+        expectedSortKeyString.put("30", 1);
+        expectedSortKeyString.put("Brain", 3);
+        LinkedHashMap actualHashMap = (LinkedHashMap) resMap.get("sortValString");
+        assertEquals(expectedSortKeyString, actualHashMap);
+        ArrayList expectedList = new ArrayList<Object>(expectedSortKeyString.keySet());
+        ArrayList actualList = new ArrayList<Object>(actualHashMap.keySet());
+        Collections.reverse(expectedList);
+        assertEquals(expectedList, actualList);
+
+        LinkedHashMap<Object, Object> expectedSortKeyInt = new LinkedHashMap<>();
+        expectedSortKeyInt.put(1, 57);
+        expectedSortKeyInt.put(2, 1);
+        expectedSortKeyInt.put(3, 214748);
+        expectedSortKeyInt.put(5, 30);
+        expectedSortKeyInt.put(8, -214748);
+        expectedSortKeyInt.put(9, 100000);
+        expectedSortKeyInt.put(225, 4);
+        actualHashMap = (LinkedHashMap) resMap.get("sortValInt");
+        assertEquals(expectedSortKeyInt, actualHashMap);
+        expectedList = new ArrayList<Object>(expectedSortKeyInt.keySet());
+        actualList = new ArrayList<Object>(actualHashMap.keySet());
+        Collections.reverse(expectedList);
+        assertEquals(expectedList, actualList);
+
+        LinkedHashMap<Object, Object> expectedSortKeyIntLong = new LinkedHashMap<>();
+        expectedSortKeyIntLong.put(-9223372036854775808L, 3);
+        expectedSortKeyIntLong.put(2, 45);
+        expectedSortKeyIntLong.put(8, 40);
+        expectedSortKeyIntLong.put(9, 1000);
+        expectedSortKeyIntLong.put(225, 30);
+        expectedSortKeyIntLong.put(9223372036854775807L, 5);
+        actualHashMap = (LinkedHashMap) resMap.get("sortValIntLong");
+        assertEquals(expectedSortKeyIntLong, actualHashMap);
+        expectedList = new ArrayList<Object>(expectedSortKeyIntLong.keySet());
+        actualList = new ArrayList<Object>(actualHashMap.keySet());
+        Collections.reverse(expectedList);
+        assertEquals(expectedList, actualList);
+
+        LinkedHashMap<Double, Object> expectedSortValFloat = new LinkedHashMap<>();
+        expectedSortValFloat.put(1.1754943, 5);
+        expectedSortValFloat.put(3.40282, 2);
+        expectedSortValFloat.put(34.17549467, 225);
+        expectedSortValFloat.put(45.40283, 3);
+        actualHashMap = (LinkedHashMap) resMap.get("sortValFloat");
+        assertEquals(expectedSortValFloat, actualHashMap);
+        expectedList = new ArrayList<Object>(expectedSortValFloat.keySet());
+        actualList = new ArrayList<Object>(actualHashMap.keySet());
+        Collections.reverse(expectedList);
+        assertEquals(expectedList, actualList);
+
+        LinkedHashMap<Object, Object> expectedSortValMixedNumeric = new LinkedHashMap<>();
+        expectedSortValMixedNumeric.put("-9223372036854775808", 225);
+        expectedSortValMixedNumeric.put(4, 5);
+        expectedSortValMixedNumeric.put("8", 21);
+        expectedSortValMixedNumeric.put(40, 40);
+        expectedSortValMixedNumeric.put(300, 200);
+        expectedSortValMixedNumeric.put("700", 3);
+        expectedSortValMixedNumeric.put(9223372036854775807L, 9);
+        actualHashMap = (LinkedHashMap) resMap.get("sortValMixedNumeric");
+        assertEquals(expectedSortValMixedNumeric, actualHashMap);
+        expectedList = new ArrayList<Object>(expectedSortValMixedNumeric.keySet());
+        actualList = new ArrayList<Object>(actualHashMap.keySet());
+        Collections.reverse(expectedList);
+        assertEquals(expectedList, actualList);
     }
 
     public void testExecutionArrayListSortNumericWithString_Error() {
@@ -2448,6 +2752,40 @@ public class TbExpressionsTest extends TestCase {
             fail("Should throw CompileException");
         } catch (CompileException e) {
             assertTrue(e.getMessage().contains("For input string: \"Jabnm\""));
+        }
+    }
+
+    public void testExecutionHashMapSortByValueNumericWithString_Error() {
+        String body = "var msg = {};\n" +
+                "var sortValMixedNumeric = {2:\"8\", 225:\"-9223372036854775808\", 3:\"rt700\", 5:40, 9:9223372036854775807, 4:5, 300:200};\n" +
+                "sortValMixedNumeric.sortByValue(false);\n" +
+                "msg.sortValMixedNumeric = sortValMixedNumeric;\n" +
+                "return {\n" +
+                "    msg: msg\n" +
+                "};";
+        try {
+            executeScript(body);
+            fail("Should throw CompileException");
+        } catch (CompileException e) {
+            assertTrue(e.getMessage().contains("For input string: \"rt700\""));
+        }
+    }
+
+    public void testExecutionHashMapSortByKeyNumericWithString_Error() {
+        String body = "var msg = {};\n" +
+                "var sortValMixedNumeric = {\"8\":21, \"-9223372036854775808\":225, \"rt700\":3, 40:40, 9223372036854775807:9, 4:5, 300:200};\n" +
+                "sortValMixedNumeric.sortByKey();\n" +
+                "\n" +
+                "\n" +
+                "msg.sortValMixedNumeric = sortValMixedNumeric;\n" +
+                "return {\n" +
+                "    msg: msg\n" +
+                "};";
+        try {
+            executeScript(body);
+            fail("Should throw CompileException");
+        } catch (CompileException e) {
+            assertTrue(e.getMessage().contains("For input string: \"rt700\""));
         }
     }
 
