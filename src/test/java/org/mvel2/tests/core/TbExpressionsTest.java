@@ -2559,7 +2559,7 @@ public class TbExpressionsTest extends TestCase {
         assertEquals(expectedList, actualList);
     }
 
-    public void testExecutionHashMapSortByVKeyAsc() {
+    public void testExecutionHashMapSortByKeyAsc() {
         String body = "var msg = {};\n" +
                 "var sortValString = {\"21Dragon\":2, \"Brain\":3, \"20\":4, \"30\":1};\n" +
                 "sortValString.sortByKey();\n" +
@@ -2648,7 +2648,7 @@ public class TbExpressionsTest extends TestCase {
         assertEquals(expectedList, actualList);
     }
 
-    public void testExecutionHashMapSortByVKeyDesc() {
+    public void testExecutionHashMapSortByKeyDesc() {
         String body = "var msg = {};\n" +
                 "var sortValString = {\"21Dragon\":2, \"Brain\":3, \"20\":4, \"30\":1};\n" +
                 "sortValString.sortByKey(false);\n" +
@@ -2787,6 +2787,48 @@ public class TbExpressionsTest extends TestCase {
         } catch (CompileException e) {
             assertTrue(e.getMessage().contains("For input string: \"rt700\""));
         }
+    }
+
+    public void testExecutionArrayList_Reverse() {
+        String body = "var msg = {};\n" +
+                "var array = [\"8\", 40, 9223372036854775807, \"Dec\", \"-9223372036854775808\"];\n" +
+                "array.reversed();\n" +
+                "msg.array = array;\n" +
+                "return {msg: msg};";
+        Object result = executeScript(body);
+        LinkedHashMap resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
+        List expectedArray = new ArrayList();
+        expectedArray.add("8");
+        expectedArray.add(40);
+        expectedArray.add(9223372036854775807L);
+        expectedArray.add("Dec");
+        expectedArray.add("-9223372036854775808");
+        Collections.reverse(expectedArray);
+        List actualArray = (List) resMap.get("array");
+        assertEquals(expectedArray, actualArray);
+        Collections.reverse(expectedArray);
+    }
+
+    public void testExecutionArrayList_toReverse() {
+        String body = "var msg = {};\n" +
+                "var array = [\"8\", 40, 9223372036854775807, \"Dec\", \"-9223372036854775808\"];\n" +
+                "var arrayRev = array.toReversed();\n" +
+                "msg.array = array;\n" +
+                "msg.arrayRev = arrayRev;\n" +
+                "return {msg: msg}";
+        Object result = executeScript(body);
+        LinkedHashMap resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
+        List expectedArray = new ArrayList();
+        expectedArray.add("8");
+        expectedArray.add(40);
+        expectedArray.add(9223372036854775807L);
+        expectedArray.add("Dec");
+        expectedArray.add("-9223372036854775808");
+        List actualArray = (List) resMap.get("array");
+        assertEquals(expectedArray, actualArray);
+        Collections.reverse(expectedArray);
+        actualArray = (List) resMap.get("arrayRev");
+        assertEquals(expectedArray, actualArray);
     }
 
     private Object executeScript(String ex, Map vars, ExecutionContext executionContext, long timeoutMs) throws Exception {
