@@ -2875,6 +2875,7 @@ public class TbExpressionsTest extends TestCase {
                 "msg.arraySlice5 = array.slice(5);\n" +
                 "msg.arraySlice2_4 = array.slice(2, 4);\n" +
                 "msg.arraySlice1_5 = array.slice(1, 5);\n" +
+                "msg.arraySliceStr3_4 = array.slice(\"3\", \"4\");\n" +
                 "msg.arraySlice_2 = array.slice(-2);\n" +
                 "msg.arraySlice2_1 = array.slice(2, -1);\n" +
                 "return {msg: msg}";
@@ -2898,6 +2899,9 @@ public class TbExpressionsTest extends TestCase {
         expectedArray = expected.subList(1, 5);
         actualArray = (List) resMap.get("arraySlice1_5");
         assertEquals(expectedArray, actualArray);
+        expectedArray = expected.subList(3, 4);
+        actualArray = (List) resMap.get("arraySliceStr3_4");
+        assertEquals(expectedArray, actualArray);
         expectedArray = expected.subList(-2 + expected.size(), 5);
         actualArray = (List) resMap.get("arraySlice_2");
         assertEquals(expectedArray, actualArray);
@@ -2916,6 +2920,32 @@ public class TbExpressionsTest extends TestCase {
             fail("Should throw CompileException");
         } catch (CompileException e) {
             assertTrue(e.getMessage().contains("fromIndex(6) > toIndex(5)"));
+        }
+    }
+
+    public void testExecutionArrayList_sliceWithStartNotNumeric_Error() {
+        String body = "var msg = {};\n" +
+                "var array = [\"8\", 40, 9223372036854775807, \"Dec\", \"-9223372036854775808\"];\n" +
+                "msg.arraySlice6 = array.slice(\"rt\", \"2\");\n" +
+                "return {msg: msg}";
+        try {
+            executeScript(body);
+            fail("Should throw CompileException");
+        } catch (CompileException e) {
+            assertTrue(e.getMessage().contains("For input string: \"rt\""));
+        }
+    }
+
+    public void testExecutionArrayList_sliceWithEndNotNumeric_Error() {
+        String body = "var msg = {};\n" +
+                "var array = [\"8\", 40, 9223372036854775807, \"Dec\", \"-9223372036854775808\"];\n" +
+                "msg.arraySlice6 = array.slice(\"1\", \"Dec\");\n" +
+                "return {msg: msg}";
+        try {
+            executeScript(body);
+            fail("Should throw CompileException");
+        } catch (CompileException e) {
+            assertTrue(e.getMessage().contains("For input string: \"Dec\""));
         }
     }
 
@@ -3003,6 +3033,5 @@ public class TbExpressionsTest extends TestCase {
         public String getValue() {
             return innerValue;
         }
-
     }
 }
