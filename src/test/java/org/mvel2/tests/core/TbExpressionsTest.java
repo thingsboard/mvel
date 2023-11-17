@@ -17,6 +17,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -31,6 +32,14 @@ import static org.mvel2.MVEL.compileExpression;
 import static org.mvel2.MVEL.executeTbExpression;
 
 public class TbExpressionsTest extends TestCase {
+
+    private static final Comparator numericCompAsc = new Comparator() {
+        public int compare(Object o1, Object o2) {
+            Double first = Double.parseDouble(String.valueOf(o1));
+            Double second = Double.parseDouble(String.valueOf(o2));
+            return first.compareTo(second);
+        }
+    };
 
     private SandboxedParserConfiguration parserConfig;
 
@@ -2378,6 +2387,28 @@ public class TbExpressionsTest extends TestCase {
         assertEquals(expectedArrayMixedNumeric, actualArray);
     }
 
+    public void testExecutionArrayList_toSorted() {
+        String body = "var msg = {};\n" +
+                "var array = [\"8\", 40, 9223372036854775807, \"1234567\", \"-9223372036854775808\"];\n" +
+                "var arraySort = array.toSorted();\n" +
+                "msg.array = array;\n" +
+                "msg.arraySort = arraySort;\n" +
+                "return {msg: msg}";
+        Object result = executeScript(body);
+        LinkedHashMap resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
+        List expectedArray = new ArrayList();
+        expectedArray.add("8");
+        expectedArray.add(40);
+        expectedArray.add(9223372036854775807L);
+        expectedArray.add("1234567");
+        expectedArray.add("-9223372036854775808");
+        List actualArray = (List) resMap.get("array");
+        assertEquals(expectedArray, actualArray);
+        actualArray = (List) resMap.get("arraySort");
+        expectedArray.sort(numericCompAsc);
+        assertEquals(expectedArray, actualArray);
+    }
+
     public void testExecutionHashMapSortByValueAsc() {
         String body = "var msg = {};\n" +
                 "var sortValString = {2:\"21Dragon\", 3:\"Brain\", 4:\"20\", 1:\"30\"};\n" +
@@ -2792,8 +2823,9 @@ public class TbExpressionsTest extends TestCase {
     public void testExecutionArrayList_Reverse() {
         String body = "var msg = {};\n" +
                 "var array = [\"8\", 40, 9223372036854775807, \"Dec\", \"-9223372036854775808\"];\n" +
+                "msg.array = array.slice();\n" +
                 "array.reversed();\n" +
-                "msg.array = array;\n" +
+                "msg.arrayRev = array;\n" +
                 "return {msg: msg};";
         Object result = executeScript(body);
         LinkedHashMap resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
@@ -2803,18 +2835,18 @@ public class TbExpressionsTest extends TestCase {
         expectedArray.add(9223372036854775807L);
         expectedArray.add("Dec");
         expectedArray.add("-9223372036854775808");
-        Collections.reverse(expectedArray);
         List actualArray = (List) resMap.get("array");
         assertEquals(expectedArray, actualArray);
         Collections.reverse(expectedArray);
+        actualArray = (List) resMap.get("arrayRev");
+        assertEquals(expectedArray, actualArray);
     }
 
-    public void testExecutionArrayList_toReverse() {
+    public void testExecutionArrayList_toReversed() {
         String body = "var msg = {};\n" +
                 "var array = [\"8\", 40, 9223372036854775807, \"Dec\", \"-9223372036854775808\"];\n" +
-                "var arrayRev = array.toReversed();\n" +
                 "msg.array = array;\n" +
-                "msg.arrayRev = arrayRev;\n" +
+                "msg.arrayRev = array.toReversed();\n" +
                 "return {msg: msg}";
         Object result = executeScript(body);
         LinkedHashMap resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
@@ -2829,6 +2861,62 @@ public class TbExpressionsTest extends TestCase {
         Collections.reverse(expectedArray);
         actualArray = (List) resMap.get("arrayRev");
         assertEquals(expectedArray, actualArray);
+    }
+
+    public void testExecutionArrayList_slice() {
+        String body = "var msg = {};\n" +
+                "var arrayWithEmpty = [\"8\", 40, 9223372036854775807, , \"-9223372036854775808\"];\n" +
+                "var array = [\"8\", 40, 9223372036854775807, \"Dec\", \"-9223372036854775808\"];\n" +
+                "msg.array = array;\n" +
+                "msg.arrayWithEmpty = arrayWithEmpty;\n" +
+                "msg.arraySlice = array.slice();\n" +
+                "msg.arraySliceWithEmpty = arrayWithEmpty.slice();\n" +
+                "msg.arraySlice2 = array.slice(2);\n" +
+                "msg.arraySlice5 = array.slice(5);\n" +
+                "msg.arraySlice2_4 = array.slice(2, 4);\n" +
+                "msg.arraySlice1_5 = array.slice(1, 5);\n" +
+                "msg.arraySlice_2 = array.slice(-2);\n" +
+                "msg.arraySlice2_1 = array.slice(2, -1);\n" +
+                "return {msg: msg}";
+        Object result = executeScript(body);
+        LinkedHashMap resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
+        List actualArray = (List) resMap.get("arrayWithEmpty");
+        List expectedArray = (List) resMap.get("arraySliceWithEmpty");
+        assertEquals(expectedArray, actualArray);
+        List expected = actualArray = (List) resMap.get("array");
+        expectedArray = (List) resMap.get("arraySlice");
+        assertEquals(expectedArray, actualArray);
+        expectedArray = expected.subList(2, expected.size());
+        actualArray = (List) resMap.get("arraySlice2");
+        assertEquals(expectedArray, actualArray);
+        expectedArray = expected.subList(5, expected.size());
+        actualArray = (List) resMap.get("arraySlice5");
+        assertEquals(expectedArray, actualArray);
+        expectedArray = expected.subList(2, 4);
+        actualArray = (List) resMap.get("arraySlice2_4");
+        assertEquals(expectedArray, actualArray);
+        expectedArray = expected.subList(1, 5);
+        actualArray = (List) resMap.get("arraySlice1_5");
+        assertEquals(expectedArray, actualArray);
+        expectedArray = expected.subList(-2 + expected.size(), 5);
+        actualArray = (List) resMap.get("arraySlice_2");
+        assertEquals(expectedArray, actualArray);
+        expectedArray = expected.subList(2, -1 + expected.size());
+        actualArray = (List) resMap.get("arraySlice2_1");
+        assertEquals(expectedArray, actualArray);
+    }
+
+    public void testExecutionArrayList_sliceWithStartMoreEnd_Error() {
+        String body = "var msg = {};\n" +
+                "var array = [\"8\", 40, 9223372036854775807, \"Dec\", \"-9223372036854775808\"];\n" +
+                "msg.arraySlice6 = array.slice(6);\n" +
+                "return {msg: msg}";
+        try {
+            executeScript(body);
+            fail("Should throw CompileException");
+        } catch (CompileException e) {
+            assertTrue(e.getMessage().contains("fromIndex(6) > toIndex(5)"));
+        }
     }
 
     private Object executeScript(String ex, Map vars, ExecutionContext executionContext, long timeoutMs) throws Exception {

@@ -134,7 +134,19 @@ public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObje
         return oldValue;
     }
 
-    public ExecutionArrayList<E> slice(int start, int end) {
+    public ExecutionArrayList<E> slice() {
+        return slice(0, this.size());
+    }
+
+    public ExecutionArrayList<E> slice(int start) {
+        return slice(start, this.size());
+    }
+
+    public ExecutionArrayList<E> slice(Object st, Object e) {
+        int start = Integer.parseInt(String.valueOf(st));
+        start = start < -this.size() ? 0 : start < 0 ? start + this.size() : start;
+        int end = Integer.parseInt(String.valueOf(e));
+        end = end < -this.size() ? 0 : end < 0 ? end + this.size() : end;
         return new ExecutionArrayList<>(this.subList(start, end), this.executionContext);
     }
 
@@ -168,25 +180,30 @@ public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObje
 
     public void sort(boolean asc) {
         if (validateClazzInArrayIsOnlyString()) {
-            if (asc) {
-                super.sort(null);
-            } else {
-                super.sort(stringCompDesc);
-            }
+            super.sort(asc ? null : stringCompDesc);
         } else {
-            if (asc) {
-                super.sort(numericCompAsc);
-            } else {
-                super.sort(numericCompDesc);
-            }
+            super.sort(asc ? numericCompAsc : numericCompDesc);
         }
     }
 
-    public void toReversed() {
-        List listRev = (List) super.clone();
-        Collections.reverse(listRev);
-        listRev.forEach(e -> remove(e));
-        addAll(listRev);
+    public ExecutionArrayList<E> toSorted() {
+        return this.toSorted(true);
+    }
+
+    public ExecutionArrayList<E> toSorted(boolean asc) {
+        ExecutionArrayList newList = this.slice();
+        newList.sort(asc);
+        return newList;
+    }
+
+    public void reversed() {
+        Collections.reverse(this);
+    }
+
+    public List toReversed() {
+        ExecutionArrayList newList = this.slice();
+        newList.reversed();
+        return newList;
     }
 
     public boolean validateClazzInArrayIsOnlyString() {
