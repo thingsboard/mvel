@@ -164,14 +164,26 @@ public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObje
         return memorySize;
     }
 
+    public int indexOf(Object o, int fromIndex) {
+        int idx = this.slice(fromIndex).indexOf(o);
+        return idx == -1 ? idx : idx + fromIndex;
+    }
+
     public String join() {
         return join(",");
     }
 
     public String join(String separator) {
-        return this.stream()
-                .map(Object::toString)
-                .collect(Collectors.joining(separator));
+        List rez = new ArrayList<String>();
+        this.stream().forEach(e -> {
+                    if (e instanceof List) {
+                        rez.add(((List) e).stream().map(Object::toString).collect(Collectors.joining(separator)));
+                    } else {
+                        rez.add(e.toString());
+                    }
+                }
+        );
+        return (String) rez.stream().collect(Collectors.joining(separator));
     }
 
     public void sort() {
