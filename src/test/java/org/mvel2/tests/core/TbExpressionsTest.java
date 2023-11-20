@@ -2229,7 +2229,7 @@ public class TbExpressionsTest extends TestCase {
         assertTrue(result instanceof String);
         assertEquals("", result);
         body = "var list = ['hello', 34567];\n" +
-                      "return list.join();";
+                "return list.join();";
         result = executeScript(body);
         assertTrue(result instanceof String);
         assertEquals("hello,34567", result);
@@ -2238,6 +2238,16 @@ public class TbExpressionsTest extends TestCase {
         result = executeScript(body);
         assertTrue(result instanceof String);
         assertEquals("hello:34567", result);
+        body = "var matrix = [\n" +
+                "  [1, 2, \"Things\"],\n" +
+                "  [4, 5, 6],\n" +
+                "  245, \"Test_Join\",\n" +
+                "  [7, \"8\", 9],\n" +
+                "];\n" +
+                "return matrix.join();";
+        result = executeScript(body);
+        assertTrue(result instanceof String);
+        assertEquals("1,2,Things,4,5,6,245,Test_Join,7,8,9", result);
     }
 
     public void testExecutionHashMapToString() {
@@ -2947,6 +2957,57 @@ public class TbExpressionsTest extends TestCase {
         } catch (CompileException e) {
             assertTrue(e.getMessage().contains("For input string: \"Dec\""));
         }
+    }
+
+    public void testExecutionArrayList_indexOf() {
+        String body = "var msg = {};\n" +
+                "var arrayInd = [\"a\", 34, \"a\", 34, \"a\", \"a\"];\n" +
+                "var msg.rezInd = arrayInd.indexOf(\"a\", 1) ;\n" +
+                "return {msg: msg}";
+        Object result = executeScript(body);
+        LinkedHashMap resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
+        int actualInd = (int) resMap.get("rezInd");
+        assertEquals(2, actualInd);
+        body = "var msg = {};\n" +
+                "var arrayInd = [\"a\", 34, \"a\", 34, \"a\", \"a\"];\n" +
+                "var msg.rezInd = arrayInd.indexOf(\"a\", 3) ;\n" +
+                "return {msg: msg}";
+        result = executeScript(body);
+        resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
+        actualInd = (int) resMap.get("rezInd");
+        assertEquals(4, actualInd);
+        body = "var msg = {};\n" +
+                "var arrayInd = [\"a\", 34, \"a\", 34, \"a\", \"a\"];\n" +
+                "var msg.rezInd = arrayInd.indexOf(\"a\", 5) ;\n" +
+                "return {msg: msg}";
+        result = executeScript(body);
+        resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
+        actualInd = (int) resMap.get("rezInd");
+        assertEquals(5, actualInd);
+        body = "var msg = {};\n" +
+                "var arrayInd = [\"a\", 34, \"a\", 34, \"a\", \"a\"];\n" +
+                "var msg.rezInd = arrayInd.indexOf(\"a\", 5) ;\n" +
+                "return {msg: msg}";
+        result = executeScript(body);
+        resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
+        actualInd = (int) resMap.get("rezInd");
+        assertEquals(5, actualInd);
+        body = "var msg = {};\n" +
+                "var arrayInd = [\"a\", 34, \"a\", 34, \"a\", \"a\"];\n" +
+                "var msg.rezInd = arrayInd.indexOf(34, 2) ;\n" +
+                "return {msg: msg}";
+        result = executeScript(body);
+        resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
+        actualInd = (int) resMap.get("rezInd");
+        assertEquals(3, actualInd);
+        body = "var msg = {};\n" +
+                "var arrayInd = [\"a\", 34, \"a\", 34, \"a\", \"a\"];\n" +
+                "var msg.rezInd = arrayInd.indexOf(34, 4) ;\n" +
+                "return {msg: msg}";
+        result = executeScript(body);
+        resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
+        actualInd = (int) resMap.get("rezInd");
+        assertEquals(-1, actualInd);
     }
 
     private Object executeScript(String ex, Map vars, ExecutionContext executionContext, long timeoutMs) throws Exception {
