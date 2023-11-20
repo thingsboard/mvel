@@ -218,6 +218,12 @@ public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObje
         return newList;
     }
 
+    public List concat(Collection c) {
+        ExecutionArrayList newList = this.slice();
+        newList.addAll(c);
+        return newList;
+    }
+
     public boolean validateClazzInArrayIsOnlyString() {
         Optional simpleNamOpt = super.stream().filter(e -> !(e instanceof String)).findAny();
         return !simpleNamOpt.isPresent();

@@ -3010,6 +3010,35 @@ public class TbExpressionsTest extends TestCase {
         assertEquals(-1, actualInd);
     }
 
+    public void testExecutionArrayList_concat() {
+        String body = "var msg = {};\n" +
+                "var letters = [\"Dec\", \"Feb\", \"Jan\"];\n" +
+                "var numbers = [1, 2, 3];\n" +
+                "var alphaNumeric = letters.concat(numbers);\n" +
+                "msg.letters = letters;\n" +
+                "msg.numbers = numbers;\n" +
+                "msg.alphaNumeric = alphaNumeric;\n" +
+                "return {msg: msg};";
+        Object result = executeScript(body);
+        List expectedArrayString = new ArrayList();
+        expectedArrayString.add("Dec");
+        expectedArrayString.add("Feb");
+        expectedArrayString.add("Jan");
+        List expectedArrayNumbers = new ArrayList();
+        expectedArrayNumbers.add(1);
+        expectedArrayNumbers.add(2);
+        expectedArrayNumbers.add(3);
+        LinkedHashMap resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
+        List actualArray = (List) resMap.get("letters");
+        assertEquals(expectedArrayString, actualArray);
+        actualArray = (List) resMap.get("numbers");
+        assertEquals(expectedArrayNumbers, actualArray);
+        expectedArrayString.addAll(expectedArrayNumbers);
+        actualArray = (List) resMap.get("alphaNumeric");
+        assertEquals(expectedArrayString, actualArray);
+    }
+
+
     private Object executeScript(String ex, Map vars, ExecutionContext executionContext, long timeoutMs) throws Exception {
         final CountDownLatch countDown = new CountDownLatch(1);
         AtomicReference<Object> result = new AtomicReference<>();
