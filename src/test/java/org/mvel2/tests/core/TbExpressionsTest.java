@@ -3234,7 +3234,7 @@ public class TbExpressionsTest extends TestCase {
         assertEquals(0, actualArray.size());
     }
 
-    public void testExecutionArrayList_toSplice_Inserts_Element_1_index_1() {
+    public void testExecutionArrayList_toSpliced_Inserts_Element_1_index_1() {
         String body = "var msg = {};\n" +
                 "var months = ['Jan', 'March', 'April', 'June'];\n" +
                 "var newMonths = months.toSpliced(1, 0, 'Feb');\n" +
@@ -3260,7 +3260,7 @@ public class TbExpressionsTest extends TestCase {
         assertEquals(expectedNewArray, actualArray);
     }
 
-    public void testExecutionArrayList_toSplice_Delete_Element_2_index_1() {
+    public void testExecutionArrayList_toSpliced_Delete_Element_2_index_1() {
         String body = "var msg = {};\n" +
                 "var months = [\"Jan\", \"Feb\", \"March\", \"Apr\", \"May\"];\n" +
                 "var newMonths = months.toSpliced(1, 2);\n" +
@@ -3283,6 +3283,52 @@ public class TbExpressionsTest extends TestCase {
         assertEquals(expectedArray, actualArray);
         actualArray = (List) resMap.get("newMonths");
         assertEquals(expectedNewArray, actualArray);
+    }
+
+    public void testExecutionArrayList_toSpliced_Complex() {
+        String body = "var msg = {};\n" +
+                "var months = [\"Jan\", \"Mar\", \"Apr\", \"May\"];\n" +
+                "var months2 = months.toSpliced(1, 0, \"Feb\");\n" +
+                "msg.months2 = months2;\n" +
+                "var months3 = months2.toSpliced(2, 2);\n" +
+                "msg.months3 = months3;\n" +
+                "var months4 = months3.toSpliced(1, 1, \"Feb\", \"Mar\");\n" +
+                "msg.months4 = months4; \n" +
+                "msg.months = months; \n" +
+                "return {msg: msg};";
+        Object result = executeScript(body);
+        LinkedHashMap resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
+        List expectedArray = new ArrayList();
+        expectedArray.add("Jan");
+        expectedArray.add("Mar");
+        expectedArray.add("Apr");
+        expectedArray.add("May");
+        // Inserting an element at index 1
+        List expectedNewArray2 = new ArrayList();
+        expectedNewArray2.add("Jan");
+        expectedNewArray2.add("Feb");
+        expectedNewArray2.add("Mar");
+        expectedNewArray2.add("Apr");
+        expectedNewArray2.add("May");
+        // Deleting two elements starting from index 2
+        List expectedNewArray3 = new ArrayList();
+        expectedNewArray3.add("Jan");
+        expectedNewArray3.add("Feb");
+        expectedNewArray3.add("May");
+        // Replacing one element at index 1 with two new elements
+        List expectedNewArray4 = new ArrayList();
+        expectedNewArray4.add("Jan");
+        expectedNewArray4.add("Feb");
+        expectedNewArray4.add("Mar");
+        expectedNewArray4.add("May");
+        List actualArray = (List) resMap.get("months");
+        assertEquals(expectedArray, actualArray);
+        actualArray = (List) resMap.get("months2");
+        assertEquals(expectedNewArray2, actualArray);
+        actualArray = (List) resMap.get("months3");
+        assertEquals(expectedNewArray3, actualArray);
+        actualArray = (List) resMap.get("months4");
+        assertEquals(expectedNewArray4, actualArray);
     }
 
     private Object executeScript(String ex, Map vars, ExecutionContext executionContext, long timeoutMs) throws Exception {
