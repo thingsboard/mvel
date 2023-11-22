@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObject {
@@ -221,6 +222,42 @@ public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObje
     public List concat(Collection c) {
         ExecutionArrayList newList = this.slice();
         newList.addAll(c);
+        return newList;
+    }
+
+    public List splice(int start) {
+        return this.splice(start, null);
+    }
+
+    /**
+     * JS splice - start index from 1
+     * JAVA/tbel splice -  start index from 0
+     */
+    public List splice(Object st, Object delCount, E... items) {
+        int start = Integer.parseInt(String.valueOf(st));
+        start = start < -this.size() ? 0 : start >= this.size() ? this.size() : start < 0 ? start + this.size() : start;
+        int deleteCount = delCount == null ? this.size() - start : Integer.parseInt(String.valueOf(delCount));
+        deleteCount = start == this.size() ? 0 : Math.max(deleteCount, 0);
+        List<E> removed = new ArrayList<>();
+        int deleteIdx = deleteCount == 0 ? this.size() : start;
+        AtomicInteger insertIdx = new AtomicInteger(start);
+        while (deleteCount > 0) {
+            removed.add(this.remove(deleteIdx));
+            deleteCount--;
+        }
+        for (E e : items) {
+            this.add(insertIdx.getAndIncrement(), e);
+        }
+        return new ExecutionArrayList<>(removed, this.executionContext);
+    }
+
+    public List toSpliced(int start) {
+        return this.toSpliced(start, null);
+    }
+
+    public List toSpliced(Object st, Object delCount, E... items) {
+        ExecutionArrayList newList = this.slice();
+        newList.splice(st, delCount, items);
         return newList;
     }
 

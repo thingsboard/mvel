@@ -3038,6 +3038,252 @@ public class TbExpressionsTest extends TestCase {
         assertEquals(expectedArrayString, actualArray);
     }
 
+    public void testExecutionArrayList_splice_Inserts_index_1() {
+        String body = "var msg = {};\n" +
+                "var months = ['Jan', 'March', 'April', 'June'];\n" +
+                "var removed = months.splice(1, 0, 'Feb');\n" +
+                "msg.months = months;\n" +
+                "msg.removed = removed;\n" +
+                "return {msg: msg};";
+        Object result = executeScript(body);
+        LinkedHashMap resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
+        List expectedArray = new ArrayList();
+        expectedArray.add("Jan");
+        expectedArray.add("Feb");
+        expectedArray.add("March");
+        expectedArray.add("April");
+        expectedArray.add("June");
+        List actualArray = (List) resMap.get("removed");
+        assertEquals(0, actualArray.size());
+        actualArray = (List) resMap.get("months");
+        assertEquals(expectedArray, actualArray);
+    }
+
+    public void testExecutionArrayList_splice_Remove_zero_Insert_2_element_at_index_4() {
+        String body = "var msg = {};\n" +
+                "var months = [\"angel\", \"clown\", \"mandarin\", \"sturgeon\"];\n" +
+                "var removed = months.splice(2, 0, \"drum\", \"guitar\");\n" +
+                "msg.months = months;\n" +
+                "msg.removed = removed;\n" +
+                "return {msg: msg};";
+        Object result = executeScript(body);
+        LinkedHashMap resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
+        List expectedArray = new ArrayList();
+        expectedArray.add("angel");
+        expectedArray.add("clown");
+        expectedArray.add("drum");
+        expectedArray.add("guitar");
+        expectedArray.add("mandarin");
+        expectedArray.add("sturgeon");
+        List expectedArrayRemoved = new ArrayList();
+        expectedArrayRemoved.add("June");
+        List actualArray = (List) resMap.get("removed");
+        assertEquals(0, actualArray.size());
+        actualArray = (List) resMap.get("months");
+        assertEquals(expectedArray, actualArray);
+    }
+
+    public void testExecutionArrayList_splice_Remove_2_Insert_3_element_at_index_0() {
+        String body = "var msg = {};\n" +
+                "var months = [\"angel\", \"clown\", \"trumpet\", \"sturgeon\"];\n" +
+                "var removed = months.splice(0, 2, \"parrot\", \"anemone\", \"blue\");\n" +
+                "msg.months = months;\n" +
+                "msg.removed = removed;\n" +
+                "return {msg: msg};";
+        Object result = executeScript(body);
+        LinkedHashMap resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
+        List expectedArray = new ArrayList();
+        expectedArray.add("parrot");
+        expectedArray.add("anemone");
+        expectedArray.add("blue");
+        expectedArray.add("trumpet");
+        expectedArray.add("sturgeon");
+        List expectedArrayRemoved = new ArrayList();
+        expectedArrayRemoved.add("angel");
+        expectedArrayRemoved.add("clown");
+        List actualArray = (List) resMap.get("removed");
+        assertEquals(expectedArrayRemoved, actualArray);
+        actualArray = (List) resMap.get("months");
+        assertEquals(expectedArray, actualArray);
+    }
+
+    public void testExecutionArrayList_splice_Replaces_2_element_at_index_4() {
+        String body = "var msg = {};\n" +
+                "var months = [\"Jan\", \"Feb\", \"March\", \"April\", \"June\"];\n" +
+                "var removed = months.splice(4, 1, 'May');\n" +
+                "msg.months = months;\n" +
+                "msg.removed = removed;\n" +
+                "return {msg: msg};";
+        Object result = executeScript(body);
+        LinkedHashMap resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
+        List expectedArray = new ArrayList();
+        expectedArray.add("Jan");
+        expectedArray.add("Feb");
+        expectedArray.add("March");
+        expectedArray.add("April");
+        expectedArray.add("May");
+        List expectedArrayRemoved = new ArrayList();
+        expectedArrayRemoved.add("June");
+        List actualArray = (List) resMap.get("removed");
+        assertEquals(expectedArrayRemoved, actualArray);
+        actualArray = (List) resMap.get("months");
+        assertEquals(expectedArray, actualArray);
+    }
+
+    public void testExecutionArrayList_splice_Remove_1_element_at_index_Minus_3() {
+        String body = "var msg = {};\n" +
+                "var months = [\"angel\", \"clown\", \"mandarin\", \"sturgeon\"];\n" +
+                "var removed = months.splice(-3, 1);\n" +
+                "msg.months = months;\n" +
+                "msg.removed = removed;\n" +
+                "return {msg: msg};";
+        Object result = executeScript(body);
+        LinkedHashMap resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
+        List expectedArray = new ArrayList();
+        expectedArray.add("angel");
+        expectedArray.add("mandarin");
+        expectedArray.add("sturgeon");
+        List expectedArrayRemoved = new ArrayList();
+        expectedArrayRemoved.add("clown");
+        List actualArray = (List) resMap.get("removed");
+        assertEquals(expectedArrayRemoved, actualArray);
+        actualArray = (List) resMap.get("months");
+        assertEquals(expectedArray, actualArray);
+    }
+
+    public void testExecutionArrayList_splice_Remove_All_element_at_index_3() {
+        String body = "var msg = {};\n" +
+                "var months = [\"angel\", \"clown\", \"mandarin\", \"sturgeon\"];\n" +
+                "var removed = months.splice(3);\n" +
+                "msg.months = months;\n" +
+                "msg.removed = removed;\n" +
+                "return {msg: msg};";
+        Object result = executeScript(body);
+        LinkedHashMap resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
+        List expectedArray = new ArrayList();
+        expectedArray.add("angel");
+        expectedArray.add("clown");
+        expectedArray.add("mandarin");
+        List expectedArrayRemoved = new ArrayList();
+        expectedArrayRemoved.add("sturgeon");
+        List actualArray = (List) resMap.get("removed");
+        assertEquals(expectedArrayRemoved, actualArray);
+        actualArray = (List) resMap.get("months");
+        assertEquals(expectedArray, actualArray);
+    }
+
+    public void testExecutionArrayList_splice_Remove_All_element_at_index_Minus_3() {
+        String body = "var msg = {};\n" +
+                "var months = [\"angel\", \"clown\", \"mandarin\", \"sturgeon\"];\n" +
+                "var removed = months.splice(-3);\n" +
+                "msg.months = months;\n" +
+                "msg.removed = removed;\n" +
+                "return {msg: msg};";
+        Object result = executeScript(body);
+        LinkedHashMap resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
+        List expectedArrayMonth = new ArrayList();
+        expectedArrayMonth.add("angel");
+        List expectedArrayRemoved = new ArrayList();
+        expectedArrayRemoved.add("clown");
+        expectedArrayRemoved.add("mandarin");
+        expectedArrayRemoved.add("sturgeon");
+        List actualArray = (List) resMap.get("removed");
+        assertEquals(expectedArrayRemoved, actualArray);
+        actualArray = (List) resMap.get("months");
+        assertEquals(expectedArrayMonth, actualArray);
+    }
+
+    public void testExecutionArrayList_splice_Return_Clone() {
+        String body = "var msg = {};\n" +
+                "var months = [\"angel\", \"clown\", \"mandarin\", \"sturgeon\"];\n" +
+                "var removed = months.splice(-3);\n" +
+                "msg.months = months;\n" +
+                "msg.removed = removed;\n" +
+                "return {msg: msg};";
+        Object result = executeScript(body);
+        LinkedHashMap resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
+        List expectedArrayMonth = new ArrayList();
+        expectedArrayMonth.add("angel");
+        List expectedArrayRemoved = new ArrayList();
+        expectedArrayRemoved.add("clown");
+        expectedArrayRemoved.add("mandarin");
+        expectedArrayRemoved.add("sturgeon");
+        List actualArray = (List) resMap.get("removed");
+        assertEquals(expectedArrayRemoved, actualArray);
+        actualArray = (List) resMap.get("months");
+        assertEquals(expectedArrayMonth, actualArray);
+    }
+
+    public void testExecutionArrayList_splice_Remove_All_element_at_index_Minus_5_Size_4() {
+        String body = "var msg = {};\n" +
+                "var months = [\"angel\", \"clown\", \"mandarin\", \"sturgeon\"];\n" +
+                "var removed = months.splice(-5);\n" +
+                "msg.months = months;\n" +
+                "msg.removed = removed;\n" +
+                "return {msg: msg};";
+        Object result = executeScript(body);
+        LinkedHashMap resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
+        List expectedArrayRemoved = new ArrayList();
+        expectedArrayRemoved.add("angel");
+        expectedArrayRemoved.add("clown");
+        expectedArrayRemoved.add("mandarin");
+        expectedArrayRemoved.add("sturgeon");
+        List actualArray = (List) resMap.get("removed");
+        assertEquals(expectedArrayRemoved, actualArray);
+        actualArray = (List) resMap.get("months");
+        assertEquals(0, actualArray.size());
+    }
+
+    public void testExecutionArrayList_toSplice_Inserts_Element_1_index_1() {
+        String body = "var msg = {};\n" +
+                "var months = ['Jan', 'March', 'April', 'June'];\n" +
+                "var newMonths = months.toSpliced(1, 0, 'Feb');\n" +
+                "msg.months = months;\n" +
+                "msg.newMonths = newMonths;\n" +
+                "return {msg: msg};";
+        Object result = executeScript(body);
+        LinkedHashMap resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
+        List expectedArray = new ArrayList();
+        expectedArray.add("Jan");
+        expectedArray.add("March");
+        expectedArray.add("April");
+        expectedArray.add("June");
+        List expectedNewArray = new ArrayList();
+        expectedNewArray.add("Jan");
+        expectedNewArray.add("Feb");
+        expectedNewArray.add("March");
+        expectedNewArray.add("April");
+        expectedNewArray.add("June");
+        List actualArray = (List) resMap.get("months");
+        assertEquals(expectedArray, actualArray);
+        actualArray = (List) resMap.get("newMonths");
+        assertEquals(expectedNewArray, actualArray);
+    }
+
+    public void testExecutionArrayList_toSplice_Delete_Element_2_index_1() {
+        String body = "var msg = {};\n" +
+                "var months = [\"Jan\", \"Feb\", \"March\", \"Apr\", \"May\"];\n" +
+                "var newMonths = months.toSpliced(1, 2);\n" +
+                "msg. months =  months;\n" +
+                "msg. newMonths =  newMonths;\n" +
+                "return {msg: msg};";
+        Object result = executeScript(body);
+        LinkedHashMap resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
+        List expectedArray = new ArrayList();
+        expectedArray.add("Jan");
+        expectedArray.add("Feb");
+        expectedArray.add("March");
+        expectedArray.add("Apr");
+        expectedArray.add("May");
+        List expectedNewArray = new ArrayList();
+        expectedNewArray.add("Jan");
+        expectedNewArray.add("Apr");
+        expectedNewArray.add("May");
+        List actualArray = (List) resMap.get("months");
+        assertEquals(expectedArray, actualArray);
+        actualArray = (List) resMap.get("newMonths");
+        assertEquals(expectedNewArray, actualArray);
+    }
 
     private Object executeScript(String ex, Map vars, ExecutionContext executionContext, long timeoutMs) throws Exception {
         final CountDownLatch countDown = new CountDownLatch(1);
