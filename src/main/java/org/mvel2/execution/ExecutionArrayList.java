@@ -261,6 +261,19 @@ public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObje
         return newList;
     }
 
+    public List with(Object ind, E items) {
+        int index = Integer.parseInt(String.valueOf(ind));
+        if (index >= this.size() || index < -this.size()) {
+            this.add(index, items);
+            return null;
+        } else {
+            index = index < 0 ? index + this.size() : index;
+            ExecutionArrayList newList = this.slice();
+            newList.splice(index, 0, items);
+            return newList;
+        }
+    }
+
     public boolean validateClazzInArrayIsOnlyString() {
         Optional simpleNamOpt = super.stream().filter(e -> !(e instanceof String)).findAny();
         return !simpleNamOpt.isPresent();

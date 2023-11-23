@@ -3331,6 +3331,55 @@ public class TbExpressionsTest extends TestCase {
         assertEquals(expectedNewArray4, actualArray);
     }
 
+    public void testExecutionArrayList_With_Index_Ok() {
+        String body = "var msg = {};\n" +
+                "var arr = [1, 2, 3, 4, 5];\n" +
+                "var arrWith = arr.with(2, 6);\n" +
+                "msg.arr = arr;\n" +
+                "msg.arrWith = arrWith;\n" +
+                "return {msg: msg};";
+        Object result = executeScript(body);
+        LinkedHashMap resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
+        List expectedArray = new ArrayList();
+        expectedArray.add(1);
+        expectedArray.add(2);
+        expectedArray.add(3);
+        expectedArray.add(4);
+        expectedArray.add(5);
+        List actualArray = (List) resMap.get("arr");
+        assertEquals(expectedArray, actualArray);
+        expectedArray.add(2, 6);
+        actualArray = (List) resMap.get("arrWith");
+        assertEquals(expectedArray, actualArray);
+    }
+
+    public void testExecutionArrayList_With_Index_Bad() {
+        String body = "var msg = {};\n" +
+                "var arr = [1, 2, 3, 4, 5];\n" +
+                "var arrWith = arr.with(6, 6);\n" +
+                "msg.arr = arr;\n" +
+                "msg.arrWith = arrWith;\n" +
+                "return {msg: msg};";
+        try {
+            executeScript(body);
+            fail("Should throw CompileException");
+        } catch (CompileException e) {
+            assertTrue(e.getMessage().contains("arr.with(6, 6): Index: 6, Size: 5"));
+        }
+        body = "var msg = {};\n" +
+                "var arr = [1, 2, 3, 4, 5];\n" +
+                "var arrWith = arr.with(-6, 6);\n" +
+                "msg.arr = arr;\n" +
+                "msg.arrWith = arrWith;\n" +
+                "return {msg: msg};";
+        try {
+            executeScript(body);
+            fail("Should throw CompileException");
+        } catch (CompileException e) {
+            assertTrue(e.getMessage().contains("arr.with(-6, 6): Index: -6, Size: 5"));
+        }
+    }
+
     private Object executeScript(String ex, Map vars, ExecutionContext executionContext, long timeoutMs) throws Exception {
         final CountDownLatch countDown = new CountDownLatch(1);
         AtomicReference<Object> result = new AtomicReference<>();
