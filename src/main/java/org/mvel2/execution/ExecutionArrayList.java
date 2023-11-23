@@ -229,10 +229,6 @@ public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObje
         return this.splice(start, null);
     }
 
-    /**
-     * JS splice - start index from 1
-     * JAVA/tbel splice -  start index from 0
-     */
     public List splice(Object st, Object delCount, E... items) {
         int start = Integer.parseInt(String.valueOf(st));
         start = start < -this.size() ? 0 : start >= this.size() ? this.size() : start < 0 ? start + this.size() : start;
@@ -272,6 +268,27 @@ public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObje
             newList.splice(index, 0, items);
             return newList;
         }
+    }
+
+    public List fill(E value) {
+        return fill(value, 0);
+    }
+
+    public List fill(E value, Object st) {
+        return fill(value, st, this.size());
+    }
+
+    public List fill(E value, Object st, Object e) {
+        int start = Integer.parseInt(String.valueOf(st));
+        start = start < -this.size() ? 0 : start < 0 ? start + this.size() : start;
+        int end = Integer.parseInt(String.valueOf(e));
+        end = end > this.size() ? this.size() : end < -this.size() ? 0 : end < 0 ? end + this.size() : end;
+        if (start < this.size() && end > start) {
+            for (int i = start; i < end; ++i) {
+                super.set(i, value);
+            }
+        }
+        return this;
     }
 
     public boolean validateClazzInArrayIsOnlyString() {

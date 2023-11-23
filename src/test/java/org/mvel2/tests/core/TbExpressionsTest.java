@@ -3380,6 +3380,79 @@ public class TbExpressionsTest extends TestCase {
         }
     }
 
+    public void testExecutionArrayList_Fill_Index_Ok() {
+        String parameter = "4";
+        String body1 = "var msg = {};\n" +
+                "var arr = [1, 2, 3];\n" +
+                "var arrFill = arr.fill(";
+        String body2 = ");\n" +
+                "msg.arr = arr;\n" +
+                "msg.arrFill = arrFill;\n" +
+                "return {msg: msg};";
+        String body = body1 + parameter + body2;
+        Object result = executeScript(body);
+        LinkedHashMap resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
+        List expectedArray = new ArrayList();
+        expectedArray.add(4);
+        expectedArray.add(4);
+        expectedArray.add(4);
+        List actualArray = (List) resMap.get("arr");
+        assertEquals(expectedArray, actualArray);
+        actualArray = (List) resMap.get("arrFill");
+        assertEquals(expectedArray, actualArray);
+
+        parameter = "4, 1";
+        body = body1 + parameter + body2;
+        expectedArray.set(0, 1);
+        result = executeScript(body);
+        resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
+        actualArray = (List) resMap.get("arr");
+        assertEquals(expectedArray, actualArray);
+        actualArray = (List) resMap.get("arrFill");
+        assertEquals(expectedArray, actualArray);
+
+        parameter = "4, 1, 2";
+        body = body1 + parameter + body2;
+        expectedArray.set(2, 3);
+        result = executeScript(body);
+        resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
+        actualArray = (List) resMap.get("arr");
+        assertEquals(expectedArray, actualArray);
+        actualArray = (List) resMap.get("arrFill");
+        assertEquals(expectedArray, actualArray);
+
+        parameter = "4, 1, 1";
+        body = body1 + parameter + body2;
+        expectedArray.set(0, 1);
+        expectedArray.set(1, 2);
+        result = executeScript(body);
+        resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
+        actualArray = (List) resMap.get("arr");
+        assertEquals(expectedArray, actualArray);
+        actualArray = (List) resMap.get("arrFill");
+        assertEquals(expectedArray, actualArray);
+
+        parameter = "4, -3, -2";
+        body = body1 + parameter + body2;
+        expectedArray.set(0, 4);
+        result = executeScript(body);
+        resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
+        actualArray = (List) resMap.get("arr");
+        assertEquals(expectedArray, actualArray);
+        actualArray = (List) resMap.get("arrFill");
+        assertEquals(expectedArray, actualArray);
+
+        parameter = "4, 3, 5";
+        body = body1 + parameter + body2;
+        expectedArray.set(0, 1);
+        result = executeScript(body);
+        resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
+        actualArray = (List) resMap.get("arr");
+        assertEquals(expectedArray, actualArray);
+        actualArray = (List) resMap.get("arrFill");
+        assertEquals(expectedArray, actualArray);
+    }
+
     private Object executeScript(String ex, Map vars, ExecutionContext executionContext, long timeoutMs) throws Exception {
         final CountDownLatch countDown = new CountDownLatch(1);
         AtomicReference<Object> result = new AtomicReference<>();
