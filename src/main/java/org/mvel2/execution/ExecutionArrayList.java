@@ -7,7 +7,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -136,17 +135,15 @@ public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObje
     }
 
     public ExecutionArrayList<E> slice() {
-        return slice(0, this.size());
+        return new ExecutionArrayList<>(this, this.executionContext);
     }
 
     public ExecutionArrayList<E> slice(int start) {
         return slice(start, this.size());
     }
 
-    public ExecutionArrayList<E> slice(Object st, Object e) {
-        int start = Integer.parseInt(String.valueOf(st));
+    public ExecutionArrayList<E> slice(int start, int end) {
         start = start < -this.size() ? 0 : start < 0 ? start + this.size() : start;
-        int end = Integer.parseInt(String.valueOf(e));
         end = end < -this.size() ? 0 : end < 0 ? end + this.size() : end;
         return new ExecutionArrayList<>(this.subList(start, end), this.executionContext);
     }
@@ -166,8 +163,8 @@ public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObje
     }
 
     public int indexOf(Object o, int fromIndex) {
-        int idx = this.slice(fromIndex).indexOf(o);
-        return idx == -1 ? idx : idx + fromIndex;
+        int index = this.slice(fromIndex).indexOf(o);
+        return index == -1 ? index : index + fromIndex;
     }
 
     public String join() {
@@ -209,13 +206,13 @@ public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObje
         return newList;
     }
 
-    public void reversed() {
+    public void reverse() {
         Collections.reverse(this);
     }
 
     public List toReversed() {
         ExecutionArrayList newList = this.slice();
-        newList.reversed();
+        newList.reverse();
         return newList;
     }
 
@@ -229,8 +226,7 @@ public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObje
         return this.splice(start, null);
     }
 
-    public List splice(Object st, Object delCount, E... items) {
-        int start = Integer.parseInt(String.valueOf(st));
+    public List splice(int start, Object delCount, E... values) {
         start = start < -this.size() ? 0 : start >= this.size() ? this.size() : start < 0 ? start + this.size() : start;
         int deleteCount = delCount == null ? this.size() - start : Integer.parseInt(String.valueOf(delCount));
         deleteCount = start == this.size() ? 0 : Math.max(deleteCount, 0);
@@ -241,7 +237,7 @@ public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObje
             removed.add(this.remove(deleteIdx));
             deleteCount--;
         }
-        for (E e : items) {
+        for (E e : values) {
             this.add(insertIdx.getAndIncrement(), e);
         }
         return new ExecutionArrayList<>(removed, this.executionContext);
@@ -251,21 +247,19 @@ public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObje
         return this.toSpliced(start, null);
     }
 
-    public List toSpliced(Object st, Object delCount, E... items) {
+    public List toSpliced(int start, Object delCount, E... values) {
         ExecutionArrayList newList = this.slice();
-        newList.splice(st, delCount, items);
+        newList.splice(start, delCount, values);
         return newList;
     }
 
-    public List with(Object ind, E items) {
-        int index = Integer.parseInt(String.valueOf(ind));
-        if (index >= this.size() || index < -this.size()) {
-            this.add(index, items);
-            return null;
+    public List with(int index, E value) {
+        int parseIndex = index < 0 ? index + this.size() : index;
+        if (parseIndex >= this.size() || parseIndex < 0) {
+            throw new IllegalArgumentException("Index: " + index + ", Size: " + this.size());
         } else {
-            index = index < 0 ? index + this.size() : index;
             ExecutionArrayList newList = this.slice();
-            newList.splice(index, 0, items);
+            newList.splice(parseIndex, 0, value);
             return newList;
         }
     }
@@ -274,14 +268,12 @@ public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObje
         return fill(value, 0);
     }
 
-    public List fill(E value, Object st) {
-        return fill(value, st, this.size());
+    public List fill(E value, int start) {
+        return fill(value, start, this.size());
     }
 
-    public List fill(E value, Object st, Object e) {
-        int start = Integer.parseInt(String.valueOf(st));
+    public List fill(E value, int start, int end) {
         start = start < -this.size() ? 0 : start < 0 ? start + this.size() : start;
-        int end = Integer.parseInt(String.valueOf(e));
         end = end > this.size() ? this.size() : end < -this.size() ? 0 : end < 0 ? end + this.size() : end;
         if (start < this.size() && end > start) {
             for (int i = start; i < end; ++i) {
@@ -292,7 +284,6 @@ public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObje
     }
 
     public boolean validateClazzInArrayIsOnlyString() {
-        Optional simpleNamOpt = super.stream().filter(e -> !(e instanceof String)).findAny();
-        return !simpleNamOpt.isPresent();
+        return !super.stream().anyMatch(e -> !(e instanceof String));
     }
 }

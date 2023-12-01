@@ -2834,7 +2834,7 @@ public class TbExpressionsTest extends TestCase {
         String body = "var msg = {};\n" +
                 "var array = [\"8\", 40, 9223372036854775807, \"Dec\", \"-9223372036854775808\"];\n" +
                 "msg.array = array.slice();\n" +
-                "array.reversed();\n" +
+                "array.reverse();\n" +
                 "msg.arrayRev = array;\n" +
                 "return {msg: msg};";
         Object result = executeScript(body);
