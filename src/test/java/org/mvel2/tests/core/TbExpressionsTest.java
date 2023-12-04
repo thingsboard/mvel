@@ -2239,15 +2239,15 @@ public class TbExpressionsTest extends TestCase {
         assertTrue(result instanceof String);
         assertEquals("hello:34567", result);
         body = "var matrix = [\n" +
-                "  [1, 2, \"Things\"],\n" +
+                "[1, [12, 22, \"Things2\"], 2, \"Things\"],\n" +
                 "  [4, 5, 6],\n" +
                 "  245, \"Test_Join\",\n" +
-                "  [7, \"8\", 9],\n" +
+                "  [7, \"8\", [13, [14, 24, \"Things4\"], 23, \"Things3\"], 9],\n" +
                 "];\n" +
                 "return matrix.join();";
         result = executeScript(body);
         assertTrue(result instanceof String);
-        assertEquals("1,2,Things,4,5,6,245,Test_Join,7,8,9", result);
+        assertEquals("1,12,22,Things2,2,Things,4,5,6,245,Test_Join,7,8,13,14,24,Things4,23,Things3,9", result);
     }
 
     public void testExecutionHashMapToString() {

@@ -172,16 +172,13 @@ public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObje
     }
 
     public String join(String separator) {
-        List rez = new ArrayList<String>();
-        this.stream().forEach(e -> {
-                    if (e instanceof List) {
-                        rez.add(((List) e).stream().map(Object::toString).collect(Collectors.joining(separator)));
-                    } else {
-                        rez.add(e.toString());
-                    }
-                }
-        );
-        return (String) rez.stream().collect(Collectors.joining(separator));
+        String strJoin = this.stream()
+                .map(Object::toString)
+                .collect(Collectors.joining(separator));
+        return strJoin
+                .replaceAll(", ", ",")
+                .replaceAll("\\[", "")
+                .replaceAll("]", "");
     }
 
     public void sort() {
