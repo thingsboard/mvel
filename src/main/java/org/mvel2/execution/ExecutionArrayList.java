@@ -144,9 +144,7 @@ public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObje
 
     public ExecutionArrayList<E> slice(int start, int end) {
         start = initStartIndex(start);
-        end = end < -this.size() ? 0 :
-                end < 0 ? end + this.size() :
-                        end;
+        end = initEndIndex(end);
         return new ExecutionArrayList<>(this.subList(start, end), this.executionContext);
     }
 
@@ -271,10 +269,8 @@ public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObje
 
     public List fill(E value, int start, int end) {
         start = initStartIndex(start);
-        end = end > this.size() ? this.size() :
-                end < -this.size() ? 0 :
-                        end < 0 ? end + this.size() :
-                                end;
+        end = initEndIndex(end);
+
         if (start < this.size() && end > start) {
             for (int i = start; i < end; ++i) {
                 super.set(i, value);
@@ -291,5 +287,11 @@ public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObje
         return start < -this.size() ? 0 :
                 start < 0 ? start + this.size() :
                         start;
+    }
+
+    private int initEndIndex(int end) {
+        return end < -this.size() ? 0 :
+                end < 0 ? end + this.size() :
+                        Math.min(end, this.size());
     }
 }
