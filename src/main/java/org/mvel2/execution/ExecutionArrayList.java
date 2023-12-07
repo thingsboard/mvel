@@ -143,8 +143,10 @@ public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObje
     }
 
     public ExecutionArrayList<E> slice(int start, int end) {
-        start = start < -this.size() ? 0 : start < 0 ? start + this.size() : start;
-        end = end < -this.size() ? 0 : end < 0 ? end + this.size() : end;
+        start = initStartIndex(start);
+        end = end < -this.size() ? 0 :
+                end < 0 ? end + this.size() :
+                        end;
         return new ExecutionArrayList<>(this.subList(start, end), this.executionContext);
     }
 
@@ -220,20 +222,18 @@ public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObje
     }
 
     public List splice(int start) {
-        return this.splice(start, null);
+        return this.splice(start, this.size() - start);
     }
 
-    public List splice(int start, Object delCount, E... values) {
-        start = start < -this.size() ? 0 : start >= this.size() ? this.size() : start < 0 ? start + this.size() : start;
-        int deleteCount = delCount == null ? this.size() - start : Integer.parseInt(String.valueOf(delCount));
-        deleteCount = start == this.size() ? 0 : Math.max(deleteCount, 0);
+    public List splice(int start, int deleteCount, E... values) {
+        start = initStartIndex(start);
+        deleteCount = deleteCount < 0 ? 0 : Math.min(deleteCount, (this.size() - start));
         List<E> removed = new ArrayList<>();
-        int deleteIdx = deleteCount == 0 ? this.size() : start;
-        AtomicInteger insertIdx = new AtomicInteger(start);
         while (deleteCount > 0) {
-            removed.add(this.remove(deleteIdx));
+            removed.add(this.remove(start));
             deleteCount--;
         }
+        AtomicInteger insertIdx = new AtomicInteger(start);
         for (E e : values) {
             this.add(insertIdx.getAndIncrement(), e);
         }
@@ -241,12 +241,12 @@ public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObje
     }
 
     public List toSpliced(int start) {
-        return this.toSpliced(start, null);
+        return this.toSpliced(start, 0);
     }
 
-    public List toSpliced(int start, Object delCount, E... values) {
+    public List toSpliced(int start, int deleteCount, E... values) {
         ExecutionArrayList newList = this.slice();
-        newList.splice(start, delCount, values);
+        newList.splice(start, deleteCount, values);
         return newList;
     }
 
@@ -270,8 +270,11 @@ public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObje
     }
 
     public List fill(E value, int start, int end) {
-        start = start < -this.size() ? 0 : start < 0 ? start + this.size() : start;
-        end = end > this.size() ? this.size() : end < -this.size() ? 0 : end < 0 ? end + this.size() : end;
+        start = initStartIndex(start);
+        end = end > this.size() ? this.size() :
+                end < -this.size() ? 0 :
+                        end < 0 ? end + this.size() :
+                                end;
         if (start < this.size() && end > start) {
             for (int i = start; i < end; ++i) {
                 super.set(i, value);
@@ -282,5 +285,11 @@ public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObje
 
     public boolean validateClazzInArrayIsOnlyString() {
         return !super.stream().anyMatch(e -> !(e instanceof String));
+    }
+
+    private int initStartIndex(int start) {
+        return start < -this.size() ? 0 :
+                start < 0 ? start + this.size() :
+                        start;
     }
 }
