@@ -3083,24 +3083,24 @@ public class TbExpressionsTest extends TestCase {
         assertEquals(expectedArray, actualArray);
     }
 
-    public void testExecutionArrayList_splice_Remove_2_Insert_3_element_at_index_0() {
+    public void testExecutionArrayList_splice_Remove_2_Insert_3_element_at_index_1() {
         String body = "var msg = {};\n" +
                 "var months = [\"angel\", \"clown\", \"trumpet\", \"sturgeon\"];\n" +
-                "var removed = months.splice(0, 2, \"parrot\", \"anemone\", \"blue\");\n" +
+                "var removed = months.splice(1, 2, \"parrot\", \"anemone\", \"blue\");\n" +
                 "msg.months = months;\n" +
                 "msg.removed = removed;\n" +
                 "return {msg: msg};";
         Object result = executeScript(body);
         LinkedHashMap resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
         List expectedArray = new ArrayList();
+        expectedArray.add("angel");
         expectedArray.add("parrot");
         expectedArray.add("anemone");
         expectedArray.add("blue");
-        expectedArray.add("trumpet");
         expectedArray.add("sturgeon");
         List expectedArrayRemoved = new ArrayList();
-        expectedArrayRemoved.add("angel");
         expectedArrayRemoved.add("clown");
+        expectedArrayRemoved.add("trumpet");
         List actualArray = (List) resMap.get("removed");
         assertEquals(expectedArrayRemoved, actualArray);
         actualArray = (List) resMap.get("months");
@@ -3164,12 +3164,13 @@ public class TbExpressionsTest extends TestCase {
         expectedArray.add("angel");
         expectedArray.add("clown");
         expectedArray.add("mandarin");
+        List actualArray = (List) resMap.get("months");
+        assertEquals(expectedArray, actualArray);
         List expectedArrayRemoved = new ArrayList();
         expectedArrayRemoved.add("sturgeon");
-        List actualArray = (List) resMap.get("removed");
+        actualArray = (List) resMap.get("removed");
         assertEquals(expectedArrayRemoved, actualArray);
-        actualArray = (List) resMap.get("months");
-        assertEquals(expectedArray, actualArray);
+
     }
 
     public void testExecutionArrayList_splice_Remove_All_element_at_index_Minus_3() {
