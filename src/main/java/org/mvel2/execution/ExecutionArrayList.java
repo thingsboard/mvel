@@ -7,7 +7,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObject {
@@ -231,9 +230,9 @@ public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObje
             removed.add(this.remove(start));
             deleteCount--;
         }
-        AtomicInteger insertIdx = new AtomicInteger(start);
+        int insertIdx = start;
         for (E e : values) {
-            this.add(insertIdx.getAndIncrement(), e);
+            this.add(insertIdx++, e);
         }
         return new ExecutionArrayList<>(removed, this.executionContext);
     }
