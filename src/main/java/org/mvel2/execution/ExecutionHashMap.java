@@ -2,10 +2,44 @@ package org.mvel2.execution;
 
 import org.mvel2.ExecutionContext;
 
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ExecutionHashMap<K, V> extends LinkedHashMap<K, V> implements ExecutionObject {
+
+    private static final Comparator compByValueStringAsc = new Comparator() {
+        public int compare(Object o1, Object o2) {
+            String first = String.valueOf(((Map.Entry) o1).getValue());
+            String second = String.valueOf(((Map.Entry) o2).getValue());
+            return first.compareTo(second);
+        }
+    };
+    private static final Comparator compByValueStringDesc = new Comparator() {
+        public int compare(Object o1, Object o2) {
+            String first = String.valueOf(((Map.Entry) o1).getValue());
+            String second = String.valueOf(((Map.Entry) o2).getValue());
+            return second.compareTo(first);
+        }
+    };
+
+    private static final Comparator compByValueDoubleAsc = new Comparator() {
+        public int compare(Object o1, Object o2) {
+            Double first = Double.parseDouble(String.valueOf(((Map.Entry) o1).getValue()));
+            Double second = Double.parseDouble(String.valueOf(((Map.Entry) o2).getValue()));
+            return first.compareTo(second);
+        }
+    };
+
+    private static final Comparator compByValueDoubleDesc = new Comparator() {
+        public int compare(Object o1, Object o2) {
+            Double first = Double.parseDouble(String.valueOf(((Map.Entry) o1).getValue()));
+            Double second = Double.parseDouble(String.valueOf(((Map.Entry) o2).getValue()));
+            return second.compareTo(first);
+        }
+    };
 
     private final ExecutionContext executionContext;
 
@@ -54,7 +88,7 @@ public class ExecutionHashMap<K, V> extends LinkedHashMap<K, V> implements Execu
     @Override
     public boolean replace(K key, V oldValue, V newValue) {
         boolean result = super.replace(key, oldValue, newValue);
-        if(result){
+        if (result) {
             this.memorySize -= this.executionContext.onValRemove(this, key, oldValue);
             this.memorySize += this.executionContext.onValAdd(this, key, newValue);
         }
@@ -95,5 +129,38 @@ public class ExecutionHashMap<K, V> extends LinkedHashMap<K, V> implements Execu
         return new ExecutionArrayList<>(super.keySet(), this.executionContext);
     }
 
+    public void sortByValue() {
+        sortByValue(true);
+    }
 
+    public void sortByValue(boolean asc) {
+        Map valueSort = sortMapByValue((HashMap) super.clone(), asc);
+        valueSort.keySet().forEach(this::remove);
+        this.putAll(valueSort);
+    }
+
+    public void sortByKey() {
+        this.sortByKey(true);
+    }
+
+    public void sortByKey(boolean asc) {
+        ExecutionArrayList keys = this.keys();
+        keys.sort(asc);
+        HashMap keysMapSort = new LinkedHashMap();
+        keys.forEach(k -> keysMapSort.put(k, this.get(k)));
+        keysMapSort.keySet().forEach(this::remove);
+        this.putAll(keysMapSort);
+    }
+
+    private <K, V extends Comparable<? super V>> Map<K, V> sortMapByValue(Map<K, V> map, boolean asc) {
+        boolean isString = this.values().validateClazzInArrayIsOnlyString();
+        Comparator<? super Map.Entry> cmp =
+                isString ?
+                        asc ? compByValueStringAsc : compByValueStringDesc :
+                        asc ? compByValueDoubleAsc : compByValueDoubleDesc;
+        return map.entrySet()
+                .stream()
+                .sorted(cmp)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+    }
 }
