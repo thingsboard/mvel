@@ -927,10 +927,10 @@ public class TbMapArrayListExpressionsTest extends TestCase {
         assertTrue(eq);
     }
 
-    public void testExecutionHashMap_ToReverse() {
+    public void testExecutionHashMap_ToReversed() {
         String body = "var msg = {};\n" +
                 "var map = {\"Babnm\":\"thing\", 200:2, 40:3, \"Zxc\":9, 5:\"4\", \"8\":5, 1:1, \"9\":6, \"Aabnm\":7};\n" +
-                "msg.toReverse = map.toReverse();\n" +
+                "msg.toReversed = map.toReversed();\n" +
                 "msg.map = map;\n" +
                 "return {msg: msg}";
         LinkedHashMap<Object, Object> expectedMap = new LinkedHashMap<>();
@@ -963,7 +963,7 @@ public class TbMapArrayListExpressionsTest extends TestCase {
         expectedMap.put(expectedArrayMixedNumericString.get(2), 3);
         expectedMap.put(expectedArrayMixedNumericString.get(1), 2);
         expectedMap.put(expectedArrayMixedNumericString.get(7), "thing");
-        actualMap = (LinkedHashMap) resMap.get("toReverse");
+        actualMap = (LinkedHashMap) resMap.get("toReversed");
         assertEquals(expectedMap, actualMap);
         assertEquals(expectedMap.keySet(), actualMap.keySet());
         eq = expectedMap.values().equals(actualMap.values());

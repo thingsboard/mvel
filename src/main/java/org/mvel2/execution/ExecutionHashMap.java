@@ -232,7 +232,7 @@ public class ExecutionHashMap<K, V> extends LinkedHashMap<K, V> implements Execu
         this.clearAllPutAll(this.reversByKeys());
     }
 
-    public ExecutionHashMap<K, V> toReverse() {
+    public ExecutionHashMap<K, V> toReversed() {
         return new ExecutionHashMap<>(this.reversByKeys(), this.executionContext);
     }
 
