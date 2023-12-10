@@ -17,6 +17,8 @@
  */
 package org.mvel2.util;
 
+import java.util.List;
+
 public class ArrayTools {
 
   public static int findFirst(char c, int start, int offset, char[] array) {
@@ -32,5 +34,18 @@ public class ArrayTools {
       if (array[i] == c) return i;
     }
     return -1;
+  }
+
+
+  public static int initStartIndex(int start, List list) {
+    return start < -list.size() ? 0 :
+            start < 0 ? start + list.size() :
+                    start;
+  }
+
+  public static int initEndIndex(int end, List list) {
+    return end < -list.size() ? 0 :
+            end < 0 ? end + list.size() :
+                    Math.min(end, list.size());
   }
 }
