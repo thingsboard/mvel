@@ -40,13 +40,6 @@ public class TbExpressionsTest extends TestCase {
         }
     };
 
-    private final List<String> expectedArrayString = Arrays.asList("Dec", "Feb", "Jan", "March");
-    private final List expectedArrayInteger = Arrays.asList(-214748, 1, 4, 30, 57, 100000, 214748);
-    private final List expectedArrayIntLong = Arrays.asList(-9223372036854775808L, 30, 40, 45, 1000, 9223372036854775807L);
-    private final List expectedArrayFloat = Arrays.asList(1.1754943, 3.40282, 34.17549467, 45.40283);
-    private final List expectedArrayMixedNumeric = Arrays.asList(1, 5, "8", "9", 40, 200, "700");
-    private final List expectedArrayMixedNumericString = Arrays.asList(1, 200, 40, 5, "8", "9", "Aabnm", "Babnm", "Zxc");
-
     private SandboxedParserConfiguration parserConfig;
 
     private ExecutionContext currentExecutionContext;
