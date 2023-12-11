@@ -1314,6 +1314,39 @@ public class TbMapArrayListExpressionsTest extends TestCase {
         }
     }
 
+    public void testExecutionArrayList_shift() {
+        String body = "var msg = {};\n" +
+                "var array = [\"8\", 40, 9223372036854775807, \"Dec\", \"-9223372036854775808\"];\n" +
+                "msg.arraySlice = array.slice();\n" +
+                "msg.arrayShift = array.shift();\n" +
+                "msg.array = array;\n" +
+                "return {msg: msg}";
+        Object result = executeScript(body);
+        LinkedHashMap resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
+        Object actualShift = resMap.get("arrayShift");
+        List actualArraySlice = (List) resMap.get("arraySlice");
+        List actualArrayShift = (List) resMap.get("array");
+        assertEquals(actualArraySlice.get(0), actualShift);
+        actualArraySlice.remove(0);
+        assertEquals(actualArraySlice, actualArrayShift);
+    }
+
+    public void testExecutionArrayList_unshift() {
+        String body = "var msg = {};\n" +
+                "var array = [\"8\", 40, 9223372036854775807, \"Dec\", \"-9223372036854775808\"];\n" +
+                "msg.arraySlice = array.slice();\n" +
+                "array.unshift(42, \"Dec\");\n" +
+                "msg.array = array;\n" +
+                "return {msg: msg}";
+        Object result = executeScript(body);
+        LinkedHashMap resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
+        List actualArraySlice = (List) resMap.get("arraySlice");
+        List actualArrayShift = (List) resMap.get("array");
+        actualArraySlice.add(0, "Dec");
+        actualArraySlice.add(0, 42);
+        assertEquals(actualArraySlice, actualArrayShift);
+    }
+
     public void testExecutionArrayList_indexOf() {
         String body = "var msg = {};\n" +
                 "var arrayInd = [\"a\", 34, \"a\", 34, \"a\", \"a\"];\n" +

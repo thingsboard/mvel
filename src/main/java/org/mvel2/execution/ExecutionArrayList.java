@@ -81,8 +81,12 @@ public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObje
         return remove(0);
     }
 
-    public void unshift(E e) {
-        add(0, e);
+    public void unshift(E... ee) {
+        if (ee.length > 0) {
+            for (int i = ee.length - 1; i >= 0; i--) {
+                add(0, ee[i]);
+            }
+        }
     }
 
     @Override
