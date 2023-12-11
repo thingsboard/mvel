@@ -217,15 +217,36 @@ public class ExecutionHashMap<K, V> extends LinkedHashMap<K, V> implements Execu
         Map<K, V> mapClone = (Map<K, V>) super.clone();
         Map mapInvert = new LinkedHashMap<>();
         mapClone.forEach((key, value) -> mapInvert.put(value, key));
-        super.clear();
-        super.putAll(mapInvert);
+        if (this.size() == mapInvert.size()) {
+            this.clear();
+            this.memorySize = 0;
+            this.putAll(mapInvert);
+        } else {
+            throw new IllegalArgumentException("Input map.size() is not equal to this.size()!");
+        }
+    }
+
+    public void invertKeyToValueAsString() {
+        Map mapInverted = this.invertMap();
+        this.clear();
+        this.memorySize = 0;
+        this.putAll(mapInverted);
     }
 
     public ExecutionHashMap<K, V> toInverted() {
         Map<K, V> mapClone = (Map<K, V>) super.clone();
         Map mapInverted = new LinkedHashMap<>();
         mapClone.forEach((key, value) -> mapInverted.put(value, key));
-        return new ExecutionHashMap<>(mapInverted, this.executionContext);
+        if (this.size() == mapInverted.size()) {
+            return new ExecutionHashMap<>(mapInverted, this.executionContext);
+        } else {
+            throw new IllegalArgumentException("Output map.size() is not equal to this.size()!");
+        }
+    }
+
+    public Map<? extends K, ? extends V> toInvertedKeyToValueAsString() {
+        Map mapInverted = this.invertMap();
+        return new ExecutionHashMap<>((Map<? extends K, ? extends V>) mapInverted, this.executionContext);
     }
 
     public void reverse() {
@@ -265,5 +286,19 @@ public class ExecutionHashMap<K, V> extends LinkedHashMap<K, V> implements Execu
         HashMap keysMapRevers = new LinkedHashMap();
         keys.forEach(k -> keysMapRevers.put(k, this.get(k)));
         return keysMapRevers;
+    }
+
+    private Map<? extends K, ? extends V> invertMap() {
+        Map<K, V> mapClone = (Map<K, V>) super.clone();
+        Map mapInvert =
+                mapClone.entrySet()
+                        .stream()
+                        .collect(Collectors.groupingBy(Map.Entry::getValue, Collectors.mapping(Map.Entry::getKey, Collectors.toList())));
+        Map<? extends K, ? extends V> newMap = mapInvert;
+        return (Map<? extends K, ? extends V>) newMap.entrySet().stream()
+                .collect(Collectors.toMap(
+                        e -> e.getKey(),
+                        e -> e.getValue().toString()
+                ));
     }
 }

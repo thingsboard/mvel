@@ -743,7 +743,6 @@ public class TbMapArrayListExpressionsTest extends TestCase {
         assertEquals(expectedList, actualList);
     }
 
-
     public void testExecutionHashMap_invert() {
         String body = "var msg = {};\n" +
                 "var map = {\"Babnm\":\"thing\", 200:2, 40:3, \"Zxc\":9, 5:\"4\", \"8\":5, 1:1, \"9\":6, \"Aabnm\":7};\n" +
@@ -770,10 +769,50 @@ public class TbMapArrayListExpressionsTest extends TestCase {
         assertTrue(eq);
     }
 
+    public void testExecutionHashMap_invert_KeyToValueMany_ErrorSize() {
+        String body = "var msg = {};\n" +
+                "var map = {\"Babnm\":\"thing\", 200:2, 40:3, \"Zxc\":9, 5:\"4\", \"8\":5, 1:\"thing\", \"9\":6, \"Aabnm\":7};\n" +
+                "map.invert();\n" +
+                "msg.map = map;\n" +
+                "return {msg: msg}";
+        try {
+            executeScript(body);
+            fail("Should throw CompileException");
+        } catch (CompileException e) {
+            assertTrue(e.getMessage().contains("map.invert(): Input map.size() is not equal to this.size()!"));
+        }
+    }
+
+    public void testExecutionHashMap_invertKeyToValueAsString() {
+        String body = "var msg = {};\n" +
+                "var map = {\"Babnm\":\"thing\", 200:2, 40:\"thing\", \"Zxc\":9, 5:\"4\", \"8\":5, 1:\"thing\", \"9\":6, \"Aabnm\":7};\n" +
+                "map.invertKeyToValueAsString();\n" +
+                "msg.map = map;\n" +
+                "return {msg: msg}";
+        Object result = executeScript(body);
+        LinkedHashMap<Object, Object> expectedMap = new LinkedHashMap<>();
+        expectedMap.put(2, Arrays.asList(expectedArrayMixedNumericString.get(1)).toString());
+        expectedMap.put("4", Arrays.asList(expectedArrayMixedNumericString.get(3)).toString());
+        expectedMap.put(5, Arrays.asList(expectedArrayMixedNumericString.get(4)).toString());
+        expectedMap.put(6, Arrays.asList(expectedArrayMixedNumericString.get(5)).toString());
+        expectedMap.put(7, Arrays.asList(expectedArrayMixedNumericString.get(6)).toString());
+        expectedMap.put(9, Arrays.asList(expectedArrayMixedNumericString.get(8)).toString());
+        expectedMap.put("thing", Arrays.asList(expectedArrayMixedNumericString.get(7),
+                expectedArrayMixedNumericString.get(2),
+                expectedArrayMixedNumericString.get(0)).toString());
+        LinkedHashMap resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
+        LinkedHashMap actualMap = (LinkedHashMap) resMap.get("map");
+        assertEquals(expectedMap, actualMap);
+        assertEquals(expectedMap.keySet(), actualMap.keySet());
+        boolean eq = expectedMap.values().equals(actualMap.values());
+        eq = eq ? eq : equalsList(expectedMap.values(), actualMap.values());
+        assertTrue(eq);
+    }
+
     public void testExecutionHashMap_toInverted() {
         String body = "var msg = {};\n" +
                 "var map = {\"Babnm\":\"thing\", 200:2, 40:3, \"Zxc\":9, 5:\"4\", \"8\":5, 1:1, \"9\":6, \"Aabnm\":7};\n" +
-                "msg.inverted = map.toInverted();\n" +
+                "msg.toInverted = map.toInverted();\n" +
                 "msg.map = map;\n" +
                 "return {msg: msg}";
         Object result = executeScript(body);
@@ -806,11 +845,69 @@ public class TbMapArrayListExpressionsTest extends TestCase {
         expectedInvertedMap.put(1, expectedArrayMixedNumericString.get(0));
         expectedInvertedMap.put(6, expectedArrayMixedNumericString.get(5));
         expectedInvertedMap.put(7, expectedArrayMixedNumericString.get(6));
-        actualMap = (LinkedHashMap) resMap.get("inverted");
+        actualMap = (LinkedHashMap) resMap.get("toInverted");
         assertEquals(expectedInvertedMap, actualMap);
         assertEquals(expectedInvertedMap.keySet(), actualMap.keySet());
         eq = expectedInvertedMap.values().equals(actualMap.values());
         eq = eq ? true : equalsList(expectedInvertedMap.values(), actualMap.values());
+        assertTrue(eq);
+    }
+
+    public void testExecutionHashMap_toInverted_KeyToValueMany_ErrorSize() {
+        String body = "var msg = {};\n" +
+                "var map = {\"Babnm\":\"thing\", 200:2, 40:3, \"Zxc\":9, 5:\"4\", \"8\":\"thing\", 1:1, \"9\":6, \"Aabnm\":7};\n" +
+                "msg.toInverted = map.toInverted();\n" +
+                "msg.map = map;\n" +
+                "return {msg: msg}";
+        try {
+            executeScript(body);
+            fail("Should throw CompileException");
+        } catch (CompileException e) {
+            assertTrue(e.getMessage().contains("map.toInverted(): Output map.size() is not equal to this.size()!"));
+        }
+    }
+
+    public void testExecutionHashMap_toInvertedKeyToValueAsString() {
+        String body = "var msg = {};\n" +
+                "var map = {\"Babnm\":\"thing\", 200:2, 40:\"thing\", \"Zxc\":9, 5:\"4\", \"8\":5, 1:\"thing\", \"9\":6, \"Aabnm\":7};\n" +
+                "msg.toInvertedKeyToValueAsString = map.toInvertedKeyToValueAsString();\n" +
+                "msg.map = map;\n" +
+                "return {msg: msg}";
+        Object result = executeScript(body);
+        LinkedHashMap resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
+
+        LinkedHashMap<Object, Object> expectedMap = new LinkedHashMap<>();
+        expectedMap.put(expectedArrayMixedNumericString.get(7), "thing");
+        expectedMap.put(expectedArrayMixedNumericString.get(1), 2);
+        expectedMap.put(expectedArrayMixedNumericString.get(2), "thing");
+        expectedMap.put(expectedArrayMixedNumericString.get(8), 9);
+        expectedMap.put(expectedArrayMixedNumericString.get(3), "4");
+        expectedMap.put(expectedArrayMixedNumericString.get(4), 5);
+        expectedMap.put(expectedArrayMixedNumericString.get(0), "thing");
+        expectedMap.put(expectedArrayMixedNumericString.get(5), 6);
+        expectedMap.put(expectedArrayMixedNumericString.get(6), 7);
+        LinkedHashMap actualMap = (LinkedHashMap) resMap.get("map");
+        assertEquals(expectedMap, actualMap);
+        assertEquals(expectedMap.keySet(), actualMap.keySet());
+        boolean eq = expectedMap.values().equals(actualMap.values());
+        eq = eq ? true : equalsList(expectedMap.values(), actualMap.values());
+        assertTrue(eq);
+
+        expectedMap = new LinkedHashMap<>();
+        expectedMap.put(2, Arrays.asList(expectedArrayMixedNumericString.get(1)).toString());
+        expectedMap.put("4", Arrays.asList(expectedArrayMixedNumericString.get(3)).toString());
+        expectedMap.put(5, Arrays.asList(expectedArrayMixedNumericString.get(4)).toString());
+        expectedMap.put(6, Arrays.asList(expectedArrayMixedNumericString.get(5)).toString());
+        expectedMap.put(7, Arrays.asList(expectedArrayMixedNumericString.get(6)).toString());
+        expectedMap.put(9, Arrays.asList(expectedArrayMixedNumericString.get(8)).toString());
+        expectedMap.put("thing", Arrays.asList(expectedArrayMixedNumericString.get(7),
+                expectedArrayMixedNumericString.get(2),
+                expectedArrayMixedNumericString.get(0)).toString());
+        actualMap = (LinkedHashMap) resMap.get("toInvertedKeyToValueAsString");
+        assertEquals(expectedMap, actualMap);
+        assertEquals(expectedMap.keySet(), actualMap.keySet());
+        eq = expectedMap.values().equals(actualMap.values());
+        eq = eq ? eq : equalsList(expectedMap.values(), actualMap.values());
         assertTrue(eq);
     }
 
