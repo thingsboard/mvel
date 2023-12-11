@@ -19,7 +19,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -208,56 +207,74 @@ public class ExecutionContext implements Serializable {
             } else {
                 return ((ExecutionObject) value).memorySize();
             }
+        } else if (value.getClass().isArray()) {
+            if (value.getClass().getComponentType().isPrimitive()) {
+                return (long) Array.getLength(value) * componentTypeSize(value.getClass().getComponentType());
+            } else {
+                long size = 0;
+                Object[] arrays = value instanceof List ? ((List<?>) value).toArray() : (Object[]) value;
+                for (Object o : arrays) {
+                    if (value instanceof String) {
+                        size += ((String) value).getBytes().length;
+                    } else {
+                        size += componentTypeSize(value.getClass().getComponentType());
+                    }
+                }
+                return size;
+            }
+        } else if (value instanceof List) {
+            long size = 0;
+            for (Object o : (List) value) {
+                if (o instanceof String) {
+                    size += ((String) o).getBytes().length;
+                } else {
+                    Class<?> type = o.getClass().getComponentType() != null ? o.getClass().getComponentType() : o.getClass();
+                    size += componentTypeSize(type);
+                }
+            }
+            return size;
         } else if (value instanceof String) {
             return ((String) value).getBytes().length;
-        } else if (value instanceof Byte) {
-            return 1;
-        } else if (value instanceof Character) {
-            return 1;
-        } else if (value instanceof Short) {
-            return 2;
-        } else if (value instanceof Integer) {
-            return 4;
-        } else if (value instanceof Long) {
-            return 8;
-        } else if (value instanceof Float) {
-            return 4;
-        } else if (value instanceof Double) {
-            return 8;
         } else if (value instanceof BigInteger) {
-            return ((BigInteger) value).bitLength()/8 + 1;
-        } else if (value instanceof Boolean) {
-            return 1;
-        } else if (value instanceof UUID) {
-            return 16;
-        } else if (value instanceof Date) {
-            return 8;
-        } else if (value.getClass().isArray() && value.getClass().getComponentType().isPrimitive()) {
-            return (long) Array.getLength(value) * componentTypeSize(value.getClass().getComponentType());
+            return ((BigInteger) value).bitLength() / 8 + 1;
+        } else if (value instanceof Byte
+                || value instanceof Character
+                || value instanceof Short
+                || value instanceof Integer
+                || value instanceof Long
+                || value instanceof Float
+                || value instanceof Double
+                || value instanceof Boolean
+                || value instanceof Date
+                || value instanceof UUID) {
+            return componentTypeSize(value.getClass());
         } else {
             throw new ScriptRuntimeException("Unsupported value type: " + value.getClass());
         }
     }
 
     private static int componentTypeSize(Class<?> componentType) {
-        if (byte.class.equals(componentType)) {
+        if (char.class.equals(componentType)
+                || byte.class.equals(componentType) || Byte.class.equals(componentType)
+                || boolean.class.equals(componentType) || Boolean.class.equals(componentType)) {
             return 1;
-        } else if (char.class.equals(componentType)) {
-            return 1;
-        } else if (short.class.equals(componentType)) {
+        } else if (short.class.equals(componentType) || Short.class.equals(componentType)) {
             return 2;
-        } else if (int.class.equals(componentType)) {
+        } else if (int.class.equals(componentType) || Integer.class.equals(componentType)
+                || float.class.equals(componentType) || Float.class.equals(componentType)) {
             return 4;
-        } else if (long.class.equals(componentType)) {
+        } else if (long.class.equals(componentType) || Long.class.equals(componentType)
+                || double.class.equals(componentType) || Double.class.equals(componentType)
+                || Date.class.equals(componentType)) {
             return 8;
-        } else if (float.class.equals(componentType)) {
-            return 4;
-        } else if (double.class.equals(componentType)) {
-            return 8;
-        } else if (boolean.class.equals(componentType)) {
-            return 1;
+        } else if (UUID.class.equals(componentType)) {
+            return 16;
         } else {
-            throw new ScriptRuntimeException("Unsupported array primitive type: " + componentType);
+            if (componentType.isPrimitive()) {
+                throw new ScriptRuntimeException("Unsupported array primitive type: " + componentType);
+            } else {
+                throw new ScriptRuntimeException("Unsupported value type: " + componentType);
+            }
         }
     }
 

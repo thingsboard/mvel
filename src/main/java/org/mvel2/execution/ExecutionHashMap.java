@@ -214,39 +214,15 @@ public class ExecutionHashMap<K, V> extends LinkedHashMap<K, V> implements Execu
     }
 
     public void invert() {
-        Map<K, V> mapClone = (Map<K, V>) super.clone();
-        Map mapInvert = new LinkedHashMap<>();
-        mapClone.forEach((key, value) -> mapInvert.put(value, key));
-        if (this.size() == mapInvert.size()) {
-            this.clear();
-            this.memorySize = 0;
-            this.putAll(mapInvert);
-        } else {
-            throw new IllegalArgumentException("Input map.size() is not equal to this.size()!");
-        }
-    }
-
-    public void invertKeyToValueAsString() {
-        Map mapInverted = this.invertMap();
+        Map mapInvert = this.invertMap();
         this.clear();
         this.memorySize = 0;
-        this.putAll(mapInverted);
+        this.putAll(mapInvert);
     }
 
     public ExecutionHashMap<K, V> toInverted() {
-        Map<K, V> mapClone = (Map<K, V>) super.clone();
-        Map mapInverted = new LinkedHashMap<>();
-        mapClone.forEach((key, value) -> mapInverted.put(value, key));
-        if (this.size() == mapInverted.size()) {
-            return new ExecutionHashMap<>(mapInverted, this.executionContext);
-        } else {
-            throw new IllegalArgumentException("Output map.size() is not equal to this.size()!");
-        }
-    }
-
-    public Map<? extends K, ? extends V> toInvertedKeyToValueAsString() {
         Map mapInverted = this.invertMap();
-        return new ExecutionHashMap<>((Map<? extends K, ? extends V>) mapInverted, this.executionContext);
+        return new ExecutionHashMap<>(mapInverted, this.executionContext);
     }
 
     public void reverse() {
@@ -290,15 +266,15 @@ public class ExecutionHashMap<K, V> extends LinkedHashMap<K, V> implements Execu
 
     private Map<? extends K, ? extends V> invertMap() {
         Map<K, V> mapClone = (Map<K, V>) super.clone();
-        Map mapInvert =
-                mapClone.entrySet()
-                        .stream()
-                        .collect(Collectors.groupingBy(Map.Entry::getValue, Collectors.mapping(Map.Entry::getKey, Collectors.toList())));
-        Map<? extends K, ? extends V> newMap = mapInvert;
-        return (Map<? extends K, ? extends V>) newMap.entrySet().stream()
-                .collect(Collectors.toMap(
-                        e -> e.getKey(),
-                        e -> e.getValue().toString()
-                ));
+        Map mapInvert = new LinkedHashMap<>();
+        Map finalMapInvert = mapInvert;
+        mapClone.forEach((key, value) -> finalMapInvert.put(value, key));
+        if (this.size() != mapInvert.size()) {
+            mapInvert =
+                    mapClone.entrySet()
+                            .stream()
+                            .collect(Collectors.groupingBy(Map.Entry::getValue, Collectors.mapping(Map.Entry::getKey, Collectors.toList())));
+        }
+        return mapInvert;
     }
 }
