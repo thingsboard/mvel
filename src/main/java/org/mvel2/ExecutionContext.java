@@ -9,6 +9,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -211,20 +212,19 @@ public class ExecutionContext implements Serializable {
             if (value.getClass().getComponentType().isPrimitive()) {
                 return (long) Array.getLength(value) * componentTypeSize(value.getClass().getComponentType());
             } else {
-                long size = 0;
-                Object[] arrays = value instanceof List ? ((List<?>) value).toArray() : (Object[]) value;
-                for (Object o : arrays) {
-                    if (value instanceof String) {
-                        size += ((String) value).getBytes().length;
+                long size = 1;
+                for (Object o : (Collection) value) {
+                    if (o instanceof String) {
+                        size += ((String) o).getBytes().length;
                     } else {
-                        size += componentTypeSize(value.getClass().getComponentType());
+                        size += componentTypeSize(o.getClass().getComponentType());
                     }
                 }
                 return size;
             }
         } else if (value instanceof List) {
-            long size = 0;
-            for (Object o : (List) value) {
+            long size = 1;
+            for (Object o : (Collection) value) {
                 if (o instanceof String) {
                     size += ((String) o).getBytes().length;
                 } else {

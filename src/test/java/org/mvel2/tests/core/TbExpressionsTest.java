@@ -568,6 +568,25 @@ public class TbExpressionsTest extends TestCase {
         assertEquals(3, ((List<?>) res).get(2));
     }
 
+    public void testComponentTypeSize() {
+        Object res = executeScript("var map = {\"Babnm\":[(byte)0x0F,(byte)0x02], 200:2, 40:3, \"Zxc\":\"thing\", 5:\"4\", \"8\":5, 1:\"thing\", \"9\":6, \"Aabnm\":7};" +
+                "var array_int = new int[1];\n" +
+                "array_int[0] = 65000;\n" +
+                "map.put(\"array_int\", array_int);\n" +
+                "var array_char = new char[1];\n" +
+                "array_char[0] = \"v\";\n" +
+                "map.put(\"array_char\", array_char);\n" +
+                "var array_b = new boolean[2];\n" +
+                "array_b[0] = false;\n" +
+                "array_b[1] = true;\n" +
+                "map.put(\"array_b\", array_b);\n" +
+                "var listO = [200:2, 40:3, \"Zxc\":\"thing\"];\n" +
+                "map.put(\"listO\", listO);\n" +
+                "map.invert();" +
+                "map;");
+        assertNotNull(res);
+    }
+
     public void testByteOperations() {
         Object res = executeScript("var m = new byte[]{(byte)0x0F,(byte)0x02}; b = m[0] == 0x0F; b");
         assertNotNull(res);
