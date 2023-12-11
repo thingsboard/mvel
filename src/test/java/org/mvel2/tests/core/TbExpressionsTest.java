@@ -580,7 +580,7 @@ public class TbExpressionsTest extends TestCase {
                 "array_b[0] = false;\n" +
                 "array_b[1] = true;\n" +
                 "map.put(\"array_b\", array_b);\n" +
-                "var listO = [200:2, 40:3, \"Zxc\":\"thing\"];\n" +
+                "var listO = [200, 40, \"Zxc\"];\n" +
                 "map.put(\"listO\", listO);\n" +
                 "map.invert();" +
                 "map;");
