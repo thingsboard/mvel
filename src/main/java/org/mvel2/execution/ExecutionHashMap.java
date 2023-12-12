@@ -5,8 +5,12 @@ import org.mvel2.ExecutionContext;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static org.mvel2.util.ArrayTools.initEndIndex;
+import static org.mvel2.util.ArrayTools.initStartIndex;
 
 public class ExecutionHashMap<K, V> extends LinkedHashMap<K, V> implements ExecutionObject {
 
@@ -51,6 +55,13 @@ public class ExecutionHashMap<K, V> extends LinkedHashMap<K, V> implements Execu
         super(size);
         this.executionContext = executionContext;
         this.id = executionContext.nextId();
+    }
+
+    public ExecutionHashMap(Map<K, V> map, ExecutionContext executionContext) {
+        super(map.size());
+        this.executionContext = executionContext;
+        this.id = executionContext.nextId();
+        this.putAll(map);
     }
 
     @Override
@@ -129,14 +140,36 @@ public class ExecutionHashMap<K, V> extends LinkedHashMap<K, V> implements Execu
         return new ExecutionArrayList<>(super.keySet(), this.executionContext);
     }
 
+    public ExecutionHashMap<K, V> slice() {
+        return (ExecutionHashMap<K, V>) this.clone();
+    }
+
+    public ExecutionHashMap<K, V> slice(int start) {
+        return slice(start, this.size());
+    }
+
+    public ExecutionHashMap<K, V> slice(int start, int end) {
+        List keys = this.keys();
+        start = initStartIndex(start, keys);
+        end = initEndIndex(end, keys);
+        ExecutionHashMap<K, V> mapSlice = new ExecutionHashMap<>(end - start, this.executionContext);
+        int index = 0;
+        for (Map.Entry<K, V> entry : this.entrySet()) {
+            if (index >= start && index < end) {
+                mapSlice.put(entry.getKey(), entry.getValue());
+            }
+            ++index;
+        }
+        return mapSlice;
+    }
+
     public void sortByValue() {
-        sortByValue(true);
+        this.sortByValue(true);
     }
 
     public void sortByValue(boolean asc) {
         Map valueSort = sortMapByValue((HashMap) super.clone(), asc);
-        valueSort.keySet().forEach(this::remove);
-        this.putAll(valueSort);
+        this.clearAllPutAll(valueSort);
     }
 
     public void sortByKey() {
@@ -148,19 +181,100 @@ public class ExecutionHashMap<K, V> extends LinkedHashMap<K, V> implements Execu
         keys.sort(asc);
         HashMap keysMapSort = new LinkedHashMap();
         keys.forEach(k -> keysMapSort.put(k, this.get(k)));
-        keysMapSort.keySet().forEach(this::remove);
-        this.putAll(keysMapSort);
+        this.clearAllPutAll(keysMapSort);
     }
 
+    public ExecutionHashMap<K, V> toSortedByValue() {
+        return this.toSortedByValue(true);
+    }
+
+    public ExecutionHashMap<K, V> toSortedByValue(boolean asc) {
+        Map valueToSorted = sortMapByValue((HashMap) super.clone(), asc);
+        return new ExecutionHashMap<>(valueToSorted, this.executionContext);
+    }
+
+    public ExecutionHashMap<K, V> toSorted() {
+        return this.toSorted(true);
+    }
+
+    public ExecutionHashMap<K, V> toSorted(boolean asc) {
+        return this.toSortedByKey(asc);
+    }
+
+    public ExecutionHashMap<K, V> toSortedByKey() {
+        return this.toSortedByKey(true);
+    }
+
+    public ExecutionHashMap<K, V> toSortedByKey(boolean asc) {
+        ExecutionArrayList keysToSorted = this.keys();
+        keysToSorted.sort(asc);
+        ExecutionHashMap<K, V> mapToSortedByKey = new ExecutionHashMap<>(this.size(), this.executionContext);
+        keysToSorted.forEach(k -> mapToSortedByKey.put((K) k, this.get(k)));
+        return mapToSortedByKey;
+    }
+
+    public void invert() {
+        Map mapInvert = this.invertMap();
+        this.clear();
+        this.memorySize = 0;
+        this.putAll(mapInvert);
+    }
+
+    public ExecutionHashMap<K, V> toInverted() {
+        Map mapInverted = this.invertMap();
+        return new ExecutionHashMap<>(mapInverted, this.executionContext);
+    }
+
+    public void reverse() {
+        this.clearAllPutAll(this.reversByKeys());
+    }
+
+    public ExecutionHashMap<K, V> toReversed() {
+        return new ExecutionHashMap<>(this.reversByKeys(), this.executionContext);
+    }
+
+
     private <K, V extends Comparable<? super V>> Map<K, V> sortMapByValue(Map<K, V> map, boolean asc) {
-        boolean isString = this.values().validateClazzInArrayIsOnlyString();
-        Comparator<? super Map.Entry> cmp =
-                isString ?
-                        asc ? compByValueStringAsc : compByValueStringDesc :
-                        asc ? compByValueDoubleAsc : compByValueDoubleDesc;
+        Comparator<? super Map.Entry> cmp;
+        if (this.values().validateClazzInArrayIsOnlyNumber()) {
+            cmp = asc ? compByValueDoubleAsc : compByValueDoubleDesc;
+        } else {
+            cmp = asc ? compByValueStringAsc : compByValueStringDesc;
+        }
         return map.entrySet()
                 .stream()
                 .sorted(cmp)
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+    }
+
+    private void clearAllPutAll(Map<? extends K, ? extends V> m) {
+        if (this.size() == m.size()) {
+            super.clear();
+            super.putAll(m);
+        } else {
+            throw new IllegalArgumentException("Input map.size() is not equal to this.size()!");
+        }
+    }
+
+    private HashMap reversByKeys() {
+        ExecutionArrayList keys = this.keys();
+        keys.reverse();
+        HashMap keysMapRevers = new LinkedHashMap();
+        keys.forEach(k -> keysMapRevers.put(k, this.get(k)));
+        return keysMapRevers;
+    }
+
+    private Map<? extends K, ? extends V> invertMap() {
+        Map<K, V> mapClone = (Map<K, V>) super.clone();
+        Map mapInvert = new LinkedHashMap<>();
+        Map finalMapInvert = mapInvert;
+        mapClone.forEach((key, value) -> finalMapInvert.put(value, key));
+        if (this.size() != mapInvert.size()) {
+            mapInvert =
+                    mapClone.entrySet()
+                            .stream()
+                            .collect(Collectors.groupingBy(Map.Entry::getValue, Collectors.mapping(Map.Entry::getKey, Collectors.toList())));
+        }
+        return mapInvert;
     }
 }
