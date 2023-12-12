@@ -252,7 +252,9 @@ public class ExecutionArrayList<E> extends ArrayList<E> implements ExecutionObje
     }
 
     public List toSpliced(int start) {
-        return this.toSpliced(start, 0);
+        ExecutionArrayList newList = this.slice();
+        newList.splice(start);
+        return newList;
     }
 
     public List toSpliced(int start, int deleteCount, E... values) {

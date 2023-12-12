@@ -1558,7 +1558,6 @@ public class TbMapArrayListExpressionsTest extends TestCase {
         expectedArrayRemoved.add("sturgeon");
         actualArray = (List) resMap.get("removed");
         assertEquals(expectedArrayRemoved, actualArray);
-
     }
 
     public void testExecutionArrayList_splice_Remove_All_element_at_index_Minus_3() {
@@ -1718,6 +1717,27 @@ public class TbMapArrayListExpressionsTest extends TestCase {
         assertEquals(expectedNewArray3, actualArray);
         actualArray = (List) resMap.get("months4");
         assertEquals(expectedNewArray4, actualArray);
+    }
+
+    public void testExecutionArrayList_toSpliced_Remove_All_element_at_index_3() {
+        String body = "var msg = {};\n" +
+                "var months = [\"angel\", \"clown\", \"mandarin\", \"sturgeon\"];\n" +
+                "var removed = months.toSpliced(3);\n" +
+                "msg.months = months;\n" +
+                "msg.removed = removed;\n" +
+                "return {msg: msg};";
+        Object result = executeScript(body);
+        LinkedHashMap resMap = (LinkedHashMap) ((LinkedHashMap) result).get("msg");
+        List expectedArray = new ArrayList();
+        expectedArray.add("angel");
+        expectedArray.add("clown");
+        expectedArray.add("mandarin");
+        expectedArray.add("sturgeon");
+        List actualArray = (List) resMap.get("months");
+        assertEquals(expectedArray, actualArray);
+        expectedArray.remove("sturgeon");
+        actualArray = (List) resMap.get("removed");
+        assertEquals(expectedArray, actualArray);
     }
 
     public void testExecutionArrayList_With_Index_Ok() {
