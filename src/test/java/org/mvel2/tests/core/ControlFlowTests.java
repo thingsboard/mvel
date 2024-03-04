@@ -358,12 +358,8 @@ public class ControlFlowTests extends AbstractTest {
     c1.set(1999,
             0,
             10); // 1999 jan 20
-    Map objectMap = new HashMap(1);
-    Map propertyMap = new HashMap(1);
-    propertyMap.put("GEBDAT",
-            c1.getTime());
-    objectMap.put("EV_VI_ANT1",
-            propertyMap);
+    Map propertyMap = Map.of("GEBDAT", c1.getTime());
+    Map objectMap = Map.of("EV_VI_ANT1", propertyMap);
     Calendar c2 = Calendar.getInstance();
     c2.setTimeInMillis(System.currentTimeMillis());
     String expectResult = c2.get(Calendar.YEAR) - c1.get(Calendar.YEAR) >= 25 ? "Y" : "N";
