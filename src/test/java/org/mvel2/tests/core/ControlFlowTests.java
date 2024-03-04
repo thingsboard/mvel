@@ -7,8 +7,14 @@ import org.mvel2.compiler.ExecutableStatement;
 import org.mvel2.tests.core.res.Base;
 import org.mvel2.tests.core.res.Foo;
 
-import java.util.*;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.mvel2.MVEL.compileExpression;
 import static org.mvel2.MVEL.eval;
@@ -350,19 +356,22 @@ public class ControlFlowTests extends AbstractTest {
   public void testCalculateAge() {
     Calendar c1 = Calendar.getInstance();
     c1.set(1999,
-        0,
-        10); // 1999 jan 20
+            0,
+            10); // 1999 jan 20
     Map objectMap = new HashMap(1);
     Map propertyMap = new HashMap(1);
     propertyMap.put("GEBDAT",
-        c1.getTime());
+            c1.getTime());
     objectMap.put("EV_VI_ANT1",
-        propertyMap);
-    assertEquals("N",
-        testCompiledSimple(
-            "new org.mvel2.tests.core.res.PDFFieldUtil().calculateAge(EV_VI_ANT1.GEBDAT) >= 25 ? 'Y' : 'N'",
-            null,
-            objectMap));
+            propertyMap);
+    Calendar c2 = Calendar.getInstance();
+    c2.setTimeInMillis(System.currentTimeMillis());
+    String expectResult = c2.get(Calendar.YEAR) - c1.get(Calendar.YEAR) >= 25 ? "Y" : "N";
+    assertEquals(expectResult,
+            testCompiledSimple(
+                    "new org.mvel2.tests.core.res.PDFFieldUtil().calculateAge(EV_VI_ANT1.GEBDAT) >= 25 ? 'Y' : 'N'",
+                    null,
+                    objectMap));
   }
 
   public void testSubEvaluation() {
