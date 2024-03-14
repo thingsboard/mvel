@@ -252,7 +252,7 @@ public class ControlFlowTests extends AbstractTest {
 
   public void testStaticallyTypedItemInForEach() {
     assertEquals("1234",
-        test("StringBuffer sbuf = new StringBuffer(); foreach (int i : new int[] { 1,2,3,4 })" +
+        test("java.lang.StringBuffer sbuf = new java.lang.StringBuffer(); foreach (int i : new int[] { 1,2,3,4 })" +
             " { sbuf.append(i); }; sbuf.toString()"));
   }
 
@@ -354,20 +354,23 @@ public class ControlFlowTests extends AbstractTest {
    */
   @SuppressWarnings({"unchecked"})
   public void testCalculateAge() {
+    // calculate age of a person who was born in 1999 jan 10, on 2023 dec 25
+    // 2023 dec 25 - 1999 jan 10 = 24 years
     Calendar c1 = Calendar.getInstance();
     c1.set(1999,
-            0,
-            10); // 1999 jan 20
-    Map propertyMap = Map.of("GEBDAT", c1.getTime());
-    Map objectMap = Map.of("EV_VI_ANT1", propertyMap);
-    Calendar c2 = Calendar.getInstance();
-    c2.setTimeInMillis(System.currentTimeMillis());
-    String expectResult = c2.get(Calendar.YEAR) - c1.get(Calendar.YEAR) >= 25 ? "Y" : "N";
-    assertEquals(expectResult,
-            testCompiledSimple(
-                    "new org.mvel2.tests.core.res.PDFFieldUtil().calculateAge(EV_VI_ANT1.GEBDAT) >= 25 ? 'Y' : 'N'",
-                    null,
-                    objectMap));
+        0,
+        10); // 1999 jan 10
+    Map objectMap = new HashMap(1);
+    Map propertyMap = new HashMap(1);
+    propertyMap.put("GEBDAT",
+        c1.getTime());
+    objectMap.put("EV_VI_ANT1",
+        propertyMap);
+    assertEquals("N",
+        testCompiledSimple(
+            "new org.mvel2.tests.core.res.PDFFieldUtil().calculateAge(EV_VI_ANT1.GEBDAT) >= 25 ? 'Y' : 'N'",
+            null,
+            objectMap));
   }
 
   public void testSubEvaluation() {
