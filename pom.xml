@@ -5,7 +5,7 @@
     <groupId>org.thingsboard</groupId>
     <artifactId>tbel</artifactId>
     <packaging>jar</packaging>
-    <version>1.1.6</version>
+    <version>1.2.0</version>
 
     <name>tbel</name>
     <url>https://thingsboard.io/</url>
@@ -110,7 +110,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
-                    <release>11</release>
+                    <release>17</release>
                 </configuration>
             </plugin>
 
@@ -160,6 +160,9 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <doclint>-accessibility,-missing</doclint>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
