@@ -162,25 +162,25 @@ public class TbExpressionsTest extends TestCase {
     }
 
     public void testVariableScope() {
-       Object res = executeScript("var m = 25; " +
-                                   "function testFunc(a) {" +
-                                   "   function testFunc3(e) {" +
-                                   "       var m;" +
-                                   "       m = e + 5\n; " +
-                                   "       return m" +
-                                   "   };" +
-                                   "   var t = 2;\n" +
-                                   "   m = a * t;" +
-                                   "   return testFunc3(testFunc2(m + t));" +
-                                   "}" +
-                                   "function testFunc2(b) {" +
-                                   "   var c = 3;m = b * c; return m;" +
-                                   "}" +
-                                   "function testFunc4(m) {" +
-                                   "   return m * 2;" +
-                                   "}" +
-                                   "var m2 = m + testFunc(m); \n" +
-                                   "return testFunc4(m2)");
+        Object res = executeScript("var m = 25; " +
+                "function testFunc(a) {" +
+                "   function testFunc3(e) {" +
+                "       var m;" +
+                "       m = e + 5\n; " +
+                "       return m" +
+                "   };" +
+                "   var t = 2;\n" +
+                "   m = a * t;" +
+                "   return testFunc3(testFunc2(m + t));" +
+                "}" +
+                "function testFunc2(b) {" +
+                "   var c = 3;m = b * c; return m;" +
+                "}" +
+                "function testFunc4(m) {" +
+                "   return m * 2;" +
+                "}" +
+                "var m2 = m + testFunc(m); \n" +
+                "return testFunc4(m2)");
         assertTrue(res instanceof Integer);
         assertEquals((25 + ((25 * 2 + 2) * 3) + 5) * 2, res);
 
@@ -362,7 +362,7 @@ public class TbExpressionsTest extends TestCase {
         int argsLimit = 5;
         try {
             executeScript("var s = '%s'; for (var i = 0; i < 20; i++) { s = s + s; }\n\n" +
-                              "return '\\n12Result is :\\n' + String.format(s, s, s, s, s, s, s, " +
+                    "return '\\n12Result is :\\n' + String.format(s, s, s, s, s, s, s, " +
                     "s, s, s, s);", new HashMap(), new ExecutionContext(parserConfig, memoryLimit, argsLimit));
             fail("Should throw CompileException");
         } catch (CompileException e) {
@@ -572,13 +572,13 @@ public class TbExpressionsTest extends TestCase {
         assertNotNull(res);
         assertTrue(res instanceof List);
         assertEquals(1000, ((List<?>) res).size());
-        assertEquals((byte)1, ((List<?>) res).get(5));
-        assertEquals((byte)20, ((List<?>) res).get(500));
-        assertEquals((byte)0x0B, ((List<?>) res).get(40));
+        assertEquals((byte) 1, ((List<?>) res).get(5));
+        assertEquals((byte) 20, ((List<?>) res).get(500));
+        assertEquals((byte) 0x0B, ((List<?>) res).get(40));
         res = executeScript("var m = 'Hello world'; a = m.toCharArray(); a");
         assertNotNull(res);
         assertTrue(res instanceof List);
-        Object[] boxedArray = ((List)res).toArray();
+        Object[] boxedArray = ((List) res).toArray();
         int len = boxedArray.length;
         char[] array = new char[len];
         for (int i = 0; i < len; i++) {
@@ -605,7 +605,7 @@ public class TbExpressionsTest extends TestCase {
         assertEquals(25, res);
         res = executeScript("var a = (byte)0x0F; b = a << 24 >> 16; b");
         assertNotNull(res);
-        assertEquals((byte)0x0F << 24 >> 16, res);
+        assertEquals((byte) 0x0F << 24 >> 16, res);
     }
 
     public void testUnterminatedStatement() {
@@ -688,17 +688,17 @@ public class TbExpressionsTest extends TestCase {
         assertEquals("Not found!", res);
         res = executeScript("MyTestUtil.methodWithExecContext('key1', 'val1')");
         assertTrue(res instanceof Map);
-        assertEquals("val1", ((Map)res).get("key1"));
+        assertEquals("val1", ((Map) res).get("key1"));
         res = executeScript("MyTestUtil.methodWithExecContext2('key2', 'val2')");
         assertTrue(res instanceof Map);
-        assertEquals("val2", ((Map)res).get("key2"));
+        assertEquals("val2", ((Map) res).get("key2"));
         res = executeScript("MyTestUtil.methodWithExecContext3('key3', 'val3')");
         assertTrue(res instanceof Map);
-        assertEquals("val3", ((Map)res).get("key3"));
+        assertEquals("val3", ((Map) res).get("key3"));
         res = executeScript("MyTestUtil.methodWithExecContextVarArgs('a1', 'a2', 'a3', 'a4', 'a5')");
         assertTrue(res instanceof List);
-        assertEquals(5, ((List)res).size());
-        assertArrayEquals(new String[]{"a1", "a2", "a3", "a4", "a5"}, ((List)res).toArray(new String[5]));
+        assertEquals(5, ((List) res).size());
+        assertArrayEquals(new String[]{"a1", "a2", "a3", "a4", "a5"}, ((List) res).toArray(new String[5]));
     }
 
     public void testUseStaticMethodImport() throws Exception {
@@ -722,23 +722,23 @@ public class TbExpressionsTest extends TestCase {
                 String.class, Object.class, ExecutionContext.class)));
         res = executeScript("methodWithExecContext('key1', 'val1')");
         assertTrue(res instanceof Map);
-        assertEquals("val1", ((Map)res).get("key1"));
+        assertEquals("val1", ((Map) res).get("key1"));
         this.parserConfig.addImport("methodWithExecContext2", new MethodStub(TestUtil.class.getMethod("methodWithExecContext2",
                 String.class, ExecutionContext.class, Object.class)));
         res = executeScript("methodWithExecContext2('key2', 'val2')");
         assertTrue(res instanceof Map);
-        assertEquals("val2", ((Map)res).get("key2"));
+        assertEquals("val2", ((Map) res).get("key2"));
         this.parserConfig.addImport("methodWithExecContext3", new MethodStub(TestUtil.class.getMethod("methodWithExecContext3",
                 ExecutionContext.class, String.class, Object.class)));
         res = executeScript("methodWithExecContext3('key3', 'val3')");
         assertTrue(res instanceof Map);
-        assertEquals("val3", ((Map)res).get("key3"));
+        assertEquals("val3", ((Map) res).get("key3"));
         this.parserConfig.addImport("methodWithExecContextVarArgs", new MethodStub(TestUtil.class.getMethod("methodWithExecContextVarArgs",
                 ExecutionContext.class, Object[].class)));
         res = executeScript("methodWithExecContextVarArgs('a1', 'a2', 'a3', 'a4', 'a5')");
         assertTrue(res instanceof List);
-        assertEquals(5, ((List)res).size());
-        assertArrayEquals(new String[]{"a1", "a2", "a3", "a4", "a5"}, ((List)res).toArray(new String[5]));
+        assertEquals(5, ((List) res).size());
+        assertArrayEquals(new String[]{"a1", "a2", "a3", "a4", "a5"}, ((List) res).toArray(new String[5]));
     }
 
     public void testRegisterDataType() {
@@ -748,10 +748,10 @@ public class TbExpressionsTest extends TestCase {
         } catch (CompileException e) {
             Assert.assertTrue(e.getMessage().contains("could not resolve class: MyTest"));
         }
-        this.parserConfig.registerDataType("MyTest", MyTestClass.class, val -> (long)val.getValue().getBytes().length);
+        this.parserConfig.registerDataType("MyTest", MyTestClass.class, val -> (long) val.getValue().getBytes().length);
         Object res = executeScript("var t = new MyTest('test val'); t");
         assertTrue(res instanceof MyTestClass);
-        assertEquals("test val", ((MyTestClass)res).getValue());
+        assertEquals("test val", ((MyTestClass) res).getValue());
         try {
             executeScript("var t = new MyTest('test val'); t", new HashMap(), new ExecutionContext(parserConfig, 7));
             fail("Should throw ScriptMemoryOverflowException");
@@ -820,6 +820,7 @@ public class TbExpressionsTest extends TestCase {
         Object actual = executeScript(scriptBodyTestSwitchNodeStr);
         assertEquals(expected, actual);
     }
+
     public void testSwitchNodeStandardCaseTwoValue_Ok() {
         String scriptBodyTestSwitchNodeStr = "\n" +
                 "var msg = {};\n" +
@@ -842,6 +843,7 @@ public class TbExpressionsTest extends TestCase {
         Object actual = executeScript(scriptBodyTestSwitchNodeStr);
         assertEquals(expected, actual);
     }
+
     public void testSwitchNodeStandardDefault_Ok() {
         String scriptBodyTestSwitchNodeStr = "\n" +
                 "var msg = {};\n" +
@@ -864,6 +866,7 @@ public class TbExpressionsTest extends TestCase {
         Object actual = executeScript(scriptBodyTestSwitchNodeStr);
         assertEquals(expected, actual);
     }
+
     public void testSwitchNodeOnlyCase_Ok() {
         String scriptBodyTestSwitchNodeStr = "\n" +
                 "var msg = {};\n" +
@@ -954,7 +957,7 @@ public class TbExpressionsTest extends TestCase {
                 "}\n" +
                 "return {temp: msg.temperature};\n";
         LinkedHashMap<String, Double> expected = new LinkedHashMap<>();
-        Double dd = (105.6789 + 25)/2;
+        Double dd = (105.6789 + 25) / 2;
         expected.put("temp", dd);
         Object actual = executeScript(scriptBodyTestSwitchNodeStr);
         assertEquals(expected, actual);
@@ -1154,7 +1157,7 @@ public class TbExpressionsTest extends TestCase {
                 "}\n" +
                 "return {temp: msg.temperature};\n";
         LinkedHashMap<String, Double> expected = new LinkedHashMap<>();
-        Double dd = (105.6789 + 25)/2;
+        Double dd = (105.6789 + 25) / 2;
         expected.put("temp", dd);
         Object actual = executeScript(scriptBodyTestSwitchNodeStr);
         assertEquals(expected, actual);
@@ -1306,6 +1309,7 @@ public class TbExpressionsTest extends TestCase {
             assertTrue(e.getMessage().contains("after \"default\" expected ':' but encountered: r"));
         }
     }
+
     public void testSwitchNodeWithoutCaseWithDefault_Error() {
         try {
             String scriptBodyTestSwitchNodeStr = "\n" +
@@ -1341,6 +1345,7 @@ public class TbExpressionsTest extends TestCase {
             assertTrue(e.getMessage().contains("Switch without expression or not find start/end of switch block"));
         }
     }
+
     public void testSwitchNodeWithoutCaseAndDefault_Error() {
         try {
             String scriptBodyTestSwitchNodeStr = "\n" +
@@ -1358,6 +1363,7 @@ public class TbExpressionsTest extends TestCase {
             assertTrue(e.getMessage().contains("statement expected"));
         }
     }
+
     public void testSwitchNode_CaseWithoutSwitch_Error() {
         String scriptBodyTestSwitchNodeStr = "\n" +
                 "var msg = {};\n" +
@@ -1374,13 +1380,14 @@ public class TbExpressionsTest extends TestCase {
                 "\n" +
                 "}\n" +
                 "return {temp: msg.temperature};\n";
-        try{
+        try {
             executeScript(scriptBodyTestSwitchNodeStr);
             fail("Should throw CompileException");
         } catch (CompileException e) {
             assertTrue(e.getMessage().contains("case without switch"));
         }
     }
+
     public void testSwitchNodeDefaultWithoutCase_Error() {
         String scriptBodyTestSwitchNodeStr = "\n" +
                 "var msg = {};\n" +
@@ -1391,13 +1398,14 @@ public class TbExpressionsTest extends TestCase {
                 "\n" +
                 "}\n" +
                 "return {temp: msg.temperature};\n";
-        try{
+        try {
             executeScript(scriptBodyTestSwitchNodeStr);
             fail("Should throw CompileException");
         } catch (CompileException e) {
             assertTrue(e.getMessage().contains("statement expected"));
         }
     }
+
     public void testSwitchNodeDefaultWithoutSwitch_Error() {
         String scriptBodyTestSwitchNodeStr = "\n" +
                 "var msg = {};\n" +
@@ -1411,7 +1419,7 @@ public class TbExpressionsTest extends TestCase {
                 "\n" +
                 "}\n" +
                 "return {temp: msg.temperature};\n";
-        try{
+        try {
             executeScript(scriptBodyTestSwitchNodeStr);
             fail("Should throw CompileException");
         } catch (CompileException e) {
@@ -1422,38 +1430,39 @@ public class TbExpressionsTest extends TestCase {
     public void testForWithBreakInIf_OnlyBreak() {
         String scriptBodyTestForWithBreakInIfStr =
                 "var y = 0;\n" +
-                "for (int i =0; i< 100; i++) {\n" +
-                "        y=i;\n" +
-                "        if (i > 2) {\n" +
-                "            break;\n" +
-                "        }\n" +
-                "    }\n" +
-                "return {\n" +
-                "    msg: y\n" +
-                "};" ;
+                        "for (int i =0; i< 100; i++) {\n" +
+                        "        y=i;\n" +
+                        "        if (i > 2) {\n" +
+                        "            break;\n" +
+                        "        }\n" +
+                        "    }\n" +
+                        "return {\n" +
+                        "    msg: y\n" +
+                        "};";
         LinkedHashMap<String, Integer> expected = new LinkedHashMap<>();
         expected.put("msg", 3);
         Object actual = executeScript(scriptBodyTestForWithBreakInIfStr);
         assertEquals(expected, actual);
     }
+
     public void testForWithBreakInIf_Function() {
         String scriptBodyTestForWithBreakInIfStr =
                 "var input = [1, 2, 3, 4];\n" +
-                "var output = 10;\n" +
-                "forBreak();\n" +
-                "function forBreak() {\n" +
-                "    for (var i = 0; i < input.size; i++) {\n" +
-                "        output = i;\n" +
-                "        if (i === 1) {\n" +
-                "            output = input[i];\n" +
-                "            break;\n" +
-                "        }\n" +
-                "        output = i;\n" +
-                "    }\n" +
-                "}" +
-                 "return {\n" +
-                "    msg: output\n" +
-                "};\n" ;
+                        "var output = 10;\n" +
+                        "forBreak();\n" +
+                        "function forBreak() {\n" +
+                        "    for (var i = 0; i < input.size; i++) {\n" +
+                        "        output = i;\n" +
+                        "        if (i === 1) {\n" +
+                        "            output = input[i];\n" +
+                        "            break;\n" +
+                        "        }\n" +
+                        "        output = i;\n" +
+                        "    }\n" +
+                        "}" +
+                        "return {\n" +
+                        "    msg: output\n" +
+                        "};\n";
         LinkedHashMap<String, Integer> expected = new LinkedHashMap<>();
         expected.put("msg", 2);
         Object actual = executeScript(scriptBodyTestForWithBreakInIfStr);
@@ -1463,18 +1472,18 @@ public class TbExpressionsTest extends TestCase {
     public void testForWithBreakOneFor() {
         String scriptBodyTestForWithBreakInIfStr =
                 "var input = [-1, -7, -3, -4];\n" +
-                "var output = 9;\n" +
-                "for (var i = 0; i < input.size; i++) {\n" +
-                "    output = i * 10;\n" +
-                "    if (i === 3) {\n" +
-                "        output = input[i];\n" +
-                "        break;\n" +
-                "        output = i * 100;\n" +
-                "    }\n" +
-                "    output = i * 1000;\n" +
-                "}\n" +
-                "    output = output * 10000;\n" +
-                "return {msg: output};";
+                        "var output = 9;\n" +
+                        "for (var i = 0; i < input.size; i++) {\n" +
+                        "    output = i * 10;\n" +
+                        "    if (i === 3) {\n" +
+                        "        output = input[i];\n" +
+                        "        break;\n" +
+                        "        output = i * 100;\n" +
+                        "    }\n" +
+                        "    output = i * 1000;\n" +
+                        "}\n" +
+                        "    output = output * 10000;\n" +
+                        "return {msg: output};";
         LinkedHashMap<String, Integer> expected = new LinkedHashMap<>();
         expected.put("msg", -40000);
         Object actual = executeScript(scriptBodyTestForWithBreakInIfStr);
@@ -1484,29 +1493,29 @@ public class TbExpressionsTest extends TestCase {
     public void testForWithBreakIncludesForWithBreak() {
         String scriptBodyTestForWithBreakInIfStr =
                 "var input = [-1, -7, -3, -4];\n" +
-                "var output = 9;\n" +
-                "var outputY = 19;\n" +
-                "for (var i = 0; i < input.size; i++) {\n" +
-                "      output = i*10;\n" +
-                "    if (i === 2) {\n" +
-                "      output = input[i];\n" +
-                "      break;\n" +
-                "      output = i*100;\n" +
-                "    } else if ( i === 0) {\n" +
-                "      outputY = 19;\n" +
-                "      for (var y = 0; y < input.size; y++) {\n" +
-                "        outputY = y*10*2;\n" +
-                "        if (y === 1) {\n" +
-                "          outputY = input[y];\n" +
-                "          break;\n" +
-                "          outputY = y*100*2;\n" +
-                "        }\n" +
-                "        outputY = y*1000*2;\n" +
-                "      }\n" +
-                "    }\n" +
-                "    output = i*1000;\n" +
-                "}\n" +
-                "return {msg: [output, outputY]};";
+                        "var output = 9;\n" +
+                        "var outputY = 19;\n" +
+                        "for (var i = 0; i < input.size; i++) {\n" +
+                        "      output = i*10;\n" +
+                        "    if (i === 2) {\n" +
+                        "      output = input[i];\n" +
+                        "      break;\n" +
+                        "      output = i*100;\n" +
+                        "    } else if ( i === 0) {\n" +
+                        "      outputY = 19;\n" +
+                        "      for (var y = 0; y < input.size; y++) {\n" +
+                        "        outputY = y*10*2;\n" +
+                        "        if (y === 1) {\n" +
+                        "          outputY = input[y];\n" +
+                        "          break;\n" +
+                        "          outputY = y*100*2;\n" +
+                        "        }\n" +
+                        "        outputY = y*1000*2;\n" +
+                        "      }\n" +
+                        "    }\n" +
+                        "    output = i*1000;\n" +
+                        "}\n" +
+                        "return {msg: [output, outputY]};";
         LinkedHashMap<String, ArrayList<Integer>> expected = new LinkedHashMap<>();
         ArrayList<Integer> expIntList = new ArrayList<>();
         expIntList.add(-3);
@@ -1587,25 +1596,25 @@ public class TbExpressionsTest extends TestCase {
     public void testForeachWithBreakInIf_Function() {
         String scriptBodyTestForWithBreakInIfStr =
                 "var input = [-1, -2, -3, -4];\n" +
-                "var output = 10;\n" +
-                "var i = 0;\n" +
-                "forBreak();\n" +
-                "function forBreak() {\n" +
-                "    foreach(a: input) {\n" +
-                "        output = i;\n" +
-                "        if (i === 1) {\n" +
-                "            output = a;\n" +
-                "            break;\n" +
-                "        }\n" +
-                "        output = i;\n" +
-                "        i++;\n" +
-                "    }\n" +
-                "}" +
-                "return {\n" +
-                "    msg: output\n" +
-                "};\n" ;
+                        "var output = 10;\n" +
+                        "var i = 0;\n" +
+                        "forBreak();\n" +
+                        "function forBreak() {\n" +
+                        "    foreach(a: input) {\n" +
+                        "        output = i;\n" +
+                        "        if (i === 1) {\n" +
+                        "            output = a;\n" +
+                        "            break;\n" +
+                        "        }\n" +
+                        "        output = i;\n" +
+                        "        i++;\n" +
+                        "    }\n" +
+                        "}" +
+                        "return {\n" +
+                        "    msg: output\n" +
+                        "};\n";
         LinkedHashMap<String, Integer> expected = new LinkedHashMap<>();
-        expected.put("msg",-2);
+        expected.put("msg", -2);
         Object actual = executeScript(scriptBodyTestForWithBreakInIfStr);
         assertEquals(expected, actual);
     }
@@ -1613,22 +1622,22 @@ public class TbExpressionsTest extends TestCase {
     public void testWhileWithBreak() {
         String scriptBodyTestForWithBreakInIfStr =
                 "var input = [-1, -7, -3, -4];\n" +
-                "var output = -9;\n" +
-                "var i = 0;\n" +
-                "while (i < input.size()) {\n" +
-                   "    output = i * 10;\n" +
-                "    if (i === 1) {\n" +
-                "        output = input[i];\n" +
-                "        break;\n" +
-                "        output = i * 100;\n" +
-                "    }\n" +
-                "    i++;\n" +
-                "    output = i * 1000;\n" +
-                "}\n" +
-                "output = output * 4;\n" +
-                "return {\n" +
-                "    msg: [output, i]\n" +
-                "};";
+                        "var output = -9;\n" +
+                        "var i = 0;\n" +
+                        "while (i < input.size()) {\n" +
+                        "    output = i * 10;\n" +
+                        "    if (i === 1) {\n" +
+                        "        output = input[i];\n" +
+                        "        break;\n" +
+                        "        output = i * 100;\n" +
+                        "    }\n" +
+                        "    i++;\n" +
+                        "    output = i * 1000;\n" +
+                        "}\n" +
+                        "output = output * 4;\n" +
+                        "return {\n" +
+                        "    msg: [output, i]\n" +
+                        "};";
         LinkedHashMap<String, ArrayList<Integer>> expected = new LinkedHashMap<>();
         ArrayList<Integer> expIntList = new ArrayList<>();
         expIntList.add(-28);
@@ -1703,7 +1712,7 @@ public class TbExpressionsTest extends TestCase {
                         "}" +
                         "return {\n" +
                         "    msg: [output, i]\n" +
-                        "};\n" ;
+                        "};\n";
         LinkedHashMap<String, ArrayList<Integer>> expected = new LinkedHashMap<>();
         ArrayList<Integer> expIntList = new ArrayList<>();
         expIntList.add(-2);
@@ -1716,23 +1725,23 @@ public class TbExpressionsTest extends TestCase {
     public void testDoWithBreak() {
         String scriptBodyTestForWithBreakInIfStr =
                 "var input = [-1, -7, -3, -4];\n" +
-                "var output = -9;\n" +
-                "var i = 0;\n" +
-                "do {\n" +
-                   "    output = i * 10;\n" +
-                "    if (i === 1) {\n" +
-                "        output = input[i];\n" +
-                "        break;\n" +
-                "        output = i * 100;\n" +
-                "    }\n" +
-                "    i++;\n" +
-                "    output = i * 1000;\n" +
-                "}\n" +
-                "while (i < input.size()) \n" +
-                "output = output * 4;\n" +
-                "return {\n" +
-                "    msg: [output, i]\n" +
-                "};";
+                        "var output = -9;\n" +
+                        "var i = 0;\n" +
+                        "do {\n" +
+                        "    output = i * 10;\n" +
+                        "    if (i === 1) {\n" +
+                        "        output = input[i];\n" +
+                        "        break;\n" +
+                        "        output = i * 100;\n" +
+                        "    }\n" +
+                        "    i++;\n" +
+                        "    output = i * 1000;\n" +
+                        "}\n" +
+                        "while (i < input.size()) \n" +
+                        "output = output * 4;\n" +
+                        "return {\n" +
+                        "    msg: [output, i]\n" +
+                        "};";
         LinkedHashMap<String, ArrayList<Integer>> expected = new LinkedHashMap<>();
         ArrayList<Integer> expIntList = new ArrayList<>();
         expIntList.add(-28);
@@ -1810,7 +1819,7 @@ public class TbExpressionsTest extends TestCase {
                         "}" +
                         "return {\n" +
                         "    msg: [output, i]\n" +
-                        "};\n" ;
+                        "};\n";
         LinkedHashMap<String, ArrayList<Integer>> expected = new LinkedHashMap<>();
         ArrayList<Integer> expIntList = new ArrayList<>();
         expIntList.add(-2);
@@ -1823,23 +1832,23 @@ public class TbExpressionsTest extends TestCase {
     public void testDoUntilWithBreak() {
         String scriptBodyTestForWithBreakInIfStr =
                 "var input = [-1, -7, -3, -4];\n" +
-                "var output = -9;\n" +
-                "var i = 0;\n" +
-                "do {\n" +
-                "    output = i * 10;\n" +
-                "    if (i === 2) {\n" +
-                "        output = input[i];\n" +
-                "        break;\n" +
-                "        output = i * 100;\n" +
-                "    }\n" +
-                "    i++;\n" +
-                "    output = i * 1000;\n" +
-                "}\n" +
-                "until (i > input.size()) \n" +
-                "output = output * 4;\n" +
-                "return {\n" +
-                "    msg: [output, i]\n" +
-                "};";
+                        "var output = -9;\n" +
+                        "var i = 0;\n" +
+                        "do {\n" +
+                        "    output = i * 10;\n" +
+                        "    if (i === 2) {\n" +
+                        "        output = input[i];\n" +
+                        "        break;\n" +
+                        "        output = i * 100;\n" +
+                        "    }\n" +
+                        "    i++;\n" +
+                        "    output = i * 1000;\n" +
+                        "}\n" +
+                        "until (i > input.size()) \n" +
+                        "output = output * 4;\n" +
+                        "return {\n" +
+                        "    msg: [output, i]\n" +
+                        "};";
         LinkedHashMap<String, ArrayList<Integer>> expected = new LinkedHashMap<>();
         ArrayList<Integer> expIntList = new ArrayList<>();
         expIntList.add(-12);
@@ -1852,39 +1861,39 @@ public class TbExpressionsTest extends TestCase {
     public void testDoUntilWithBreakIncludesDoWithBreak() {
         String scriptBodyTestForWithBreakInIfStr =
                 "var input = [-1, -7, -3, -4];\n" +
-                "var output = -9;\n" +
-                "var outputY = -19;\n" +
-                "var i = 0;\n" +
-                "var y = 0;\n" +
-                "do {\n" +
-                "    output = i * 10;\n" +
-                "    if (i === 2) {\n" +
-                "        output = input[i];\n" +
-                "        break;\n" +
-                "        output = i * 100;\n" +
-                "    } else if (i === 0) {\n" +
-                "        outputY = -20;\n" +
-                "        y = 0;\n" +
-                "       do {\n" +
-                "            outputY = y * 10 * 2;\n" +
-                "            if (y === 1) {\n" +
-                "                outputY = input[y];\n" +
-                "                break;\n" +
-                "                outputY = y * 100 * 2;\n" +
-                "            }\n" +
-                "            outputY = y * 1000 * 2;\n" +
-                "            y++;\n" +
-                "       }\n" +
-                "       until (y > input.size()) \n" +
-                "    }\n" +
-                "    i++;\n" +
-                "    output = i * 1000;\n" +
-                "}\n" +
-                "until (i > input.size()) \n" +
-                "output = output * 4;\n" +
-                "return {\n" +
-                "    msg: [output, outputY, i, y]\n" +
-                "};";
+                        "var output = -9;\n" +
+                        "var outputY = -19;\n" +
+                        "var i = 0;\n" +
+                        "var y = 0;\n" +
+                        "do {\n" +
+                        "    output = i * 10;\n" +
+                        "    if (i === 2) {\n" +
+                        "        output = input[i];\n" +
+                        "        break;\n" +
+                        "        output = i * 100;\n" +
+                        "    } else if (i === 0) {\n" +
+                        "        outputY = -20;\n" +
+                        "        y = 0;\n" +
+                        "       do {\n" +
+                        "            outputY = y * 10 * 2;\n" +
+                        "            if (y === 1) {\n" +
+                        "                outputY = input[y];\n" +
+                        "                break;\n" +
+                        "                outputY = y * 100 * 2;\n" +
+                        "            }\n" +
+                        "            outputY = y * 1000 * 2;\n" +
+                        "            y++;\n" +
+                        "       }\n" +
+                        "       until (y > input.size()) \n" +
+                        "    }\n" +
+                        "    i++;\n" +
+                        "    output = i * 1000;\n" +
+                        "}\n" +
+                        "until (i > input.size()) \n" +
+                        "output = output * 4;\n" +
+                        "return {\n" +
+                        "    msg: [output, outputY, i, y]\n" +
+                        "};";
         LinkedHashMap<String, ArrayList<Integer>> expected = new LinkedHashMap<>();
         ArrayList<Integer> expIntList = new ArrayList<>();
         expIntList.add(-12);
@@ -1916,7 +1925,7 @@ public class TbExpressionsTest extends TestCase {
                         "}" +
                         "return {\n" +
                         "    msg: [output, i]\n" +
-                        "};\n" ;
+                        "};\n";
         LinkedHashMap<String, ArrayList<Integer>> expected = new LinkedHashMap<>();
         ArrayList<Integer> expIntList = new ArrayList<>();
         expIntList.add(-2);
@@ -1929,19 +1938,19 @@ public class TbExpressionsTest extends TestCase {
     public void testForVar_a_FunctionWithForVar_a() {
         String scriptBodyTestForWithBreakInIfStr =
                 "var output = 0;\n" +
-                "for (var a = 0; a < 10; a++) {\n" +
-                "    output = testBreak(output);\n" +
-                "}\n" +
-                "return {\n" +
-                "    msg: [output]\n" +
-                "};\n" +
-                "function testBreak(val) {\n" +
-                "    for (var a = 0; a< 9; a++) {\n" +
-                "        val++;\n" +
-                "    }\n" +
-                "    return val;\n" +
-                "}" +
-                "\n" ;
+                        "for (var a = 0; a < 10; a++) {\n" +
+                        "    output = testBreak(output);\n" +
+                        "}\n" +
+                        "return {\n" +
+                        "    msg: [output]\n" +
+                        "};\n" +
+                        "function testBreak(val) {\n" +
+                        "    for (var a = 0; a< 9; a++) {\n" +
+                        "        val++;\n" +
+                        "    }\n" +
+                        "    return val;\n" +
+                        "}" +
+                        "\n";
         LinkedHashMap<String, ArrayList<Integer>> expected = new LinkedHashMap<>();
         ArrayList<Integer> expIntList = new ArrayList<>();
         expIntList.add(90);
@@ -1953,13 +1962,13 @@ public class TbExpressionsTest extends TestCase {
     public void testLeve0ForVar_a_Level0_a_unresolvable() {
         String scriptBodyTestForWithBreakInIfStr =
                 "var output = 0;\n" +
-                "for (var a = 0; a < 10; a++) {\n" +
-                "}\n" +
-                "output = a;\n" +
-                "return {\n" +
-                "    msg: [output]\n" +
-                "};\n" +
-                "\n" ;
+                        "for (var a = 0; a < 10; a++) {\n" +
+                        "}\n" +
+                        "output = a;\n" +
+                        "return {\n" +
+                        "    msg: [output]\n" +
+                        "};\n" +
+                        "\n";
         try {
             executeScript(scriptBodyTestForWithBreakInIfStr);
             fail("Should throw PropertyAccessException");
@@ -1979,29 +1988,29 @@ public class TbExpressionsTest extends TestCase {
     public void testLeve0ForVar_a_And_FunctionWithForVar_a_Function_Calling_Level0() {
         String scriptBodyTestForWithBreakInIfStr =
                 "var output = 0;\n" +
-                "output = testBreak(output);\n" +
-                "for (var a = 0; a < 10; a++) {\n" +
-                "}\n" +
-                "for (var y = 0; y < 2; y++) {\n" +
-                "        output++;\n" +
-                "}\n" +
-                "for (var r = 0; r < 10; r++) {\n" +
-                "}\n" +
-                "return {\n" +
-                "    msg: [output]\n" +
-                "};\n" +
-                "function testBreak(val) {\n" +
-                "    var b = 45;\n" +
-                "    for (var r = 0; r < 5; r++) {\n" +
-                "        output++;\n" +
-                "    }\n" +
-                "    val = output;\n" +
-                "    for (var a = 0; a < 9; a++) {\n" +
-                "        val++;\n" +
-                "    }\n" +
-                "    return val;\n" +
-                "}" +
-                "\n" ;
+                        "output = testBreak(output);\n" +
+                        "for (var a = 0; a < 10; a++) {\n" +
+                        "}\n" +
+                        "for (var y = 0; y < 2; y++) {\n" +
+                        "        output++;\n" +
+                        "}\n" +
+                        "for (var r = 0; r < 10; r++) {\n" +
+                        "}\n" +
+                        "return {\n" +
+                        "    msg: [output]\n" +
+                        "};\n" +
+                        "function testBreak(val) {\n" +
+                        "    var b = 45;\n" +
+                        "    for (var r = 0; r < 5; r++) {\n" +
+                        "        output++;\n" +
+                        "    }\n" +
+                        "    val = output;\n" +
+                        "    for (var a = 0; a < 9; a++) {\n" +
+                        "        val++;\n" +
+                        "    }\n" +
+                        "    return val;\n" +
+                        "}" +
+                        "\n";
         LinkedHashMap<String, ArrayList<Integer>> expected = new LinkedHashMap<>();
         ArrayList<Integer> expIntList = new ArrayList<>();
         expIntList.add(16);
@@ -2020,19 +2029,19 @@ public class TbExpressionsTest extends TestCase {
     public void testOneNameVar_In_Another_Procedure_NotTimeout() {
         String scriptBodyTestForWithBreakInIfStr =
                 "var output = 0;\n" +
-                "for (var a = 0; a < 100; a++) {\n" +
-                "    output = testBug(output);\n" +
-                "}\n" +
-                "output = testBug(output);\n" +
-                "return {\n" +
-                "    msg: [output]\n" +
-                "};\n" +
-                "function testBug(val) {\n" +
-                "    for (var a = 0; a < 9; a++) {\n" +
-                "        val++;\n" +
-                "    }\n" +
-                "    return val;\n" +
-                "}" ;
+                        "for (var a = 0; a < 100; a++) {\n" +
+                        "    output = testBug(output);\n" +
+                        "}\n" +
+                        "output = testBug(output);\n" +
+                        "return {\n" +
+                        "    msg: [output]\n" +
+                        "};\n" +
+                        "function testBug(val) {\n" +
+                        "    for (var a = 0; a < 9; a++) {\n" +
+                        "        val++;\n" +
+                        "    }\n" +
+                        "    return val;\n" +
+                        "}";
         LinkedHashMap<String, ArrayList<Integer>> expected = new LinkedHashMap<>();
         ArrayList<Integer> expIntList = new ArrayList<>();
         expIntList.add(909);
@@ -2079,7 +2088,7 @@ public class TbExpressionsTest extends TestCase {
         assertEquals(6, result);
     }
 
-   public void testInnerFunctionWhileReturn() {
+    public void testInnerFunctionWhileReturn() {
         String body = "var output = 0;\n" +
                 "\n" +
                 "output = testBug(output);\n" +
@@ -2120,27 +2129,9 @@ public class TbExpressionsTest extends TestCase {
         assertEquals(6, result);
     }
 
-    public void testIntegerToLongFromJson() {
-        Integer sunriseValueOld = 1695435081;
-        Long sunriseValueNew = Long.valueOf(sunriseValueOld) * 1000;
-        String sunriseName = "sunrise";
-        LinkedHashMap<String, LinkedHashMap> vars = new LinkedHashMap<>();
-        LinkedHashMap<String, Integer> msg = new LinkedHashMap<>();
-
-        msg.put("sys", sunriseValueOld);
-        vars.put("msg", msg);
-        String body = "var time = msg.sys * 1000;\n" +
-                "msg."  + sunriseName +  " = time;\n" +
-                "return {\"msg\": msg};";
-        Object actual = executeScript(body, vars);
-
-        LinkedHashMap<String, LinkedHashMap> expected = vars;
-        expected.get("msg").put(sunriseName, sunriseValueNew);
-        assertEquals(expected, actual);
-    }
-    public void testIntegerToIntegerFromJson() {
-        Integer sunriseValueOld = 169543;
-        Integer sunriseValueNew = sunriseValueOld * 10;
+    public void testIntegerToIntegerFromJson_OperationMULT_If_result_More_Integer_MIN_VALUE_And_Lees_Integer_MAX_VALUE() {
+        Integer sunriseValueOld = Integer.MAX_VALUE / 20;
+        Integer sunriseValueNew = Integer.valueOf(sunriseValueOld) * 10;
         String sunriseName = "sunrise";
         LinkedHashMap<String, LinkedHashMap> vars = new LinkedHashMap<>();
         LinkedHashMap<String, Integer> msg = new LinkedHashMap<>();
@@ -2148,75 +2139,221 @@ public class TbExpressionsTest extends TestCase {
         msg.put("sys", sunriseValueOld);
         vars.put("msg", msg);
         String body = "var time = msg.sys * 10;\n" +
-                "msg."  + sunriseName +  " = time;\n" +
+                "msg." + sunriseName + " = time;\n" +
                 "return {\"msg\": msg};";
         Object actual = executeScript(body, vars);
 
         LinkedHashMap<String, LinkedHashMap> expected = vars;
         expected.get("msg").put(sunriseName, sunriseValueNew);
         assertEquals(expected, actual);
-    }
-    public void testIntegerAsObjectToLongFromJson_Ok() {
-        Integer sunriseValueOld = 1695435081;
-        Long sunriseValueNew = Long.valueOf(sunriseValueOld) * 1000;
-        String sunriseName = "sunrise";
-        LinkedHashMap<String, LinkedHashMap> vars = new LinkedHashMap<>();
-        LinkedHashMap<String, Integer> msg = new LinkedHashMap<>();
 
-        msg.put("sys", (Integer) sunriseValueOld);
+        sunriseValueOld = Integer.MIN_VALUE / 20;
+        sunriseValueNew = Integer.valueOf(sunriseValueOld) * 10;
+        vars = new LinkedHashMap<>();
+        msg = new LinkedHashMap<>();
+
+        msg.put("sys", sunriseValueOld);
         vars.put("msg", msg);
-        String body = "var time = " + sunriseValueOld + " * 1000;\n" +
-                "msg."  + sunriseName +  " = time;\n" +
+        body = "var time = msg.sys * 10;\n" +
+                "msg." + sunriseName + " = time;\n" +
                 "return {\"msg\": msg};";
-        Object actual = executeScript(body, vars);
-
-        LinkedHashMap<String, LinkedHashMap> expected = vars;
-        expected.get("msg").put(sunriseName, sunriseValueNew);
-        assertEquals(expected, actual);
-    }
-    public void testIntegerAsObjectToLongFromJson_If_result_less_Integer_MIN_VALUE() {
-        Integer sunriseValueOld = -1695435081;
-        Long sunriseValueNew = Long.valueOf(sunriseValueOld) * -1000;
-        String sunriseName = "sunrise";
-        LinkedHashMap<String, LinkedHashMap> vars = new LinkedHashMap<>();
-        LinkedHashMap<String, Integer> msg = new LinkedHashMap<>();
-
-        msg.put("sys", (Integer) sunriseValueOld);
-        vars.put("msg", msg);
-        String body = "var time = " + sunriseValueOld + " * -1000;\n" +
-                "msg."  + sunriseName +  " = time;\n" +
-                "return {\"msg\": msg};";
-        Object actual = executeScript(body, vars);
-
-        LinkedHashMap<String, LinkedHashMap> expected = vars;
+        actual = executeScript(body, vars);
+        expected = vars;
         expected.get("msg").put(sunriseName, sunriseValueNew);
         assertEquals(expected, actual);
     }
 
-   public void testIntegerToIntegerFromJson_If_result_less_Integer_MIN_VALUE() {
-
-        Integer sunriseValueOld = -1695435081;
+    public void testIntegerToLongFromJson_OperationMULT_If_result_less_Integer_MIN_VALUE() {
+        Integer sunriseValueOld = Integer.MIN_VALUE;
         Long sunriseValueNew = Long.valueOf(sunriseValueOld) * 10000;
         String sunriseName = "sunrise";
         LinkedHashMap<String, LinkedHashMap> vars = new LinkedHashMap<>();
         LinkedHashMap<String, Integer> msg = new LinkedHashMap<>();
 
         msg.put("sys", sunriseValueOld);
-       vars.put("msg", msg);
-       String body = "var time = msg.sys * 10000;\n" +
-               "msg." + sunriseName + " = time;\n" +
-               "return {\"msg\": msg};";
-       Object actual = executeScript(body, vars);
+        vars.put("msg", msg);
+        String body = "var time = msg.sys * 10000;\n" +
+                "msg." + sunriseName + " = time;\n" +
+                "return {\"msg\": msg};";
+        Object actual = executeScript(body, vars);
 
-       LinkedHashMap<String, LinkedHashMap> expected = vars;
-       expected.get("msg").put(sunriseName, sunriseValueNew);
-       assertEquals(expected, actual);
-   }
+        LinkedHashMap<String, LinkedHashMap> expected = vars;
+        expected.get("msg").put(sunriseName, sunriseValueNew);
+        assertEquals(expected, actual);
+    }
+
+    public void testIntegerToLongFromJson_OperationMULT_If_result_more_Integer_MAX_VALUE() {
+        Integer sunriseValueOld = Integer.MAX_VALUE;
+        Long sunriseValueNew = Long.valueOf(sunriseValueOld) * 10000;
+        String sunriseName = "sunrise";
+        LinkedHashMap<String, LinkedHashMap> vars = new LinkedHashMap<>();
+        LinkedHashMap<String, Integer> msg = new LinkedHashMap<>();
+
+        msg.put("sys", sunriseValueOld);
+        vars.put("msg", msg);
+        String body = "var time = msg.sys * 10000;\n" +
+                "msg." + sunriseName + " = time;\n" +
+                "return {\"msg\": msg};";
+        Object actual = executeScript(body, vars);
+
+        LinkedHashMap<String, LinkedHashMap> expected = vars;
+        expected.get("msg").put(sunriseName, sunriseValueNew);
+        assertEquals(expected, actual);
+    }
+
+    public void testIntegerToIntegerFromJson_OperationADD_If_result_More_Integer_MIN_VALUE_And_Lees_Integer_MAX_VALUE() {
+        Integer sunriseValueOld = Integer.MAX_VALUE - 20;
+        Integer sunriseValueNew = Integer.valueOf(sunriseValueOld) + 10;
+        String sunriseName = "sunrise";
+        LinkedHashMap<String, LinkedHashMap> vars = new LinkedHashMap<>();
+        LinkedHashMap<String, Integer> msg = new LinkedHashMap<>();
+
+        msg.put("sys", sunriseValueOld);
+        vars.put("msg", msg);
+        String body = "var time = msg.sys + 10;\n" +
+                "msg." + sunriseName + " = time;\n" +
+                "return {\"msg\": msg};";
+        Object actual = executeScript(body, vars);
+
+        LinkedHashMap<String, LinkedHashMap> expected = vars;
+        expected.get("msg").put(sunriseName, sunriseValueNew);
+        assertEquals(expected, actual);
+
+        sunriseValueOld = Integer.MIN_VALUE;
+        sunriseValueNew = Integer.valueOf(sunriseValueOld) + 10;
+        vars = new LinkedHashMap<>();
+        msg = new LinkedHashMap<>();
+
+        msg.put("sys", sunriseValueOld);
+        vars.put("msg", msg);
+        body = "var time = msg.sys + 10;\n" +
+                "msg." + sunriseName + " = time;\n" +
+                "return {\"msg\": msg};";
+        actual = executeScript(body, vars);
+        expected = vars;
+        expected.get("msg").put(sunriseName, sunriseValueNew);
+        assertEquals(expected, actual);
+    }
+
+    public void testIntegerToLongFromJson_OperationADD_If_result_more_Integer_MAX_VALUE() {
+        Integer sunriseValueOld = Integer.MAX_VALUE;
+        Long sunriseValueNew = Long.valueOf(sunriseValueOld) + 10;
+        String sunriseName = "sunrise";
+        LinkedHashMap<String, LinkedHashMap> vars = new LinkedHashMap<>();
+        LinkedHashMap<String, Integer> msg = new LinkedHashMap<>();
+
+        msg.put("sys", sunriseValueOld);
+        vars.put("msg", msg);
+        String body = "var time = msg.sys + 10;\n" +
+                "msg." + sunriseName + " = time;\n" +
+                "return {\"msg\": msg};";
+        Object actual = executeScript(body, vars);
+
+        LinkedHashMap<String, LinkedHashMap> expected = vars;
+        expected.get("msg").put(sunriseName, sunriseValueNew);
+        assertEquals(expected, actual);
+    }
+
+    public void testIntegerToLongFromJson_OperationADD_If_result_lees_Integer_MIN_VALUE() {
+        Integer sunriseValueOld = Integer.MIN_VALUE;
+        Integer addValue = -10;
+        Long sunriseValueNew = Long.valueOf(sunriseValueOld) + addValue;
+        String sunriseName = "sunrise";
+        LinkedHashMap<String, LinkedHashMap> vars = new LinkedHashMap<>();
+        LinkedHashMap<String, Integer> msg = new LinkedHashMap<>();
+
+        msg.put("sys", sunriseValueOld);
+        vars.put("msg", msg);
+        String body = "var addValue = -10;\n" +
+                "var time = msg.sys + addValue;\n" +
+                "msg." + sunriseName + " = time;\n" +
+                "return {\"msg\": msg};";
+        Object actual = executeScript(body, vars);
+
+        LinkedHashMap<String, LinkedHashMap> expected = vars;
+        expected.get("msg").put(sunriseName, sunriseValueNew);
+        assertEquals(expected, actual);
+    }
+
+    public void testIntegerToIntegerFromJson_OperationSUB_If_result_More_Integer_MIN_VALUE_And_Lees_Integer_MAX_VALUE() {
+        Integer sunriseValueOld = Integer.MAX_VALUE;
+        Integer sunriseValueNew = Integer.valueOf(sunriseValueOld) - 10;
+        String sunriseName = "sunrise";
+        LinkedHashMap<String, LinkedHashMap> vars = new LinkedHashMap<>();
+        LinkedHashMap<String, Integer> msg = new LinkedHashMap<>();
+
+        msg.put("sys", sunriseValueOld);
+        vars.put("msg", msg);
+        String body = "var time = msg.sys - 10;\n" +
+                "msg." + sunriseName + " = time;\n" +
+                "return {\"msg\": msg};";
+        Object actual = executeScript(body, vars);
+
+        LinkedHashMap<String, LinkedHashMap> expected = vars;
+        expected.get("msg").put(sunriseName, sunriseValueNew);
+        assertEquals(expected, actual);
+
+        sunriseValueOld = Integer.MIN_VALUE + 20;
+        sunriseValueNew = Integer.valueOf(sunriseValueOld) - 10;
+        vars = new LinkedHashMap<>();
+        msg = new LinkedHashMap<>();
+
+        msg.put("sys", sunriseValueOld);
+        vars.put("msg", msg);
+        body = "var time = msg.sys - 10;\n" +
+                "msg." + sunriseName + " = time;\n" +
+                "return {\"msg\": msg};";
+        actual = executeScript(body, vars);
+        expected = vars;
+        expected.get("msg").put(sunriseName, sunriseValueNew);
+        assertEquals(expected, actual);
+    }
+
+    public void testIntegerToLongFromJson_OperationSUB_If_result_more_Integer_MAX_VALUE() {
+        Integer sunriseValueOld = Integer.MAX_VALUE;
+        Integer addValue = -10;
+        Long sunriseValueNew = Long.valueOf(sunriseValueOld) - addValue;
+        String sunriseName = "sunrise";
+        LinkedHashMap<String, LinkedHashMap> vars = new LinkedHashMap<>();
+        LinkedHashMap<String, Integer> msg = new LinkedHashMap<>();
+
+        msg.put("sys", sunriseValueOld);
+        vars.put("msg", msg);
+        String body = "var addValue = -10;\n" +
+                "var time = msg.sys - addValue;\n" +
+                "msg." + sunriseName + " = time;\n" +
+                "return {\"msg\": msg};";
+        Object actual = executeScript(body, vars);
+
+        LinkedHashMap<String, LinkedHashMap> expected = vars;
+        expected.get("msg").put(sunriseName, sunriseValueNew);
+        assertEquals(expected, actual);
+    }
+
+    public void testIntegerToLongFromJson_OperationSUB_If_result_lees_Integer_MIN_VALUE() {
+        Integer sunriseValueOld = Integer.MIN_VALUE;
+        Long sunriseValueNew = Long.valueOf(sunriseValueOld) - 10;
+        String sunriseName = "sunrise";
+        LinkedHashMap<String, LinkedHashMap> vars = new LinkedHashMap<>();
+        LinkedHashMap<String, Integer> msg = new LinkedHashMap<>();
+
+        msg.put("sys", sunriseValueOld);
+        vars.put("msg", msg);
+        String body = "var time = msg.sys - 10;\n" +
+                "msg." + sunriseName + " = time;\n" +
+                "return {\"msg\": msg};";
+        Object actual = executeScript(body, vars);
+
+        LinkedHashMap<String, LinkedHashMap> expected = vars;
+        expected.get("msg").put(sunriseName, sunriseValueNew);
+        assertEquals(expected, actual);
+    }
+
 
     public void testExecutionArrayListToString() {
         String body = "var list = ['hello', 34567];\n" +
-                      "var res = '' + list;\n" +
-                      "return res;";
+                "var res = '' + list;\n" +
+                "return res;";
         Object result = executeScript(body);
         assertTrue(result instanceof String);
         assertEquals("[hello, 34567]", result);
@@ -2252,7 +2389,7 @@ public class TbExpressionsTest extends TestCase {
 
     public void testExecutionHashMapToString() {
         String body = "var map = {hello: 'world', testmap: 'toString'};\n" +
-                      "return '' + map;";
+                "return '' + map;";
         Object result = executeScript(body);
         assertTrue(result instanceof String);
         assertEquals("{hello=world, testmap=toString}", result);
@@ -2260,12 +2397,12 @@ public class TbExpressionsTest extends TestCase {
 
     public void testExecutionHashMapKeys() {
         String body = "var map = {hello: 'world', testmap: 'toString'};\n" +
-                      "return map.keys();";
+                "return map.keys();";
         Object result = executeScript(body);
         assertTrue(result instanceof List);
-        assertEquals(2, ((List)result).size());
-        assertEquals("hello", ((List)result).get(0));
-        assertEquals("testmap", ((List)result).get(1));
+        assertEquals(2, ((List) result).size());
+        assertEquals("hello", ((List) result).get(0));
+        assertEquals("testmap", ((List) result).get(1));
     }
 
     public void testExecutionHashMapValues() {
@@ -3531,6 +3668,7 @@ public class TbExpressionsTest extends TestCase {
 
     public static final class MyTestClass {
         private final String innerValue;
+
         public MyTestClass(String val) {
             this.innerValue = val;
         }
