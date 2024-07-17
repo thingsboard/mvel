@@ -3591,6 +3591,80 @@ public class TbExpressionsTest extends TestCase {
         assertEquals(expectedArray, actualArray);
     }
 
+    public void testExpectType_InputKnownEgressTypeAsInterface() {
+        String body = "var newMsg = {\n" +
+                "    \"entityFilter\": {\n" +
+                "        \"type\": \"entityType\",\n" +
+                "        \"resolveMultiple\": true,\n" +
+                "        \"entityType\": \"DEVICE\"\n" +
+                "    },\n" +
+                "    \"pageLink\": {\n" +
+                "        \"page\": 0,\n" +
+                "        \"pageSize\": 10,\n" +
+                "        \"textSearch\": null,\n" +
+                "        \"dynamic\": true,\n" +
+                "        \"sortOrder\": {\n" +
+                "            \"key\": {\n" +
+                "                \"key\": \"name\",\n" +
+                "                \"type\": \"ENTITY_FIELD\"\n" +
+                "            },\n" +
+                "            \"direction\": \"ASC\"\n" +
+                "        }\n" +
+                "    },\n" +
+                "    \"keyFilters\": [{\n" +
+                "        \"key\": {\n" +
+                "            \"type\": \"ATTRIBUTE\",\n" +
+                "            \"key\": \"active\"\n" +
+                "        },\n" +
+                "        \"valueType\": \"BOOLEAN\",\n" +
+                "        \"predicate\": {\n" +
+                "            \"operation\": \"EQUAL\",\n" +
+                "            \"value\": {\n" +
+                "                \"defaultValue\": true,\n" +
+                "                \"dynamicValue\": null\n" +
+                "            },\n" +
+                "            \"type\": \"BOOLEAN\"\n" +
+                "        }\n" +
+                "    }]\n" +
+                "};\n" +
+                "return {\n" +
+                "    msg: newMsg\n" +
+                "};";
+        Object result = executeScript(body);
+        String actual = result.toString();
+        String expected = "{msg={" +
+                "entityFilter={" +
+                "type=entityType, " +
+                "resolveMultiple=true, entityType=DEVICE}, " +
+                "pageLink={page=0, pageSize=10, " +
+                "dynamic=true, " +
+                "sortOrder={" +
+                "key={" +
+                "key=name, type=ENTITY_FIELD" +
+                "}, " +
+                "direction=ASC" +
+                "}" +
+                "}, " +
+                "keyFilters=[" +
+                "{" +
+                "key={" +
+                "type=ATTRIBUTE, key=active" +
+                "}, " +
+                "valueType=BOOLEAN, " +
+                "predicate={" +
+                "operation=EQUAL, " +
+                "value={" +
+                "defaultValue=true" +
+                "}, " +
+                "type=BOOLEAN" +
+                "}" +
+                "}" +
+                "]" +
+                "}" +
+                "}";
+        assertEquals(expected, actual);
+    }
+
     private Object executeScript(String ex, Map vars, ExecutionContext executionContext, long timeoutMs) throws Exception {
         final CountDownLatch countDown = new CountDownLatch(1);
         AtomicReference<Object> result = new AtomicReference<>();
