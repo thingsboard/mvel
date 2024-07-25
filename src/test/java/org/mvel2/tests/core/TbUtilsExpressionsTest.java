@@ -94,7 +94,6 @@ public class TbUtilsExpressionsTest extends TestCase {
     }
 
     public void testSHexToBytes_InFunction_Ok() throws Exception {
-        String expectedStr = "{\"hello\": \"world\"}";
         String scriptBody = "var data = frm();\n" +
                 "function frm(){\n" +
                 "    var out = {};\n" +
