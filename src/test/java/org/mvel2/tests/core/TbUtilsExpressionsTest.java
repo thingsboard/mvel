@@ -27,6 +27,10 @@ public class TbUtilsExpressionsTest extends TestCase {
 
     private SandboxedParserConfiguration parserConfig;
 
+    private static final int BYTES_LEN_LONG_MAX = 8;
+
+    private static final int HEX_RADIX = 16;
+
     @Override
     protected void setUp() throws Exception {
         OptimizerFactory.setDefaultOptimizer(OptimizerFactory.SAFE_REFLECTIVE);
@@ -89,6 +93,28 @@ public class TbUtilsExpressionsTest extends TestCase {
         }
     }
 
+    public void testSHexToBytes_InFunction_Ok() throws Exception {
+        String expectedStr = "{\"hello\": \"world\"}";
+        String scriptBody = "var data = frm();\n" +
+                "function frm(){\n" +
+                "    var out = {};\n" +
+                "    out.bb = hexToBytes(\"0x01752B0367FA000500010488FFFFFFFFFFFFFFFF33\");\n" +
+                "    return out;\n" +
+                "}\n" +
+                "var result = {\n" +
+                "   msg: data\n" +
+                "};\n" +
+                "return result;";
+        LinkedHashMap<String, LinkedHashMap<String, List<Byte>>> expected = new LinkedHashMap<>();
+        byte[] expectedBytes = {1, 117, 43, 3, 103, -6, 0, 5, 0, 1, 4, -120, -1, -1, -1, -1, -1, -1, -1, -1, 51};
+        List<Byte> expBytesToList = bytesToList(expectedBytes);
+        LinkedHashMap<String, List<Byte>> expIntList = new LinkedHashMap<>();
+        expIntList.put("bb", expBytesToList);
+        expected.put("msg", expIntList);
+        Object actual = executeScript(scriptBody);
+        assertEquals(expected, actual);
+    }
+
     private Object executeScript(String ex) {
         return executeScript(ex, new HashMap());
     }
@@ -120,6 +146,8 @@ public class TbUtilsExpressionsTest extends TestCase {
             parserConfig.addImport("stringToBytes", new MethodStub(TbUtils.class.getMethod("stringToBytes",
                     ExecutionContext.class, Object.class, String.class)));
             parserConfig.registerNonConvertableMethods(TbUtils.class, Collections.singleton("stringToBytes"));
+            parserConfig.addImport("hexToBytes", new MethodStub(TbUtils.class.getMethod("hexToBytes",
+                    ExecutionContext.class, String.class)));
         }
 
         public static List<Byte> stringToBytes(ExecutionContext ctx, Object str) throws IllegalAccessException {
@@ -140,12 +168,63 @@ public class TbUtilsExpressionsTest extends TestCase {
             }
         }
 
+        public static ExecutionArrayList<Byte> hexToBytes(ExecutionContext ctx, String value) {
+            String hex = prepareNumberString(value, true);
+            int len = hex.length();
+            if (len % 2 > 0) {
+                throw new IllegalArgumentException("Hex string must be even-length.");
+            }
+            ExecutionArrayList<Byte> data = new ExecutionArrayList<>(ctx);
+            for (int i = 0; i < hex.length(); i += 2) {
+                // Extract two characters from the hex string
+                String byteString = hex.substring(i, i + 2);
+                // Parse the hex string to a byte
+                byte byteValue = (byte) Integer.parseInt(byteString, HEX_RADIX);
+                // Add the byte to the ArrayList
+                data.add(byteValue);
+            }
+            return data;
+        }
+
         private static List<Byte> bytesToList(ExecutionContext ctx, byte[] bytes) {
             List<Byte> list = new ExecutionArrayList<>(ctx);
             for (byte aByte : bytes) {
                 list.add(aByte);
             }
             return list;
+        }
+
+        private static String prepareNumberString(String value, boolean bigEndian) {
+            if (isNotBlank(value)) {
+                value = value.trim();
+                value = value.replace("0x", "");
+                value = value.replace("0X", "");
+                value = value.replace(",", ".");
+                return bigEndian ? value : reverseHexStringByOrder(value);
+            }
+            return null;
+        }
+
+        private static boolean isNotBlank(String source) {
+            return source != null && !source.isEmpty() && !source.trim().isEmpty();
+        }
+
+        private static String reverseHexStringByOrder(String value) {
+            if (value.startsWith("-")) {
+                throw new IllegalArgumentException("The hexadecimal string must be without a negative sign.");
+            }
+            boolean isHexPref = value.startsWith("0x");
+            String hex = isHexPref ? value.substring(2) : value;
+            if (hex.length() % 2 > 0) {
+                throw new IllegalArgumentException("The hexadecimal string must be even-length.");
+            }
+            // Split the hex string into bytes (2 characters each)
+            StringBuilder reversedHex = new StringBuilder(BYTES_LEN_LONG_MAX);
+            for (int i = hex.length() - 2; i >= 0; i -= 2) {
+                reversedHex.append(hex, i, i + 2);
+            }
+            String result = reversedHex.toString();
+            return isHexPref ? "0x" + result : result;
         }
 
     }
