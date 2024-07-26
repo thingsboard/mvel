@@ -18,6 +18,18 @@
 
 package org.mvel2.compiler;
 
+import org.mvel2.CompileException;
+import org.mvel2.ErrorDetail;
+import org.mvel2.MVEL;
+import org.mvel2.ParserContext;
+import org.mvel2.ast.Function;
+import org.mvel2.optimizers.AbstractOptimizer;
+import org.mvel2.optimizers.impl.refl.nodes.WithAccessor;
+import org.mvel2.util.ErrorUtil;
+import org.mvel2.util.NullType;
+import org.mvel2.util.ParseTools;
+import org.mvel2.util.StringAppender;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericDeclaration;
 import java.lang.reflect.Member;
@@ -34,19 +46,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.mvel2.CompileException;
-import org.mvel2.ErrorDetail;
-import org.mvel2.MVEL;
-import org.mvel2.ParserContext;
-import org.mvel2.ast.Function;
-import org.mvel2.optimizers.AbstractOptimizer;
-import org.mvel2.optimizers.impl.refl.nodes.WithAccessor;
-import org.mvel2.util.ErrorUtil;
-import org.mvel2.util.NullType;
-import org.mvel2.util.ParseTools;
-import org.mvel2.util.StringAppender;
-
-import static org.mvel2.util.ParseTools.*;
+import static org.mvel2.util.ParseTools.balancedCapture;
+import static org.mvel2.util.ParseTools.balancedCaptureWithLineAccounting;
+import static org.mvel2.util.ParseTools.findClass;
+import static org.mvel2.util.ParseTools.getBestCandidate;
+import static org.mvel2.util.ParseTools.getSubComponentType;
+import static org.mvel2.util.ParseTools.parseParameterList;
 import static org.mvel2.util.PropertyTools.getFieldOrAccessor;
 
 /**
@@ -191,7 +196,6 @@ public class PropertyVerifier extends AbstractOptimizer {
     }
 
     st = cursor;
-    boolean switchStateReg;
 
     Member member = ctx != null ? getFieldOrAccessor(ctx, property) : null;
 
@@ -243,9 +247,9 @@ public class PropertyVerifier extends AbstractOptimizer {
     }
 
     if (pCtx != null && pCtx.getLastTypeParameters() != null && pCtx.getLastTypeParameters().length != 0
-        && ((Collection.class.isAssignableFrom(ctx) && !(switchStateReg = false))
-        || (Map.class.isAssignableFrom(ctx) && (switchStateReg = true)))) {
-      Type parm = pCtx.getLastTypeParameters()[switchStateReg ? 1 : 0];
+            && (Collection.class.isAssignableFrom(ctx)
+            || Map.class.isAssignableFrom(ctx))) {
+      Type parm = pCtx.getLastTypeParameters()[0];
       pCtx.setLastTypeParameters(null);
       return parm instanceof ParameterizedType ? Object.class : (Class) parm;
     }
