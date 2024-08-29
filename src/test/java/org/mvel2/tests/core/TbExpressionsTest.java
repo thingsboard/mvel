@@ -3665,6 +3665,54 @@ public class TbExpressionsTest extends TestCase {
         assertEquals(expected, actual);
     }
 
+    public void testExecutionHashMap_Public_Key_Value() {
+        String body = "var msg1 = {\n" +
+                "    \"temperature\": 22.4,\n" +
+                "    \"humidity\": 78\n" +
+                "};\n" +
+                "\n" +
+                "var map = {\n" +
+                "    \"test\": 42,\n" +
+                "    \"nested\": {\n" +
+                "        \"rssi\": 130\n" +
+                "    }\n" +
+                "};\n" +
+                "foreach(element: map.entrySet()) {\n" +
+                "    msg1[element.key] = element.value;\n" +
+                "}\n" +
+                "return {\n" +
+                "    msg1\n" +
+                "};";
+        Object result = executeScript(body);
+
+        String expected = "[{temperature=22.4, humidity=78, test=42, nested={rssi=130}}]";
+        assertEquals(expected, result.toString());
+    }
+
+    public void testExecutionHashMap_getKey_getValue() {
+        String body = "var msg1 = {\n" +
+                "    \"temperature\": 22.4,\n" +
+                "    \"humidity\": 78\n" +
+                "};\n" +
+                "\n" +
+                "var map = {\n" +
+                "    \"test\": 42,\n" +
+                "    \"nested\": {\n" +
+                "        \"rssi\": 130\n" +
+                "    }\n" +
+                "};\n" +
+                "foreach(element: map.entrySet()) {\n" +
+                "    msg1[element.getKey()] = element.getValue();\n" +
+                "}\n" +
+                "return {\n" +
+                "    msg1\n" +
+                "};";
+        Object result = executeScript(body);
+
+        String expected = "[{temperature=22.4, humidity=78, test=42, nested={rssi=130}}]";
+        assertEquals(expected, result.toString());
+    }
+
     private Object executeScript(String ex, Map vars, ExecutionContext executionContext, long timeoutMs) throws Exception {
         final CountDownLatch countDown = new CountDownLatch(1);
         AtomicReference<Object> result = new AtomicReference<>();
