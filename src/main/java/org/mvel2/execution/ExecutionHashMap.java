@@ -5,7 +5,10 @@ import org.mvel2.ExecutionContext;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ExecutionHashMap<K, V> extends LinkedHashMap<K, V> implements ExecutionObject {
@@ -61,12 +64,25 @@ public class ExecutionHashMap<K, V> extends LinkedHashMap<K, V> implements Execu
         }
         V res;
         if (value != null) {
-            res = super.put(key, value);
+            ExecutionEntry<K, V> entry = new ExecutionEntry<>(key, value);
+            putEntry(entry);
+            res = value;
             this.memorySize += this.executionContext.onValAdd(this, key, value);
         } else {
             res = super.remove(key);
         }
         return res;
+    }
+
+    @Override
+    public Set<Entry<K, V>> entrySet() {
+        Set<Entry<K, V>> originalEntries = super.entrySet();
+        Set<ExecutionEntry<K, V>> executionEntries = new LinkedHashSet<>();
+
+        for (Entry<K, V> entry : originalEntries) {
+            executionEntries.add(new ExecutionEntry<>(entry.getKey(), entry.getValue()));
+        }
+        return (Set<Entry<K, V>>) (Set<?>) executionEntries;
     }
 
     @Override
@@ -123,6 +139,10 @@ public class ExecutionHashMap<K, V> extends LinkedHashMap<K, V> implements Execu
     @Override
     public ExecutionArrayList<V> values() {
         return new ExecutionArrayList<>(super.values(), this.executionContext);
+    }
+
+    public void putEntry(ExecutionEntry<K, V> entry) {
+        super.put(entry.key, entry.value);
     }
 
     public ExecutionArrayList<K> keys() {
