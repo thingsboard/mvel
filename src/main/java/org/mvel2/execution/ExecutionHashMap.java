@@ -64,9 +64,7 @@ public class ExecutionHashMap<K, V> extends LinkedHashMap<K, V> implements Execu
         }
         V res;
         if (value != null) {
-            ExecutionEntry<K, V> entry = new ExecutionEntry<>(key, value);
-            putEntry(entry);
-            res = value;
+            res = super.put(key, value);
             this.memorySize += this.executionContext.onValAdd(this, key, value);
         } else {
             res = super.remove(key);
@@ -76,13 +74,11 @@ public class ExecutionHashMap<K, V> extends LinkedHashMap<K, V> implements Execu
 
     @Override
     public Set<Entry<K, V>> entrySet() {
-        Set<Entry<K, V>> originalEntries = super.entrySet();
-        Set<ExecutionEntry<K, V>> executionEntries = new LinkedHashSet<>();
-
-        for (Entry<K, V> entry : originalEntries) {
+        Set<Entry<K, V>> executionEntries = new LinkedHashSet<>();
+        for (Entry<K, V> entry : super.entrySet()) {
             executionEntries.add(new ExecutionEntry<>(entry.getKey(), entry.getValue()));
         }
-        return (Set<Entry<K, V>>) (Set<?>) executionEntries;
+        return executionEntries;
     }
 
     @Override
@@ -141,9 +137,6 @@ public class ExecutionHashMap<K, V> extends LinkedHashMap<K, V> implements Execu
         return new ExecutionArrayList<>(super.values(), this.executionContext);
     }
 
-    public void putEntry(ExecutionEntry<K, V> entry) {
-        super.put(entry.key, entry.value);
-    }
 
     public ExecutionArrayList<K> keys() {
         return new ExecutionArrayList<>(super.keySet(), this.executionContext);
