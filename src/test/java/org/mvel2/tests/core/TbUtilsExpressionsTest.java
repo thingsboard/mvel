@@ -114,6 +114,50 @@ public class TbUtilsExpressionsTest extends TestCase {
         assertEquals(expected, actual);
     }
 
+    public void testIntToHex_ArgumentIntMax_Ok() throws Exception {
+        String expectedStr = "0x7FFFFFFF";
+        String scriptBody = "\n" +
+                "var newMsg = intToHex(0x7FFFFFFF, true, true);\n" +
+                "return {msg: newMsg}";
+        LinkedHashMap<String, String> expected = new LinkedHashMap<>();
+        expected.put("msg", expectedStr);
+        Object actual = executeScript(scriptBody);
+        assertEquals(expected, actual);
+    }
+
+    public void testIntToHex_ArgumentIntMin_Ok() throws Exception {
+        String expectedStr = "0x80000000";
+        String scriptBody = "\n" +
+                "var newMsg = intToHex(0x80000000, true, true);\n" +
+                "return {msg: newMsg}";
+        LinkedHashMap<String, String> expected = new LinkedHashMap<>();
+        expected.put("msg", expectedStr);
+        Object actual = executeScript(scriptBody);
+        assertEquals(expected, actual);
+    }
+
+    public void testLongToHex_ArgumentLongMax_Ok() throws Exception {
+        String expectedStr = "0x7FFFFFFFFFFFFFFF";
+        String scriptBody = "\n" +
+                "var newMsg = longToHex(0x7FFFFFFFFFFFFFFF, true, true);\n" +
+                "return {msg: newMsg}";
+        LinkedHashMap<String, String> expected = new LinkedHashMap<>();
+        expected.put("msg", expectedStr);
+        Object actual = executeScript(scriptBody);
+        assertEquals(expected, actual);
+    }
+
+    public void testLongToHex_ArgumentLonMin_Ok() throws Exception {
+        String expectedStr = "0x8000000000000000";
+        String scriptBody = "\n" +
+                "var newMsg = longToHex(0x8000000000000000, true, true);\n" +
+                "return {msg: newMsg}";
+        LinkedHashMap<String, String> expected = new LinkedHashMap<>();
+        expected.put("msg", expectedStr);
+        Object actual = executeScript(scriptBody);
+        assertEquals(expected, actual);
+    }
+
     private Object executeScript(String ex) {
         return executeScript(ex, new HashMap());
     }
@@ -138,6 +182,10 @@ public class TbUtilsExpressionsTest extends TestCase {
     public static class TbUtils {
 
         private static final byte[] HEX_ARRAY = "0123456789ABCDEF".getBytes(StandardCharsets.US_ASCII);
+        private static final int HEX_LEN_MIN = -1;
+        private static final int HEX_LEN_LONG_MAX = 16;
+        private static final int BYTES_LEN_LONG_MAX = 8;
+        private static final int HEX_LEN_INT_MAX = 8;
 
         public static void register(ParserConfiguration parserConfig) throws Exception {
             parserConfig.addImport("stringToBytes", new MethodStub(TbUtils.class.getMethod("stringToBytes",
@@ -147,6 +195,10 @@ public class TbUtilsExpressionsTest extends TestCase {
             parserConfig.registerNonConvertableMethods(TbUtils.class, Collections.singleton("stringToBytes"));
             parserConfig.addImport("hexToBytes", new MethodStub(TbUtils.class.getMethod("hexToBytes",
                     ExecutionContext.class, String.class)));
+            parserConfig.addImport("longToHex", new MethodStub(TbUtils.class.getMethod("longToHex",
+                    Long.class, boolean.class, boolean.class)));
+            parserConfig.addImport("intToHex", new MethodStub(TbUtils.class.getMethod("intToHex",
+                    Integer.class, boolean.class, boolean.class)));
         }
 
         public static List<Byte> stringToBytes(ExecutionContext ctx, Object str) throws IllegalAccessException {
@@ -226,5 +278,40 @@ public class TbUtilsExpressionsTest extends TestCase {
             return isHexPref ? "0x" + result : result;
         }
 
+        public static String intToHex(Integer i, boolean bigEndian, boolean pref) {
+            return prepareNumberHexString(i.longValue(), bigEndian, pref, HEX_LEN_MIN, HEX_LEN_INT_MAX);
+        }
+
+        public static String longToHex(Long l, boolean bigEndian, boolean pref) {
+            return prepareNumberHexString(l, bigEndian, pref, HEX_LEN_MIN, HEX_LEN_LONG_MAX);
+        }
+
+        private static String prepareNumberHexString(Long number, boolean bigEndian, boolean pref, int len, int hexLenMax) {
+            String hex = Long.toHexString(number).toUpperCase();
+            hexLenMax = hexLenMax < 0 ? hex.length() : hexLenMax;
+            String hexWithoutZeroFF = removeLeadingZero_FF(hex, number, hexLenMax);
+            hexWithoutZeroFF = bigEndian ? hexWithoutZeroFF : reverseHexStringByOrder(hexWithoutZeroFF);
+            len = len == HEX_LEN_MIN ? hexWithoutZeroFF.length() : len;
+            String result = hexWithoutZeroFF.substring(hexWithoutZeroFF.length() - len);
+            return pref ? "0x" + result : result;
+        }
+
+        private static String removeLeadingZero_FF(String hex, Long number, int hexLenMax) {
+            String hexWithoutZero = hex.replaceFirst("^0+(?!$)", ""); // Remove leading zeros except for the last one
+            hexWithoutZero = hexWithoutZero.length() % 2 > 0 ? "0" + hexWithoutZero : hexWithoutZero;
+            if (number >= 0) {
+                return hexWithoutZero;
+            } else {
+                String hexWithoutZeroFF = hexWithoutZero.replaceFirst("^F+(?!$)", "");
+                hexWithoutZeroFF = hexWithoutZeroFF.length() % 2 > 0 ? "F" + hexWithoutZeroFF : hexWithoutZeroFF;
+                if (hexWithoutZeroFF.length() > hexLenMax) {
+                    return hexWithoutZeroFF.substring(hexWithoutZeroFF.length() - hexLenMax);
+                } else if (hexWithoutZeroFF.length() == hexLenMax) {
+                    return hexWithoutZeroFF;
+                } else {
+                    return "FF" + hexWithoutZeroFF;
+                }
+            }
+        }
     }
 }

@@ -18,33 +18,6 @@
 
 package org.mvel2.util;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.lang.ref.WeakReference;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Executable;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.math.MathContext;
-import java.nio.ByteBuffer;
-import java.nio.channels.ReadableByteChannel;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.WeakHashMap;
-
 import org.mvel2.CompileException;
 import org.mvel2.DataTypes;
 import org.mvel2.ExecutionContext;
@@ -74,13 +47,42 @@ import org.mvel2.integration.VariableResolverFactory;
 import org.mvel2.integration.impl.ClassImportResolverFactory;
 import org.mvel2.math.MathProcessor;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.lang.ref.WeakReference;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.MathContext;
+import java.nio.ByteBuffer;
+import java.nio.channels.ReadableByteChannel;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
+
 import static java.lang.Double.parseDouble;
 import static java.lang.String.valueOf;
 import static java.lang.System.arraycopy;
 import static java.lang.Thread.currentThread;
 import static java.nio.ByteBuffer.allocateDirect;
 import static org.mvel2.DataConversion.canConvert;
-import static org.mvel2.DataTypes.*;
+import static org.mvel2.DataTypes.DOUBLE;
+import static org.mvel2.DataTypes.INTEGER;
+import static org.mvel2.DataTypes.LONG;
 import static org.mvel2.MVEL.getDebuggingOutputFileName;
 import static org.mvel2.compiler.AbstractParser.LITERALS;
 import static org.mvel2.integration.ResolverTools.appendFactory;
@@ -1750,7 +1752,14 @@ public class ParseTools {
         }
       }
 
-      return Integer.decode(new String(val, start, offset));
+      try {
+        return Integer.decode(new String(val, start, offset));
+      } catch (NumberFormatException e) {
+        String strVal = new String(val, start, offset).replaceAll("0x", "");
+        return "80000000".equals(strVal) ? Integer.MIN_VALUE :
+                "8000000000000000".equals(strVal) ? Long.MIN_VALUE :
+                        Long.decode(new String(val, start, offset));
+      }
     }
     else if (!isDigit(val[start + offset - 1])) {
       switch (val[start + offset - 1]) {
