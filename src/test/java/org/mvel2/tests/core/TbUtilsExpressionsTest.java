@@ -125,6 +125,17 @@ public class TbUtilsExpressionsTest extends TestCase {
         assertEquals(expected, actual);
     }
 
+    public void testIntToHex_ArgumentIntMoreMax_Ok() throws Exception {
+        String expectedStr = "0xFFD8FFA6";
+        String scriptBody = "\n" +
+                "var newMsg = longToHex(0xFFD8FFA6, true, true);\n" +
+                "return {msg: newMsg}";
+        LinkedHashMap<String, String> expected = new LinkedHashMap<>();
+        expected.put("msg", expectedStr);
+        Object actual = executeScript(scriptBody);
+        assertEquals(expected, actual);
+    }
+
     public void testIntToHex_ArgumentIntMin_Ok() throws Exception {
         String expectedStr = "0x80000000";
         String scriptBody = "\n" +
