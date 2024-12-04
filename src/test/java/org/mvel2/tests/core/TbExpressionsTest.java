@@ -3713,6 +3713,36 @@ public class TbExpressionsTest extends TestCase {
         assertEquals(expected, result.toString());
     }
 
+    public void testBooleanBitwiseOperations() {
+        String body = " var x = true;\n" +
+                "var y = false;\n" +
+                "var a = 1;\n" +
+                "var b = 0;\n" +
+                "var andResultAB = a & b;\n" +
+                "var andResult = x & y;\n" +
+                "var orResult = x | y;\n" +
+                "var xorResult = x ^ y;\n" +
+                "var leftShift = x << y;\n" +
+                "var rightShift = x >> y;\n" +
+                "var rightUnShift = x >>> y;\n" +
+                "var rez = {\n" +
+                "    \"andResultAB\": andResultAB,\n" +
+                "    \"andResult\": andResult,\n" +
+                "    \"orResult\": orResult,\n" +
+                "    \"xorResult\": xorResult,\n" +
+                "    \"leftShift\": leftShift,\n" +
+                "    \"rightShift\": rightShift,\n" +
+                "    \"rightUnShift\": rightUnShift\n" +
+                "};\n" +
+                "return {\n" +
+                "    rez\n" +
+                "};";
+        Object result = executeScript(body);
+
+        String expected = "[{andResultAB=0, andResult=0, orResult=1, xorResult=1, leftShift=1, rightShift=1, rightUnShift=1}]";
+        assertEquals(expected, result.toString());
+    }
+
     private Object executeScript(String ex, Map vars, ExecutionContext executionContext, long timeoutMs) throws Exception {
         final CountDownLatch countDown = new CountDownLatch(1);
         AtomicReference<Object> result = new AtomicReference<>();

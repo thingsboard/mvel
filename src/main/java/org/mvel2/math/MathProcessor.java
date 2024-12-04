@@ -227,14 +227,20 @@ public strictfp class MathProcessor {
       if (((type1 > 49 || operation == EQUAL || operation == NEQUAL) && type1 == type2) ||
               (isIntegerType(type1) && isIntegerType(type2) && operation >= BW_AND && operation <= BW_NOT)) {
         return doOperationsSameType(type1, val1, operation, val2);
-      }
-      else if (val2 != null && isNumericOperation(type1, val1, operation, type2, val2)) {
+      } else if (((isBooleanType(type1) && isIntegerType(type2)) ||
+              (isIntegerType(type1) && isBooleanType(type2)) ||
+              (isBooleanType(type1) && isBooleanType(type2))) &&
+              operation >= BW_AND && operation <= BW_NOT) {
+        int typeBitwise = isBooleanType(type1) && isBooleanType(type2) ? DataTypes.W_INTEGER : Math.max(box(type2), box(type1));
+        val1 = isBooleanType(type1) ? (Boolean) val1 ? 1 : 0 : val1;
+        val2 = isBooleanType(type2) ? (Boolean) val2 ? 1 : 0 : val2;
+        return doOperationsSameType(typeBitwise, val1, operation, val2);
+      } else if (val2 != null && isNumericOperation(type1, val1, operation, type2, val2)) {
         return doPrimWrapperArithmetic(getNumber(val1, type1), operation,
-            getNumber(val2, type2), Math.max(box(type2), box(type1)));
-      }
-      else if (operation != ADD &&
-          (type1 == DataTypes.W_BOOLEAN || type2 == DataTypes.W_BOOLEAN) &&
-          type1 != type2 && type1 != EMPTY && type2 != EMPTY) {
+                getNumber(val2, type2), Math.max(box(type2), box(type1)));
+      } else if (operation != ADD &&
+              (type1 == DataTypes.W_BOOLEAN || type2 == DataTypes.W_BOOLEAN) &&
+              type1 != type2 && type1 != EMPTY && type2 != EMPTY) {
 
         return doOperationNonNumeric(type1, convert(val1, Boolean.class), operation, convert(val2, Boolean.class));
       }
@@ -242,8 +248,7 @@ public strictfp class MathProcessor {
       else if ((type1 == 1 || type2 == 1) && (type1 == 8 || type1 == 112 || type2 == 8 || type2 == 112)) {
         if (type1 == 1) {
           return doOperationNonNumeric(type1, val1, operation, valueOf(val2));
-        }
-        else {
+        } else {
           return doOperationNonNumeric(type1, valueOf(val1), operation, val2);
         }
       }
@@ -253,11 +258,15 @@ public strictfp class MathProcessor {
 
   private static boolean isNumericOperation(int type1, Object val1, int operation, int type2, Object val2) {
     return (type1 >= 99 && type2 >= 99)
-        || (operation != ADD && (type1 >= 99 || type2 >= 99 || operation < LTHAN || operation > GETHAN) && isNumber(val1) && isNumber(val2));
+            || (operation != ADD && (type1 >= 99 || type2 >= 99 || operation < LTHAN || operation > GETHAN) && isNumber(val1) && isNumber(val2));
   }
 
   private static boolean isIntegerType(int type) {
     return type == DataTypes.BYTE || type == DataTypes.W_BYTE || type == DataTypes.INTEGER || type == DataTypes.W_INTEGER || type == DataTypes.LONG || type == DataTypes.W_LONG;
+  }
+
+  private static boolean isBooleanType(int type) {
+    return type == DataTypes.BOOLEAN || type == DataTypes.W_BOOLEAN;
   }
 
   private static Object doOperationNonNumeric(int type1, final Object val1, final int operation, final Object val2) {
@@ -267,8 +276,7 @@ public strictfp class MathProcessor {
           List list = new ArrayList((Collection) val1);
           list.add(val2);
           return list;
-        }
-        else {
+        } else {
           return valueOf(val1) + valueOf(val2);
         }
 
