@@ -225,16 +225,11 @@ public strictfp class MathProcessor {
   private static Object _doOperations(int type1, Object val1, int operation, int type2, Object val2) {
     if (operation < 20) {
       if (((type1 > 49 || operation == EQUAL || operation == NEQUAL) && type1 == type2) ||
-              (isIntegerType(type1) && isIntegerType(type2) && operation >= BW_AND && operation <= BW_NOT)) {
-        return doOperationsSameType(type1, val1, operation, val2);
-      } else if (((isBooleanType(type1) && isIntegerType(type2)) ||
-              (isIntegerType(type1) && isBooleanType(type2)) ||
-              (isBooleanType(type1) && isBooleanType(type2))) &&
-              operation >= BW_AND && operation <= BW_NOT) {
-        int typeBitwise = isBooleanType(type1) && isBooleanType(type2) ? DataTypes.W_INTEGER : Math.max(box(type2), box(type1));
+              (isIntegerOrBooleanType(type1) && isIntegerOrBooleanType(type2) && operation >= BW_AND && operation <= BW_NOT)) {
         val1 = isBooleanType(type1) ? (Boolean) val1 ? 1 : 0 : val1;
         val2 = isBooleanType(type2) ? (Boolean) val2 ? 1 : 0 : val2;
-        return doOperationsSameType(typeBitwise, val1, operation, val2);
+        type1 = isBooleanType(type1) ? DataTypes.W_INTEGER : type1;
+        return doOperationsSameType(type1, val1, operation, val2);
       } else if (val2 != null && isNumericOperation(type1, val1, operation, type2, val2)) {
         return doPrimWrapperArithmetic(getNumber(val1, type1), operation,
                 getNumber(val2, type2), Math.max(box(type2), box(type1)));
@@ -267,6 +262,10 @@ public strictfp class MathProcessor {
 
   private static boolean isBooleanType(int type) {
     return type == DataTypes.BOOLEAN || type == DataTypes.W_BOOLEAN;
+  }
+
+  private static boolean isIntegerOrBooleanType(int type) {
+    return isIntegerType(type) || isBooleanType(type);
   }
 
   private static Object doOperationNonNumeric(int type1, final Object val1, final int operation, final Object val2) {
