@@ -2932,8 +2932,7 @@ public class AbstractParser implements Parser, Serializable {
     } else {
       if (op2 instanceof Integer) {
         reduce((Long) op1, operator, (Integer) op2);
-      }
-      else {
+      } else {
         reduce((Long) op1, operator, (Long) op2);
       }
     }
