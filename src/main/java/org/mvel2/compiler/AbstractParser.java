@@ -2921,6 +2921,8 @@ public class AbstractParser implements Parser, Serializable {
   private void reduceNumeric(int operator) {
     Object op1 = stk.peek2();
     Object op2 = stk.pop2();
+    op1 = op1 instanceof Boolean ? (Boolean) op1 ? 1 : 0 : op1;
+    op2 = op2 instanceof Boolean ? (Boolean) op2 ? 1 : 0 : op2;
     if (op1 instanceof Integer) {
       if (op2 instanceof Integer) {
         reduce((Integer) op1, operator, (Integer) op2);

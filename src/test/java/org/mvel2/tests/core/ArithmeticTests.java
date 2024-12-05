@@ -532,6 +532,50 @@ public class ArithmeticTests extends AbstractTest {
     assertEquals(3, test("1 ^ 2"));
   }
 
+  public void testXOR_BooleanFalseTrue() {
+    assertEquals(1, test("false ^ true"));
+  }
+
+  public void testXOR_BooleanTrueFalse() {
+    assertEquals(1, test("true ^ false"));
+  }
+
+  public void testXOR_BooleanFalseInt() {
+    assertEquals(25, test("false ^ 25"));
+  }
+
+  public void testXOR_BooleanTrueInt() {
+    assertEquals(24, test("true ^ 25"));
+  }
+
+  public void testXOR_BooleanIntFalse() {
+    assertEquals(5, test("5 ^ false"));
+  }
+
+  public void testXOR_BooleanIntTrue() {
+    assertEquals(4, test("5 ^ true"));
+  }
+
+  public void testAND_BooleanBoth() {
+    assertEquals(0, test("true & false"));
+  }
+
+  public void testOR_BooleanBoth() {
+    assertEquals(1, test("true | false"));
+  }
+
+  public void testSHIFT_LEFT_BooleanBoth() {
+    assertEquals(2, test("true << true"));
+  }
+
+  public void testSHIFT_RIGHT_BooleanBoth() {
+    assertEquals(1, test("true >> false"));
+  }
+
+  public void testUNSHIFT_RIGHT_BooleanBoth() {
+    assertEquals(1, test("true >>> false"));
+  }
+
   public void testXOR2() {
     assertEquals(5 ^ 2, test("five ^ 2"));
   }
