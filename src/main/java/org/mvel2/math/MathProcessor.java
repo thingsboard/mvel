@@ -233,11 +233,11 @@ public strictfp class MathProcessor {
       }
       else if (val2 != null && isNumericOperation(type1, val1, operation, type2, val2)) {
         return doPrimWrapperArithmetic(getNumber(val1, type1), operation,
-                getNumber(val2, type2), Math.max(box(type2), box(type1)));
+            getNumber(val2, type2), Math.max(box(type2), box(type1)));
       }
       else if (operation != ADD &&
-              (type1 == DataTypes.W_BOOLEAN || type2 == DataTypes.W_BOOLEAN) &&
-              type1 != type2 && type1 != EMPTY && type2 != EMPTY) {
+          (type1 == DataTypes.W_BOOLEAN || type2 == DataTypes.W_BOOLEAN) &&
+          type1 != type2 && type1 != EMPTY && type2 != EMPTY) {
 
         return doOperationNonNumeric(type1, convert(val1, Boolean.class), operation, convert(val2, Boolean.class));
       }
@@ -256,7 +256,7 @@ public strictfp class MathProcessor {
 
   private static boolean isNumericOperation(int type1, Object val1, int operation, int type2, Object val2) {
     return (type1 >= 99 && type2 >= 99)
-            || (operation != ADD && (type1 >= 99 || type2 >= 99 || operation < LTHAN || operation > GETHAN) && isNumber(val1) && isNumber(val2));
+        || (operation != ADD && (type1 >= 99 || type2 >= 99 || operation < LTHAN || operation > GETHAN) && isNumber(val1) && isNumber(val2));
   }
 
   private static boolean isIntegerType(int type) {
