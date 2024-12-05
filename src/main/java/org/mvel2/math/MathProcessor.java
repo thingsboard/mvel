@@ -230,10 +230,12 @@ public strictfp class MathProcessor {
         val2 = isBooleanType(type2) ? (Boolean) val2 ? 1 : 0 : val2;
         type1 = isBooleanType(type1) ? DataTypes.W_INTEGER : type1;
         return doOperationsSameType(type1, val1, operation, val2);
-      } else if (val2 != null && isNumericOperation(type1, val1, operation, type2, val2)) {
+      }
+      else if (val2 != null && isNumericOperation(type1, val1, operation, type2, val2)) {
         return doPrimWrapperArithmetic(getNumber(val1, type1), operation,
                 getNumber(val2, type2), Math.max(box(type2), box(type1)));
-      } else if (operation != ADD &&
+      }
+      else if (operation != ADD &&
               (type1 == DataTypes.W_BOOLEAN || type2 == DataTypes.W_BOOLEAN) &&
               type1 != type2 && type1 != EMPTY && type2 != EMPTY) {
 
@@ -243,7 +245,8 @@ public strictfp class MathProcessor {
       else if ((type1 == 1 || type2 == 1) && (type1 == 8 || type1 == 112 || type2 == 8 || type2 == 112)) {
         if (type1 == 1) {
           return doOperationNonNumeric(type1, val1, operation, valueOf(val2));
-        } else {
+        }
+        else {
           return doOperationNonNumeric(type1, valueOf(val1), operation, val2);
         }
       }
@@ -275,7 +278,8 @@ public strictfp class MathProcessor {
           List list = new ArrayList((Collection) val1);
           list.add(val2);
           return list;
-        } else {
+        }
+        else {
           return valueOf(val1) + valueOf(val2);
         }
 

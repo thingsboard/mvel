@@ -2926,13 +2926,16 @@ public class AbstractParser implements Parser, Serializable {
     if (op1 instanceof Integer) {
       if (op2 instanceof Integer) {
         reduce((Integer) op1, operator, (Integer) op2);
-      } else {
+      }
+      else {
         reduce((Integer) op1, operator, (Long) op2);
       }
-    } else {
+    }
+    else {
       if (op2 instanceof Integer) {
         reduce((Long) op1, operator, (Integer) op2);
-      } else {
+      }
+      else {
         reduce((Long) op1, operator, (Long) op2);
       }
     }
